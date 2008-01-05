@@ -5,9 +5,9 @@ from django.contrib.auth.models import User
 from datetime import datetime
 
 class ThreadedCommentManager(models.Manager):
-    def get_tree(self, content_object):
+    def get_tree(self, content_object, **kwargs):
         content_type = ContentType.objects.get_for_model(content_object)
-        comments = list(self.get_query_set().filter(
+        comments = list(self.get_query_set().filter(**kwargs).filter(
             content_type = content_type,
             object_id = getattr(content_object, 'pk', getattr(content_object, 'id'))
         ))
@@ -21,13 +21,34 @@ class ThreadedCommentManager(models.Manager):
                     break
                 elif comments[i].parent in tree:
                     comment = comments.pop(i)
-                    idx = tree.index(comment.parent)
-                    setattr(comment, 'depth', tree[idx].depth + 1)
-                    tree.insert(idx + 1, comment)
+                    parent_idx = tree.index(comment.parent)
+                    setattr(comment, 'depth', tree[parent_idx].depth + 1)
+                    insert_idx = parent_idx + 1
+                    # TODO: Make this independent so that it's not always 
+                    # ordered by date_submitted
+                    while insert_idx < len(tree) and \
+                        tree[insert_idx].depth == comment.depth and \
+                        tree[insert_idx].date_submitted < comment.date_submitted:
+                        insert_idx = insert_idx + 1
+                    tree.insert(insert_idx, comment)
                     break
                 else:
                     continue
         return tree
+
+    def _generate_object_kwarg_dict(self, content_object, **kwargs):
+        kwargs['content_type'] = ContentType.objects.get_for_model(content_object)
+        kwargs['object_id'] = getattr(content_object, 'pk', getattr(content_object, 'id'))
+        return kwargs
+
+    def create_for_object(self, content_object, **kwargs):
+        return self.create(**self._generate_object_kwarg_dict(content_object, **kwargs))
+    
+    def get_or_create_for_object(self, content_object, **kwargs):
+        return self.get_or_create(**self._generate_object_kwarg_dict(content_object, **kwargs))
+    
+    def get_for_object(self, content_object, **kwargs):
+        return self.get(**self._generate_object_kwarg_dict(content_object, **kwargs))
 
 class PublicThreadedCommentManager(ThreadedCommentManager):
     def get_query_set(self):
@@ -87,3 +108,12 @@ class Vote(models.Model):
     user = models.ForeignKey(User)
     comment = models.ForeignKey(ThreadedComment, related_name = 'votes')
     vote = models.IntegerField(choices=VOTE_CHOICES)
+
+class TestModel(models.Model):
+    """
+    This model is simply used by this application's test suite as a model to 
+    which to attach comments.
+    """
+    name = models.CharField(max_length=5)
+    is_public = models.BooleanField(default=True)
+    date = models.DateTimeField(default=datetime.now)
