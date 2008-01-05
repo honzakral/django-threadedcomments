@@ -7,6 +7,7 @@ class ThreadedCommentForm(forms.ModelForm):
     object_id = forms.IntegerField(widget = forms.HiddenInput)
     parent = forms.ModelChoiceField(ThreadedComment.objects.all(), required=False, widget = forms.HiddenInput)
     user = forms.ModelChoiceField(User.objects.all(), widget = forms.HiddenInput)
+    next = forms.CharField(required=False)
     
     class Meta:
         model = ThreadedComment
@@ -16,5 +17,7 @@ class VoteForm(forms.ModelForm):
     comment = forms.ModelChoiceField(ThreadedComment.objects.all(), widget = forms.HiddenInput)
     vote = forms.ChoiceField(choices=Vote.VOTE_CHOICES)
     user = forms.ModelChoiceField(User.objects.all(), widget = forms.HiddenInput)
+    next = forms.CharField(required=False)
+    
     class Meta:
         model = Vote
