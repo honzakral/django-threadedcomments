@@ -19,7 +19,7 @@ class ThreadedCommentModerator(object):
     def __init__(self, model):
         self._model = model
 
-    def allow(self, comment, comment_object):
+    def allow(self, comment, content_object):
         if self.enable_field:
             if getattr(content_object, self.enable_field) == False:
                 return False
@@ -80,7 +80,7 @@ class Moderator(object):
         content_object = instance.get_content_object()
         moderation_class = self._registry[model]
         if not moderation_class.allow(instance, content_object): # Comment will get deleted in post-save hook.
-            instance.__moderation_disallowed = True
+            instance.moderation_disallowed = True
             return
         if moderation_class.moderate(instance, content_object):
             instance.is_public = False
@@ -89,7 +89,7 @@ class Moderator(object):
         model = instance.content_type.model_class()
         if model not in self._registry:
             return
-        if hasattr(instance, '__moderation_disallowed'):
+        if hasattr(instance, 'moderation_disallowed'):
             instance.delete()
             return
         self._registry[model].email(instance, instance.get_content_object())
