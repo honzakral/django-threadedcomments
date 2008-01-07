@@ -120,26 +120,4 @@
          I'm a fanboy!
  What are we talking about?
  Post moderator addition.  Does it still work?
-
-### FORM TESTS ###
-
->>> from forms import ThreadedCommentForm, VoteForm
->>> data = {'parent' : comment1.parent, 'comment' : comment1.comment, 'object_id' : comment1.object_id, 'content_type' : comment1.content_type.id, 'user' : user.id}
->>> form = ThreadedCommentForm(data, instance = comment1)
->>> form.is_valid()
-True
->>> form.cleaned_data
-{'comment': u'This is fun!  This is very fun!', 'parent': None, 'object_id': 1, 'next': u'', 'user': <User: user>, 'content_type': 10}
-
->>> data = {'user' : user.id, 'comment' : comment1.id, 'vote' : '+1'}
->>> form = VoteForm({})
->>> form.is_valid()
-False
->>> form.errors
-{'comment': [u'This field is required.'], 'vote': [u'This field is required.'], 'user': [u'This field is required.']}
->>> form = VoteForm(data)
->>> form.is_valid()
-True
->>> form.save()
-<Vote: Vote object>
 """
