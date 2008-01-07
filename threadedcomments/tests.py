@@ -2,7 +2,7 @@
 ### MODEL TESTS ###
 
 >>> import datetime
->>> from models import ThreadedComment, Vote, TestModel
+>>> from models import FreeThreadedComment, ThreadedComment, Vote, FreeVote, TestModel
 >>> from django.contrib.auth.models import User
 >>> from django.contrib.contenttypes.models import ContentType
 >>> from moderation import moderator, ThreadedCommentModerator
