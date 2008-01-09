@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from datetime import datetime
 
 class ThreadedCommentManager(models.Manager):
+    # TODO: Check this for efficiency
     def get_tree(self, content_object, **kwargs):
         content_type = ContentType.objects.get_for_model(content_object)
         comments = list(self.get_query_set().filter(**kwargs).filter(
@@ -88,7 +89,7 @@ class ThreadedComment(models.Model):
     def get_content_object(self):
         from django.core.exceptions import ObjectDoesNotExist
         try:
-            return self.content_type.get_object_for_this_type(pk=self.object_id)
+            return self.content_type.get_object_for_this_type(pk = self.object_id)
         except ObjectDoesNotExist:
             return None
     
@@ -106,6 +107,20 @@ class ThreadedComment(models.Model):
     
     class Meta:
         ordering = ('date_submitted',)
+        verbose_name = "Threaded Comment"
+        verbose_name_plural = "Threaded Comments"
+    
+    class Admin:
+        fields = (
+            (None, {'fields': ('content_type', 'object_id')}),
+            ('Parent', {'fields' : ('parent',)}),
+            ('Content', {'fields': ('user', 'comment')}),
+            ('Meta', {'fields': ('is_public', 'date_submitted', 'date_modified', 'date_approved', 'is_approved', 'ip_address')}),
+        )
+        list_display = ('user', 'date_submitted', 'content_type', 'get_content_object')
+        list_filter = ('date_submitted',)
+        date_hierarchy = 'date_submitted'
+        search_fields = ('comment', 'user__username')
 
 class FreeThreadedComment(models.Model):
     # Generic Foreign Key Stuff
@@ -114,12 +129,12 @@ class FreeThreadedComment(models.Model):
     content_object = generic.GenericForeignKey()
     
     # Hierarchy Stuff
-    parent = models.ForeignKey('self', null=True, default=None, related_name='children')
+    parent = models.ForeignKey('self', null = True, default = None, related_name='children')
     
     # User-Replacement Stuff
     name = models.CharField(max_length = 128)
-    website = models.URLField()
-    email = models.EmailField()
+    website = models.URLField(blank = True)
+    email = models.EmailField(blank = True)
     
     # Meat n' Potatoes
     date_submitted = models.DateTimeField(default = datetime.now)
@@ -154,10 +169,24 @@ class FreeThreadedComment(models.Model):
     
     def save(self):
         self.date_modified = datetime.now()
-        super(ThreadedComment, self).save()
+        super(FreeThreadedComment, self).save()
     
     class Meta:
         ordering = ('date_submitted',)
+        verbose_name = "Free Threaded Comment"
+        verbose_name_plural = "Free Threaded Comments"
+    
+    class Admin:
+        fields = (
+            (None, {'fields': ('content_type', 'object_id')}),
+            ('Parent', {'fields' : ('parent',)}),
+            ('Content', {'fields': ('name', 'website', 'email', 'comment')}),
+            ('Meta', {'fields': ('date_submitted', 'date_modified', 'date_approved', 'is_public', 'ip_address', 'is_approved')}),
+        )
+        list_display = ('name', 'date_submitted', 'content_type', 'get_content_object')
+        list_filter = ('date_submitted',)
+        date_hierarchy = 'date_submitted'
+        search_fields = ('comment', 'name', 'email', 'website')
 
 class Vote(models.Model):
     VOTE_CHOICES = (('+1', +1),('-1', -1))
