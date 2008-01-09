@@ -24,11 +24,8 @@ def comment(request, content_type, object_id, parent=None, add_messages=True, aj
         return HttpResponse('{"comment_posted" : true}', mimetype="application/json")
     else:
         # Determine next url
-        if request.method == "POST":
-            next = request.POST.get('next', request.META.get('HTTP_REFERER', None))
-        else:
-            next = request.GET.get('next', request.META.get('HTTP_REFERER', None))
-        if not next:
+        next = request.POST.get('next', request.GET.get('next', request.META.get('HTTP_REFERER'), None))
+        if not next or next == request.path:
             next = '/'# No next was specified in POST or GET, will go to website root.
         return HttpResponseRedirect(next)
 
@@ -47,12 +44,9 @@ def free_comment(request, content_type, object_id, parent=None, ajax=False):
         return HttpResponse('{"comment_posted" : true}', mimetype="application/json")
     else:
         # Determine next url
-        if request.method == "POST":
-            next = request.POST.get('next', request.META.get('HTTP_REFERER', None))
-        else:
-            next = request.GET.get('next', request.META.get('HTTP_REFERER', None))
-        if not next:
-            next = '/'# No next was specified in POST or GET, will go to website root.
+        next = request.POST.get('next', request.GET.get('next', request.META.get('HTTP_REFERER'), None))
+        if not next or next == request.path:
+            raise Http404 # No next url was supplied in GET or POST.
         return HttpResponseRedirect(next)
 
 def vote(request, comment, vote, free=False, ajax=False):
@@ -62,7 +56,7 @@ def vote(request, comment, vote, free=False, ajax=False):
     elif vote == "down":
         vote = -1
     else:
-        raise Http404
+        raise Http404 # Must either vote "up" or "down"
     
     # Actually cast the vote
     if free:
@@ -81,12 +75,9 @@ def vote(request, comment, vote, free=False, ajax=False):
         return HttpResponse('{"comment" : %s, "vote" : %s}' % (comment, vote) mimetype="application/json")
     else:
         # Determine next url
-        if request.method == "POST":
-            next = request.POST.get('next', request.META.get('HTTP_REFERER', None))
-        else:
-            next = request.GET.get('next', request.META.get('HTTP_REFERER', None))
-        if not next:
-            next = '/'# No next was specified in POST or GET, will go to website root.
+        next = request.POST.get('next', request.GET.get('next', request.META.get('HTTP_REFERER'), None))
+        if not next or next == request.path:
+            raise Http404 # No next url was supplied in GET or POST.
         return HttpResponseRedirect(next)
 
 vote = login_required(post_vote)
