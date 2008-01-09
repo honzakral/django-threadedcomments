@@ -13,11 +13,13 @@ class ThreadedCommentManager(models.Manager):
         ))
         tree = []
         while len(comments) > 0:
+            continue_looping = False
             for i in xrange(len(comments)):
                 if comments[i].parent == None:
                     comment = comments.pop(i)
                     setattr(comment, 'depth', 0)
                     tree.append(comment)
+                    continue_looping = True
                     break
                 elif comments[i].parent in tree:
                     comment = comments.pop(i)
@@ -31,9 +33,12 @@ class ThreadedCommentManager(models.Manager):
                         tree[insert_idx].date_submitted < comment.date_submitted:
                         insert_idx = insert_idx + 1
                     tree.insert(insert_idx, comment)
+                    continue_looping = True
                     break
                 else:
                     continue
+            if continue_looping == False:
+                break
         return tree
 
     def _generate_object_kwarg_dict(self, content_object, **kwargs):
