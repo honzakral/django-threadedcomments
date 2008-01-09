@@ -7,7 +7,7 @@ from django.core.mail import send_mail
 from django.dispatch import dispatcher
 from django.db.models import signals
 from django.db.models.base import ModelBase
-from models import ThreadedComment
+from models import ThreadedComment, FreeThreadedComment
 
 class ThreadedCommentModerator(object):
     akismet = getattr(settings, 'AKISMET_DEFAULT_ON', False)
@@ -60,6 +60,8 @@ class Moderator(object):
         self._registry = {}
         dispatcher.connect(self.pre_save_moderation, sender=ThreadedComment, signal=signals.pre_save)
         dispatcher.connect(self.post_save_moderation, sender=ThreadedComment, signal=signals.post_save)
+        dispatcher.connect(self.pre_save_moderation, sender=FreeThreadedComment, signal=signals.pre_save)
+        dispatcher.connect(self.post_save_moderation, sender=FreeThreadedComment, signal=signals.post_save)
     
     def register(self, model_or_iterable, moderation_class):
         if isinstance(model_or_iterable, ModelBase):
