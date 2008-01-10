@@ -4,43 +4,28 @@ from django.contrib.contenttypes import generic
 from django.contrib.auth.models import User
 from datetime import datetime
 
+def dfs(node, todo):
+    node.depth = 0
+    to_return = [node,]
+    for n in todo:
+        if n.parent is not None and n.parent.id == node.id:
+            todo.remove(n)
+            for subnode in dfs(n, todo):
+                subnode.depth = subnode.depth + 1
+                to_return.append(subnode)
+    return to_return
+
 class ThreadedCommentManager(models.Manager):
-    # TODO: Check this for efficiency
-    def get_tree(self, content_object, **kwargs):
+    def get_tree(self, content_object):
         content_type = ContentType.objects.get_for_model(content_object)
-        comments = list(self.get_query_set().filter(**kwargs).filter(
+        children = list(self.get_query_set().filter(
             content_type = content_type,
-            object_id = getattr(content_object, 'pk', getattr(content_object, 'id'))
-        ))
-        tree = []
-        while len(comments) > 0:
-            continue_looping = False
-            for i in xrange(len(comments)):
-                if comments[i].parent == None:
-                    comment = comments.pop(i)
-                    setattr(comment, 'depth', 0)
-                    tree.append(comment)
-                    continue_looping = True
-                    break
-                elif comments[i].parent in tree:
-                    comment = comments.pop(i)
-                    parent_idx = tree.index(comment.parent)
-                    setattr(comment, 'depth', tree[parent_idx].depth + 1)
-                    insert_idx = parent_idx + 1
-                    # TODO: Make this independent so that it's not always 
-                    # ordered by date_submitted
-                    while insert_idx < len(tree) and \
-                        tree[insert_idx].depth == comment.depth and \
-                        tree[insert_idx].date_submitted < comment.date_submitted:
-                        insert_idx = insert_idx + 1
-                    tree.insert(insert_idx, comment)
-                    continue_looping = True
-                    break
-                else:
-                    continue
-            if continue_looping == False:
-                break
-        return tree
+            object_id = getattr(content_object, 'pk', getattr(content_object, 'id')),
+        ).select_related())
+        to_return = []
+        for child in children:
+            to_return.extend(dfs(child, children))
+        return to_return
 
     def _generate_object_kwarg_dict(self, content_object, **kwargs):
         kwargs['content_type'] = ContentType.objects.get_for_model(content_object)
@@ -117,7 +102,7 @@ class ThreadedComment(models.Model):
             ('Content', {'fields': ('user', 'comment')}),
             ('Meta', {'fields': ('is_public', 'date_submitted', 'date_modified', 'date_approved', 'is_approved', 'ip_address')}),
         )
-        list_display = ('user', 'date_submitted', 'content_type', 'get_content_object')
+        list_display = ('user', 'date_submitted', 'content_type', 'get_content_object', 'parent', 'score')
         list_filter = ('date_submitted',)
         date_hierarchy = 'date_submitted'
         search_fields = ('comment', 'user__username')
@@ -183,7 +168,7 @@ class FreeThreadedComment(models.Model):
             ('Content', {'fields': ('name', 'website', 'email', 'comment')}),
             ('Meta', {'fields': ('date_submitted', 'date_modified', 'date_approved', 'is_public', 'ip_address', 'is_approved')}),
         )
-        list_display = ('name', 'date_submitted', 'content_type', 'get_content_object')
+        list_display = ('name', 'date_submitted', 'content_type', 'get_content_object', 'parent', 'score')
         list_filter = ('date_submitted',)
         date_hierarchy = 'date_submitted'
         search_fields = ('comment', 'name', 'email', 'website')

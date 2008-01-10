@@ -5,7 +5,7 @@ from threadedcomments.models import ThreadedComment, FreeThreadedComment
 
 def get_contenttype_kwargs(content_object):
     kwargs = {
-        'content_type' : ContentType.objects.get_for_model(content_object),
+        'content_type' : ContentType.objects.get_for_model(content_object).id,
         'object_id' : getattr(content_object, 'pk', getattr(content_object, 'id')),
     }
     return kwargs
@@ -13,27 +13,27 @@ def get_contenttype_kwargs(content_object):
 def get_comment_url(content_object, parent=None):
     kwargs = get_contenttype_kwargs(content_object)
     if parent:
-        kwargs.update({'parent' : parent})
+        kwargs.update({'parent' : getattr(parent, 'pk', getattr(parent, 'id'))})
     return reverse('tc_comment', kwargs=kwargs)
 
 def get_comment_url_ajax(content_object, parent=None):
     kwargs = get_contenttype_kwargs(content_object)
     kwargs.update({'ajax' : 'ajax'})
     if parent:
-        kwargs.update({'parent' : parent})
+        kwargs.update({'parent' : getattr(parent, 'pk', getattr(parent, 'id'))})
     return reverse('tc_comment_ajax', kwargs=kwargs)
 
 def get_free_comment_url(content_object, parent=None):
     kwargs = get_contenttype_kwargs(content_object)
     if parent:
-        kwargs.update({'parent' : parent})
+        kwargs.update({'parent' : getattr(parent, 'pk', getattr(parent, 'id'))})
     return reverse('tc_free_comment', kwargs=kwargs)
 
 def get_free_comment_url_ajax(content_object, parent=None):
     kwargs = get_contenttype_kwargs(content_object)
     kwargs.update({'ajax' : 'ajax'})
     if parent:
-        kwargs.update({'parent' : parent})
+        kwargs.update({'parent' : getattr(parent, 'pk', getattr(parent, 'id'))})
     return reverse('tc_free_comment_ajax', kwargs=kwargs)
 
 def do_get_threaded_comment_tree(parser, token):
@@ -68,11 +68,23 @@ class FreeCommentTreeNode(template.Node):
         context[self.context_name] = FreeThreadedComment.public.get_tree(content_object)
         #return ''
 
+def spaces(num_spaces, num_times):
+    try:
+        to_return = ""
+        for i in xrange(num_times):
+            for j in xrange(num_spaces):
+                to_return = to_return + "&nbsp;"
+        return to_return
+    except:
+        return u''
+
 register = template.Library()
 register.simple_tag(get_comment_url)
 register.simple_tag(get_comment_url_ajax)
 register.simple_tag(get_free_comment_url)
 register.simple_tag(get_free_comment_url_ajax)
+
+register.simple_tag(spaces)
 
 register.tag('get_threaded_comment_tree', do_get_threaded_comment_tree)
 register.tag('get_free_threaded_comment_tree', do_get_free_threaded_comment_tree)
