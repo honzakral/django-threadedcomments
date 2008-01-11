@@ -203,7 +203,6 @@ Content-Type: application/xml
 <django-objects version="1.0"><object pk="6" model="threadedcomments.freethreadedcomment"><field to="contenttypes.contenttype" name="content_type" rel="ManyToOneRel">8</field><field type="PositiveIntegerField" name="object_id">2</field><field to="threadedcomments.freethreadedcomment" name="parent" rel="ManyToOneRel">1</field><field type="CharField" name="name">eric</field><field type="CharField" name="website">http://www.eflorenzano.com/</field><field type="CharField" name="email">floguy@gmail.com</field>\
 ...
 
-
   #######################################
   ### ThreadedComments URLs Testsests ###
   #######################################
@@ -212,6 +211,5 @@ Content-Type: application/xml
 >>> c = Client()
 >>> c.login(username='testuser', password='password')
 True
->>> 1 == 2
-False
+
 """

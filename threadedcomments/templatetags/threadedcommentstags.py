@@ -16,9 +16,9 @@ def get_comment_url(content_object, parent=None):
         kwargs.update({'parent' : getattr(parent, 'pk', getattr(parent, 'id'))})
     return reverse('tc_comment', kwargs=kwargs)
 
-def get_comment_url_ajax(content_object, parent=None):
+def get_comment_url_ajax(content_object, parent=None, ajax_type='json'):
     kwargs = get_contenttype_kwargs(content_object)
-    kwargs.update({'ajax' : 'ajax'})
+    kwargs.update({'ajax' : ajax_type})
     if parent:
         kwargs.update({'parent' : getattr(parent, 'pk', getattr(parent, 'id'))})
     return reverse('tc_comment_ajax', kwargs=kwargs)
@@ -29,9 +29,9 @@ def get_free_comment_url(content_object, parent=None):
         kwargs.update({'parent' : getattr(parent, 'pk', getattr(parent, 'id'))})
     return reverse('tc_free_comment', kwargs=kwargs)
 
-def get_free_comment_url_ajax(content_object, parent=None):
+def get_free_comment_url_ajax(content_object, parent=None, ajax_type='json'):
     kwargs = get_contenttype_kwargs(content_object)
-    kwargs.update({'ajax' : 'ajax'})
+    kwargs.update({'ajax' : ajax_type})
     if parent:
         kwargs.update({'parent' : getattr(parent, 'pk', getattr(parent, 'id'))})
     return reverse('tc_free_comment_ajax', kwargs=kwargs)
