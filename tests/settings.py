@@ -8,6 +8,7 @@ DATABASE_NAME = os.path.join(os.path.dirname(__file__), 'threadedcomments_test.d
 ROOT_URLCONF = 'threadedcomments.urls'
 
 INSTALLED_APPS = (
+    'django.contrib.sessions',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'threadedcomments',
