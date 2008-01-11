@@ -62,7 +62,7 @@ class ThreadedComment(models.Model):
     comment = models.TextField()
     is_public = models.BooleanField(default = True)
     is_approved = models.BooleanField(default = True)
-    ip_address = models.IPAddressField()
+    ip_address = models.IPAddressField(null=True, blank=True)
     
     def _get_score(self):
         score = 0
@@ -128,7 +128,7 @@ class FreeThreadedComment(models.Model):
     comment = models.TextField()
     is_public = models.BooleanField(default = True)
     is_approved = models.BooleanField(default = True)
-    ip_address = models.IPAddressField()
+    ip_address = models.IPAddressField(null=True, blank=True)
     
     def _get_score(self):
         score = 0
