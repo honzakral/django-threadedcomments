@@ -6,7 +6,7 @@
 >>> from models import FreeThreadedComment, ThreadedComment, Vote, FreeVote, TestModel
 >>> from django.contrib.auth.models import User
 >>> from django.contrib.contenttypes.models import ContentType
->>> from moderation import moderator, ThreadedCommentModerator
+>>> from moderation import moderator
 
 >>> topic = TestModel.objects.create(name = "Test")
 >>> user = User.objects.create_user('user', 'floguy@gmail.com', password='password')
@@ -51,11 +51,7 @@
 ...     parent = comment1,
 ... )
 
->>> class TestModerator(ThreadedCommentModerator):
-...     enable_field = 'is_public'
-...     auto_close_field = 'date'
-...     close_after = 15
->>> moderator.register(TestModel, TestModerator)
+>>> moderator.register(TestModel, enable_field='is_public', auto_close_field='date', close_after=15)
 
 >>> comment7 = ThreadedComment.objects.create_for_object(
 ...     topic,
@@ -70,7 +66,7 @@
 >>> comment8 = ThreadedComment.objects.create_for_object(
 ...     topic,
 ...     user = user,
-...     comment = "This should not appear, due to auto_close_field",
+...     comment = "This should not appear, due to enable_field",
 ...     ip_address = '127.0.0.1',
 ...     parent = comment7,
 ... )
@@ -129,6 +125,7 @@
 
 >>> topic = TestModel.objects.create(name = "Test2")
 >>> content_type = ContentType.objects.get_for_model(topic)
+>>>
   ###########################################
   ### FreeThreadedComments URLs Testsests ###
   ###########################################
@@ -148,12 +145,11 @@ Location: http://testserver/
 ...     kwargs={'content_type': content_type.id, 'object_id' : topic.id,
 ...         'ajax' : 'json'}
 ... )
->>> response = c.post(url, {'comment' : 'test', 'name' : 'eric', 'website' : 'http://www.eflorenzano.com/', 'email' : 'floguy@gmail.com', 'next' : '/'})
+>>> response = c.post(url, {'comment' : 'test', 'name' : 'eric', 'website' : 'http://www.eflorenzano.com/', 'email' : 'floguy@gmail.com'})
 >>> print response
 Content-Type: application/json
 <BLANKLINE>
-[{"pk": 2, "model": "threadedcomments.freethreadedcomment", "fields": {"website": "http:\/\/www.eflorenzano.com\/", "comment": "test", "name": "eric", "parent": null, "date_modified":\
-...
+[{"pk": 2, "model": "threadedcomments.freethreadedcomment", "fields": {"website": "http:\/\/www.eflorenzano.com\/", "comment": "test", "name": "eric", "parent": null, "date_modified":...
 
 >>> url = reverse('tc_free_comment_ajax', 
 ...     kwargs={'content_type': content_type.id, 'object_id' : topic.id,
@@ -164,8 +160,7 @@ Content-Type: application/json
 Content-Type: application/xml
 <BLANKLINE>
 <?xml version="1.0" encoding="utf-8"?>
-<django-objects version="1.0"><object pk="3" model="threadedcomments.freethreadedcomment"><field to="contenttypes.contenttype" name="content_type" rel="ManyToOneRel">8</field><field type="PositiveIntegerField" name="object_id">2</field><field to="threadedcomments.freethreadedcomment" name="parent" rel="ManyToOneRel"><None></None></field><field type="CharField" name="name">eric</field><field type="CharField" name="website">http://www.eflorenzano.com/</field><field type="CharField" name="email">floguy@gmail.com</field>\
-...
+<django-objects version="1.0"><object pk="3" model="threadedcomments.freethreadedcomment"><field to="contenttypes.contenttype" name="content_type" rel="ManyToOneRel">10</field><field type="PositiveIntegerField" name="object_id">2</field><field to="threadedcomments.freethreadedcomment" name="parent" rel="ManyToOneRel"><None></None></field><field type="CharField" name="name">eric</field><field type="CharField" name="website">http://www.eflorenzano.com/</field><field type="CharField" name="email">floguy@gmail.com</field>...
 
 >>> parent = FreeThreadedComment.objects.get_tree(topic)[0]
 
@@ -184,32 +179,104 @@ Location: http://testserver/
 ...     kwargs={'content_type': content_type.id, 'object_id' : topic.id, 
 ...         'parent_id' : parent.id, 'ajax' : 'json'}
 ... )
->>> response = c.post(url, {'comment' : 'test', 'name' : 'eric', 'website' : 'http://www.eflorenzano.com/', 'email' : 'floguy@gmail.com', 'next' : '/'})
+>>> response = c.post(url, {'comment' : 'test', 'name' : 'eric', 'website' : 'http://www.eflorenzano.com/', 'email' : 'floguy@gmail.com'})
 >>> print response
 Content-Type: application/json
 <BLANKLINE>
-[{"pk": 5, "model": "threadedcomments.freethreadedcomment", "fields": {"website": "http:\/\/www.eflorenzano.com\/", "comment": "test", "name": "eric", "parent": 1, "date_modified":\
-...
+[{"pk": 5, "model": "threadedcomments.freethreadedcomment", "fields": {"website": "http:\/\/www.eflorenzano.com\/", "comment": "test", "name": "eric", "parent": 1, "date_modified":...
 
 >>> url = reverse('tc_free_comment_parent_ajax', 
 ...     kwargs={'content_type': content_type.id, 'object_id' : topic.id, 
 ...         'parent_id' : parent.id, 'ajax' : 'xml'}
 ... )
->>> response = c.post(url, {'comment' : 'test', 'name' : 'eric', 'website' : 'http://www.eflorenzano.com/', 'email' : 'floguy@gmail.com', 'next' : '/'})
+>>> response = c.post(url, {'comment' : 'test', 'name' : 'eric', 'website' : 'http://www.eflorenzano.com/', 'email' : 'floguy@gmail.com'})
 >>> print response
 Content-Type: application/xml
 <BLANKLINE>
 <?xml version="1.0" encoding="utf-8"?>
-<django-objects version="1.0"><object pk="6" model="threadedcomments.freethreadedcomment"><field to="contenttypes.contenttype" name="content_type" rel="ManyToOneRel">8</field><field type="PositiveIntegerField" name="object_id">2</field><field to="threadedcomments.freethreadedcomment" name="parent" rel="ManyToOneRel">1</field><field type="CharField" name="name">eric</field><field type="CharField" name="website">http://www.eflorenzano.com/</field><field type="CharField" name="email">floguy@gmail.com</field>\
-...
-
+<django-objects version="1.0"><object pk="6" model="threadedcomments.freethreadedcomment"><field to="contenttypes.contenttype" name="content_type" rel="ManyToOneRel">10</field><field type="PositiveIntegerField" name="object_id">2</field><field to="threadedcomments.freethreadedcomment" name="parent" rel="ManyToOneRel">1</field><field type="CharField" name="name">eric</field><field type="CharField" name="website">http://www.eflorenzano.com/</field><field type="CharField" name="email">floguy@gmail.com</field>...
+>>>
   #######################################
   ### ThreadedComments URLs Testsests ###
   #######################################
->>> User.objects.create_user('testuser', 'testuser@gmail.com', password='password')
-<User: testuser>
->>> c = Client()
+>>> u = User.objects.create_user('testuser', 'testuser@gmail.com', password='password')
+>>> u.is_active = True
+>>> u.save()
 >>> c.login(username='testuser', password='password')
 True
 
+>>> url = reverse('tc_comment', 
+...     kwargs={'content_type': content_type.id, 'object_id' : topic.id}
+... )
+>>> response = c.post(url, {'comment' : 'test', 'next' : '/'})
+>>> print response
+Vary: Cookie
+Content-Type: text/html; charset=utf-8
+Location: http://testserver/
+<BLANKLINE>
+<BLANKLINE>
+
+>>> url = reverse('tc_comment_ajax', 
+...     kwargs={'content_type': content_type.id, 'object_id' : topic.id,
+...         'ajax' : 'json'}
+... )
+>>> response = c.post(url, {'comment' : 'test'})
+>>> print response
+Vary: Cookie
+Content-Type: application/json
+<BLANKLINE>
+[{"pk": 10, "model": "threadedcomments.threadedcomment", "fields": {"comment": "test", "is_approved": true, "parent": null, "date_modified":...
+>>>
+
+>>> url = reverse('tc_comment_ajax', 
+...     kwargs={'content_type': content_type.id, 'object_id' : topic.id,
+...         'ajax' : 'xml'}
+... )
+>>> response = c.post(url, {'comment' : 'test'})
+>>> print response
+Vary: Cookie
+Content-Type: application/xml
+<BLANKLINE>
+<?xml version="1.0" encoding="utf-8"?>
+<django-objects version="1.0"><object pk="11" model="threadedcomments.threadedcomment"><field to="contenttypes.contenttype" name="content_type" rel="ManyToOneRel">10</field><field type="PositiveIntegerField" name="object_id">2</field><field to="threadedcomments.threadedcomment" name="parent" rel="ManyToOneRel"><None></None></field><field to="auth.user" name="user" rel="ManyToOneRel">3</field>...
+>>>
+
+>>> parent = ThreadedComment.objects.get_tree(topic)[0]
+
+>>> url = reverse('tc_comment_parent', 
+...     kwargs={'content_type': content_type.id, 'object_id' : topic.id, 
+...         'parent_id' : parent.id}
+... )
+>>> response = c.post(url, {'comment' : 'test', 'next' : '/'})
+>>> print response
+Vary: Cookie
+Content-Type: text/html; charset=utf-8
+Location: http://testserver/
+<BLANKLINE>
+<BLANKLINE>
+
+>>> url = reverse('tc_comment_parent_ajax', 
+...     kwargs={'content_type': content_type.id, 'object_id' : topic.id, 
+...         'parent_id' : parent.id, 'ajax' : 'json'}
+... )
+>>> response = c.post(url, {'comment' : 'test'})
+>>> print response
+Vary: Cookie
+Content-Type: application/json
+<BLANKLINE>
+[{"pk": 13, "model": "threadedcomments.threadedcomment", "fields": {"comment": "test", "is_approved": true, "parent": 9, "date_modified":...
+>>>
+
+>>> url = reverse('tc_comment_parent_ajax', 
+...     kwargs={'content_type': content_type.id, 'object_id' : topic.id, 
+...         'parent_id' : parent.id, 'ajax' : 'xml'}
+... )
+>>> response = c.post(url, {'comment' : 'test'})
+>>> print response
+Vary: Cookie
+Content-Type: application/xml
+<BLANKLINE>
+<?xml version="1.0" encoding="utf-8"?>
+<django-objects version="1.0"><object pk="14" model="threadedcomments.threadedcomment"><field to="contenttypes.contenttype" name="content_type" rel="ManyToOneRel">10</field><field type="PositiveIntegerField" name="object_id">2</field><field to="threadedcomments.threadedcomment" name="parent" rel="ManyToOneRel">9</field><field to="auth.user" name="user" rel="ManyToOneRel">3</field>...
+>>>
 """
