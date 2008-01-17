@@ -11,7 +11,7 @@ def comment(request, content_type, object_id, parent_id=None, add_messages=True,
     if form.is_valid():
         new_comment = form.save(commit=False)
         new_comment.ip_address = request.META.get('REMOTE_ADDR', None)
-        new_comment.content_type_id = get_object_or_404(ContentType, id = int(content_type))
+        new_comment.content_type = get_object_or_404(ContentType, id = int(content_type))
         new_comment.object_id = int(object_id)
         new_comment.user = request.user
         if parent_id:
