@@ -10,14 +10,23 @@ REST = 3
 HTML = 4
 PLAINTEXT = 5
 MARKUP_CHOICES = (
-    (MARKDOWN, "markdown"),
-    (TEXTILE, "textile"),
-    (REST, "restructuredtext"),
-    (HTML, "html"),
-    (PLAINTEXT, "plaintext"),
+    (MARKDOWN, "Markdown"),
+    (TEXTILE, "Textile"),
+    (REST, "Restructured Text"),
+    (HTML, "HTML"),
+    (PLAINTEXT, "Plain Text"),
 )
 
 def dfs(node, todo):
+    """
+    Performs a recursive depth-first search starting at ``node``.  This function
+    also annotates an attribute, ``depth``, which is an integer that represents
+    how deeply nested this node is away from the original object.
+    
+    For example:
+        
+        
+    """
     node.depth = 0
     to_return = [node,]
     for n in todo:
