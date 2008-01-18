@@ -73,7 +73,7 @@ class ThreadedComment(models.Model):
     date_modified = models.DateTimeField(default = datetime.now)
     date_approved = models.DateTimeField(default = datetime.now)
     comment = models.TextField()
-    markup = models.ChoiceField(choices=MARKUP_CHOICES, default=PLAINTEXT)
+    markup = models.IntegerField(choices=MARKUP_CHOICES, default=PLAINTEXT)
     is_public = models.BooleanField(default = True)
     is_approved = models.BooleanField(default = True)
     ip_address = models.IPAddressField(null=True, blank=True)
@@ -104,23 +104,27 @@ class ThreadedComment(models.Model):
         self.date_modified = datetime.now()
         super(ThreadedComment, self).save()
     
-    def get_base_data(self):
+    def get_base_data(self, show_dates=True):
         markup = "plaintext"
         for markup_choice in MARKUP_CHOICES:
             if self.markup == markup_choice[0]:
                 markup = markup_choice[1]
                 break
-        return {
+        to_return = {
             'content_object' : self.get_content_object(),
             'parent' : self.parent,
             'user' : self.user,
-            'date_submitted' : self.date_submitted,
             'comment' : self.comment,
             'is_public' : self.is_public,
             'is_approved' : self.is_approved,
             'ip_address' : self.ip_address,
             'markup' : markup,
         }
+        if show_dates:
+            to_return['date_submitted'] = self.date_submitted
+            to_return['date_modified'] = self.date_modified
+            to_return['date_approved'] = self.date_approved
+        return to_return
     
     class Meta:
         ordering = ('date_submitted',)
@@ -159,7 +163,7 @@ class FreeThreadedComment(models.Model):
     date_modified = models.DateTimeField(default = datetime.now)
     date_approved = models.DateTimeField(default = datetime.now)
     comment = models.TextField()
-    markup = models.ChoiceField(choices=MARKUP_CHOICES, default=PLAINTEXT)
+    markup = models.IntegerField(choices=MARKUP_CHOICES, default=PLAINTEXT)
     
     is_public = models.BooleanField(default = True)
     is_approved = models.BooleanField(default = True)
@@ -191,13 +195,13 @@ class FreeThreadedComment(models.Model):
         self.date_modified = datetime.now()
         super(FreeThreadedComment, self).save()
     
-    def get_base_data(self):
+    def get_base_data(self, show_dates=True):
         markup = "plaintext"
         for markup_choice in MARKUP_CHOICES:
             if self.markup == markup_choice[0]:
                 markup = markup_choice[1]
                 break
-        return {
+        to_return = {
             'content_object' : self.get_content_object(),
             'parent' : self.parent,
             'name' : self.name,
@@ -209,6 +213,11 @@ class FreeThreadedComment(models.Model):
             'ip_address' : self.ip_address,
             'markup' : markup,
         }
+        if show_dates:
+            to_return['date_submitted'] = self.date_submitted
+            to_return['date_modified'] = self.date_modified
+            to_return['date_approved'] = self.date_approved
+        return to_return
     
     class Meta:
         ordering = ('date_submitted',)
@@ -227,20 +236,6 @@ class FreeThreadedComment(models.Model):
         list_filter = ('date_submitted',)
         date_hierarchy = 'date_submitted'
         search_fields = ('comment', 'name', 'email', 'website')
-
-class Vote(models.Model):
-    VOTE_CHOICES = (('+1', +1),('-1', -1))
-    
-    user = models.ForeignKey(User)
-    comment = models.ForeignKey(ThreadedComment, related_name = 'votes')
-    vote = models.IntegerField(choices=VOTE_CHOICES)
-
-class FreeVote(models.Model):
-    VOTE_CHOICES = (('+1', +1),('-1', -1))
-    
-    user = models.ForeignKey(User)
-    comment = models.ForeignKey(FreeThreadedComment, related_name = 'votes')
-    vote = models.IntegerField(choices=VOTE_CHOICES)
 
 class TestModel(models.Model):
     """

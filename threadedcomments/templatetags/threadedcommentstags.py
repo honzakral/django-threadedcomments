@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_str, force_unicode
 from django.utils.safestring import mark_safe
 from threadedcomments.models import ThreadedComment, FreeThreadedComment
+from django import template
 
 def get_contenttype_kwargs(content_object):
     kwargs = {
@@ -15,40 +16,68 @@ def get_contenttype_kwargs(content_object):
 def get_comment_url(content_object, parent=None):
     kwargs = get_contenttype_kwargs(content_object)
     if parent:
+        if not isinstance(parent, ThreadedComment):
+            raise template.TemplateSyntaxError, "get_comment_url requires its parent object to be of type ThreadedComment"
         kwargs.update({'parent_id' : getattr(parent, 'pk', getattr(parent, 'id'))})
-    return reverse('tc_comment', kwargs=kwargs)
+        return reverse('tc_comment_parent', kwargs=kwargs)
+    else:
+        return reverse('tc_comment', kwargs=kwargs)
 
 def get_comment_url_ajax(content_object, parent=None, ajax_type='json'):
     kwargs = get_contenttype_kwargs(content_object)
     kwargs.update({'ajax' : ajax_type})
     if parent:
+        if not isinstance(parent, ThreadedComment):
+            raise template.TemplateSyntaxError, "get_comment_url_ajax requires its parent object to be of type ThreadedComment"
         kwargs.update({'parent_id' : getattr(parent, 'pk', getattr(parent, 'id'))})
-    return reverse('tc_comment_ajax', kwargs=kwargs)
+        return reverse('tc_comment_parent_ajax', kwargs=kwargs)
+    else:
+        return reverse('tc_comment_ajax', kwargs=kwargs)
 
 def get_comment_url_json(content_object, parent=None):
-    return get_comment_url_ajax(content_object, parent, ajax_type="json")
+    try:
+        return get_comment_url_ajax(content_object, parent, ajax_type="json")
+    except template.TemplateSyntaxError:
+        raise template.TemplateSyntaxError, "get_comment_url_json requires its parent object to be of type ThreadedComment"
 
 def get_comment_url_xml(content_object, parent=None):
-    return get_comment_url_ajax(content_object, parent, ajax_type="xml")
+    try:
+        return get_comment_url_ajax(content_object, parent, ajax_type="xml")
+    except template.TemplateSyntaxError:
+        raise template.TemplateSyntaxError, "get_comment_url_xml requires its parent object to be of type ThreadedComment"
 
 def get_free_comment_url(content_object, parent=None):
     kwargs = get_contenttype_kwargs(content_object)
     if parent:
+        if not isinstance(parent, FreeThreadedComment):
+            raise template.TemplateSyntaxError, "get_free_comment_url requires its parent object to be of type FreeThreadedComment"
         kwargs.update({'parent_id' : getattr(parent, 'pk', getattr(parent, 'id'))})
-    return reverse('tc_free_comment', kwargs=kwargs)
+        return reverse('tc_free_comment_parent', kwargs=kwargs)
+    else:
+        return reverse('tc_free_comment', kwargs=kwargs)
 
 def get_free_comment_url_ajax(content_object, parent=None, ajax_type='json'):
     kwargs = get_contenttype_kwargs(content_object)
     kwargs.update({'ajax' : ajax_type})
     if parent:
+        if not isinstance(parent, FreeThreadedComment):
+            raise template.TemplateSyntaxError, "get_free_comment_url_ajax requires its parent object to be of type FreeThreadedComment"
         kwargs.update({'parent_id' : getattr(parent, 'pk', getattr(parent, 'id'))})
-    return reverse('tc_free_comment_ajax', kwargs=kwargs)
+        return reverse('tc_free_comment_parent_ajax', kwargs=kwargs)
+    else:
+        return reverse('tc_free_comment_ajax', kwargs=kwargs)
 
 def get_free_comment_url_json(content_object, parent=None):
-    return get_free_comment_url_ajax(content_object, parent, ajax_type="json")
+    try:
+        return get_free_comment_url_ajax(content_object, parent, ajax_type="json")
+    except template.TemplateSyntaxError:
+        raise template.TemplateSyntaxError, "get_free_comment_url_json requires its parent object to be of type FreeThreadedComment"
 
 def get_free_comment_url_xml(content_object, parent=None):
-    return get_free_comment_url_ajax(content_object, parent, ajax_type="xml")
+    try:
+        return get_free_comment_url_ajax(content_object, parent, ajax_type="xml")
+    except template.TemplateSyntaxError:
+        raise template.TemplateSyntaxError, "get_free_comment_url_xml requires its parent object to be of type FreeThreadedComment"
 
 def do_get_threaded_comment_tree(parser, token):
     try:
@@ -80,7 +109,7 @@ class FreeCommentTreeNode(template.Node):
     def render(self, context):
         content_object = self.content_object.resolve(context)
         context[self.context_name] = FreeThreadedComment.public.get_tree(content_object)
-        #return ''
+        return ''
 
 def auto_transform_markup(comment):
     try:
