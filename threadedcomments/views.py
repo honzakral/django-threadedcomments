@@ -7,6 +7,26 @@ from models import ThreadedComment, FreeThreadedComment
 from utils import JSONResponse, XMLResponse
 
 def comment(request, content_type, object_id, parent_id=None, add_messages=True, ajax=False):
+    """
+    Receives POST data and creates a new ``ThreadedComment`` based upon the 
+    specified parameters.
+
+    The part that's the least straightforward is how this redirects afterwards.
+    It will try and get the next place to go in the following order:
+
+    1. If there is a variable named ``next`` in the *POST* parameters, it will
+    redirect to that variable's value.
+    2. If there is a variable named ``next`` in the *GET* parameters, it will
+    redirect to that variable's value.
+    3. If Django can determine the previous page from the HTTP headers, it will
+    redirect to that previous page.
+    4. Otherwise, it will redirect to '/'.
+    
+    If it is an *AJAX* request (either XML or JSON), it will return a serialized
+    version of the last created ``ThreadedComment`` and there will be no redirect.
+    
+    If invalid POST data is submitted, this will return an *Http404* error.
+    """
     form = ThreadedCommentForm(request.POST or None)
     if form.is_valid():
         new_comment = form.save(commit=False)
@@ -33,10 +53,31 @@ def comment(request, content_type, object_id, parent_id=None, add_messages=True,
         if add_messages:
             for error in form.errors:
                 request.user.message_set.create(message=error)
-
+# Require login to be required, as request.user must exist and be valid.
 comment = login_required(comment)
 
 def free_comment(request, content_type, object_id, parent_id=None, ajax=False):
+    """
+    Receives POST data and creates a new ``FreeThreadedComment`` based upon the 
+    specified parameters.
+    
+    The part that's the least straightforward is how this redirects afterwards.
+    It will try and get the next place to go in the following order:
+
+    1. If there is a variable named ``next`` in the *POST* parameters, it will
+    redirect to that variable's value.
+    2. If there is a variable named ``next`` in the *GET* parameters, it will
+    redirect to that variable's value.
+    3. If Django can determine the previous page from the HTTP headers, it will
+    redirect to that previous page.
+    4. Otherwise, it will redirect to '/'.
+    
+    If it is an *AJAX* request (either XML or JSON), it will return a serialized
+    version of the last created ``FreeThreadedComment`` and there will be no 
+    redirect.
+    
+    If invalid POST data is submitted, this will return an *Http404* error.
+    """
     form = FreeThreadedCommentForm(request.POST or None)
     if form.is_valid():
         new_comment = form.save(commit=False)

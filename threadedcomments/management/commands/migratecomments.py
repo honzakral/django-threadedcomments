@@ -8,10 +8,18 @@ class Command(BaseCommand):
     output_transaction = True
     
     def handle(self, *args, **options):
+        """
+        Converts all legacy ``Comment`` and ``FreeComment`` objects into 
+        ``ThreadedComment`` and ``FreeThreadedComment`` objects, respectively.
+        """
         self.handle_free_comments()
         self.handle_comments()
     
     def handle_free_comments(self):
+        """
+        Converts all legacy ``FreeComment`` objects into ``FreeThreadedComment``
+        objects.
+        """
         comments = FreeComment.objects.all()
         for c in comments:
             new = FreeThreadedComment(
@@ -31,6 +39,9 @@ class Command(BaseCommand):
             new.save()
     
     def handle_comments(self):
+        """
+        Converts all legacy ``Comment`` objects into ``ThreadedComment`` objects.
+        """
         comments = Comment.objects.all()
         for c in comments:
             new = ThreadedComment(
