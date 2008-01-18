@@ -5,7 +5,9 @@ from models import FreeThreadedComment, ThreadedComment
 class ThreadedCommentForm(forms.ModelForm):
     """
     Form which can be used to validate data for a new ThreadedComment.
-    It consists of just one field: Comment.  I'm not e
+    It consists of just two fields: ``comment``, and ``markup``.
+    
+    The ``comment`` field is the only one which is required.
     """
     class Meta:
         model = ThreadedComment
@@ -14,6 +16,10 @@ class ThreadedCommentForm(forms.ModelForm):
 class FreeThreadedCommentForm(forms.ModelForm):
     """
     Form which can be used to validate data for a new FreeThreadedComment.
+    It consists of just a few fields: ``comment``, ``name``, ``website``,
+    ``email``, and ``markup``.
+    
+    The fields ``comment``, and ``name`` are the only ones which are required.
     """
     class Meta:
         model = FreeThreadedComment
