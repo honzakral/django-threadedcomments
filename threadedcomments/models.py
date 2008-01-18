@@ -10,11 +10,11 @@ REST = 3
 HTML = 4
 PLAINTEXT = 5
 MARKUP_CHOICES = (
-    (MARKDOWN, "Markdown"),
-    (TEXTILE, "Textile"),
-    (REST, "Restructured Text"),
-    (HTML, "HTML"),
-    (PLAINTEXT, "Plain Text"),
+    (MARKDOWN, "markdown"),
+    (TEXTILE, "textile"),
+    (REST, "restructuredtext"),
+    (HTML, "html"),
+    (PLAINTEXT, "plaintext"),
 )
 
 def dfs(node, todo):
