@@ -90,9 +90,11 @@ class Moderator(object):
 
     def pre_save(self, sender, instance):
         model = instance.content_type.model_class()
+        if model not in self._registry:
+            return
         content_object = instance.get_content_object()
         c = self._registry[model]
-        # c is the moderation object or moderation configuration
+        # c is the moderation object or moderation configuration, named c for conciseness
         if c.akismet and self.is_spam(instance):
             instance.is_public = False
         if c.enable_field and self.is_disabled(content_object, c.enable_field):

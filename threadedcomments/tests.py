@@ -7,6 +7,7 @@
 >>> from django.contrib.auth.models import User
 >>> from django.contrib.contenttypes.models import ContentType
 >>> from moderation import moderator
+>>> from django.core import mail
 
 >>> topic = TestModel.objects.create(name = "Test")
 >>> user = User.objects.create_user('user', 'floguy@gmail.com', password='password')
@@ -71,10 +72,39 @@
 ...     parent = comment7,
 ... )
 
+>>> moderator.unregister(TestModel)
+
+>>> comment9 = ThreadedComment.objects.create_for_object(
+...     topic,
+...     user = user,
+...     comment = "This should appear again, due to unregistration",
+...     ip_address = '127.0.0.1',
+...     parent = None,
+... )
+
+>>> len(mail.outbox)
+0
+
+>>> class Manager(object):
+...     enable_field = 'is_public'
+...     auto_close_field = 'date'
+...     close_after = 15
+...     akismet = False
+...     email_notification = True
+>>> moderator.register(TestModel, manager=Manager)
+
+>>> comment10 = ThreadedComment.objects.create_for_object(
+...     topic,
+...     user = user,
+...     comment = "This should not appear again, due to registration with a new manager.",
+...     ip_address = '127.0.0.1',
+...     parent = None,
+... )
+
 >>> topic.is_public = True
 >>> topic.save()
 
->>> comment9 = ThreadedComment.objects.create_for_object(
+>>> comment11 = ThreadedComment.objects.create_for_object(
 ...     topic,
 ...     user = user,
 ...     comment = "This should appear again.",
@@ -82,10 +112,13 @@
 ...     parent = comment1,
 ... )
 
+>>> len(mail.outbox)
+1
+
 >>> topic.date = topic.date - datetime.timedelta(days = 20)
 >>> topic.save()
 
->>> comment10 = ThreadedComment.objects.create_for_object(
+>>> comment12 = ThreadedComment.objects.create_for_object(
 ...     topic,
 ...     user = user,
 ...     comment = "This shouldn't appear, due to close_after=15.",
@@ -104,6 +137,7 @@
          I'm a fanboy!
  What are we talking about?
  Post moderator addition.  Does it still work?
+ This should appear again, due to unregistration
 
 >>> tree = ThreadedComment.objects.get_tree(topic)
 >>> for comment in tree:
@@ -116,12 +150,16 @@
          I'm a fanboy!
  What are we talking about?
  Post moderator addition.  Does it still work?
+ This should appear again, due to unregistration
+>>>
 
 ############################
 ### Views and URLs Tests ###
 ############################
 >>> from django.core.urlresolvers import reverse
 >>> from django.test.client import Client
+>>> from django.utils.simplejson import loads
+>>> from xml.dom.minidom import parseString
 
 >>> topic = TestModel.objects.create(name = "Test2")
 >>> content_type = ContentType.objects.get_for_model(topic)
@@ -135,67 +173,54 @@
 ...     kwargs={'content_type': content_type.id, 'object_id' : topic.id}
 ... )
 >>> response = c.post(url, {'comment' : 'test', 'name' : 'eric', 'website' : 'http://www.eflorenzano.com/', 'email' : 'floguy@gmail.com', 'next' : '/'})
->>> print response
-Content-Type: text/html; charset=utf-8
-Location: http://testserver/
-<BLANKLINE>
-<BLANKLINE>
+>>> FreeThreadedComment.objects.latest().get_base_data()
+{'website': u'http://www.eflorenzano.com/', 'comment': u'test', 'name': u'eric', 'parent': None, 'content_object': <TestModel: TestModel object>, 'is_public': True, 'ip_address': None, 'email': u'floguy@gmail.com', 'is_approved': True}
 
 >>> url = reverse('tc_free_comment_ajax', 
 ...     kwargs={'content_type': content_type.id, 'object_id' : topic.id,
 ...         'ajax' : 'json'}
 ... )
 >>> response = c.post(url, {'comment' : 'test', 'name' : 'eric', 'website' : 'http://www.eflorenzano.com/', 'email' : 'floguy@gmail.com'})
->>> print response
-Content-Type: application/json
-<BLANKLINE>
-[{"pk": 2, "model": "threadedcomments.freethreadedcomment", "fields": {"website": "http:\/\/www.eflorenzano.com\/", "comment": "test", "name": "eric", "parent": null, "date_modified":...
+>>> tmp = loads(response.content)
+>>> FreeThreadedComment.objects.latest().get_base_data()
+{'website': u'http://www.eflorenzano.com/', 'comment': u'test', 'name': u'eric', 'parent': None, 'content_object': <TestModel: TestModel object>, 'is_public': True, 'ip_address': None, 'email': u'floguy@gmail.com', 'is_approved': True}
 
 >>> url = reverse('tc_free_comment_ajax', 
 ...     kwargs={'content_type': content_type.id, 'object_id' : topic.id,
 ...         'ajax' : 'xml'}
 ... )
 >>> response = c.post(url, {'comment' : 'test', 'name' : 'eric', 'website' : 'http://www.eflorenzano.com/', 'email' : 'floguy@gmail.com', 'next' : '/'})
->>> print response
-Content-Type: application/xml
-<BLANKLINE>
-<?xml version="1.0" encoding="utf-8"?>
-<django-objects version="1.0"><object pk="3" model="threadedcomments.freethreadedcomment"><field to="contenttypes.contenttype" name="content_type" rel="ManyToOneRel">10</field><field type="PositiveIntegerField" name="object_id">2</field><field to="threadedcomments.freethreadedcomment" name="parent" rel="ManyToOneRel"><None></None></field><field type="CharField" name="name">eric</field><field type="CharField" name="website">http://www.eflorenzano.com/</field><field type="CharField" name="email">floguy@gmail.com</field>...
+>>> tmp = parseString(response.content)
+>>> FreeThreadedComment.objects.latest().get_base_data()
+{'website': u'http://www.eflorenzano.com/', 'comment': u'test', 'name': u'eric', 'parent': None, 'content_object': <TestModel: TestModel object>, 'is_public': True, 'ip_address': None, 'email': u'floguy@gmail.com', 'is_approved': True}
 
->>> parent = FreeThreadedComment.objects.get_tree(topic)[0]
+>>> parent = FreeThreadedComment.objects.latest()
 
 >>> url = reverse('tc_free_comment_parent', 
 ...     kwargs={'content_type': content_type.id, 'object_id' : topic.id, 
 ...         'parent_id' : parent.id}
 ... )
 >>> response = c.post(url, {'comment' : 'test', 'name' : 'eric', 'website' : 'http://www.eflorenzano.com/', 'email' : 'floguy@gmail.com', 'next' : '/'})
->>> print response
-Content-Type: text/html; charset=utf-8
-Location: http://testserver/
-<BLANKLINE>
-<BLANKLINE>
+>>> FreeThreadedComment.objects.latest().get_base_data()
+{'website': u'http://www.eflorenzano.com/', 'comment': u'test', 'name': u'eric', 'parent': <FreeThreadedComment: test>, 'content_object': <TestModel: TestModel object>, 'is_public': True, 'ip_address': None, 'email': u'floguy@gmail.com', 'is_approved': True}
 
 >>> url = reverse('tc_free_comment_parent_ajax', 
 ...     kwargs={'content_type': content_type.id, 'object_id' : topic.id, 
 ...         'parent_id' : parent.id, 'ajax' : 'json'}
 ... )
 >>> response = c.post(url, {'comment' : 'test', 'name' : 'eric', 'website' : 'http://www.eflorenzano.com/', 'email' : 'floguy@gmail.com'})
->>> print response
-Content-Type: application/json
-<BLANKLINE>
-[{"pk": 5, "model": "threadedcomments.freethreadedcomment", "fields": {"website": "http:\/\/www.eflorenzano.com\/", "comment": "test", "name": "eric", "parent": 1, "date_modified":...
+>>> tmp = loads(response.content)
+>>> FreeThreadedComment.objects.latest().get_base_data()
+{'website': u'http://www.eflorenzano.com/', 'comment': u'test', 'name': u'eric', 'parent': <FreeThreadedComment: test>, 'content_object': <TestModel: TestModel object>, 'is_public': True, 'ip_address': None, 'email': u'floguy@gmail.com', 'is_approved': True}
 
->>> url = reverse('tc_free_comment_parent_ajax', 
+>>> url = reverse('tc_free_comment_parent_ajax',
 ...     kwargs={'content_type': content_type.id, 'object_id' : topic.id, 
 ...         'parent_id' : parent.id, 'ajax' : 'xml'}
 ... )
 >>> response = c.post(url, {'comment' : 'test', 'name' : 'eric', 'website' : 'http://www.eflorenzano.com/', 'email' : 'floguy@gmail.com'})
->>> print response
-Content-Type: application/xml
-<BLANKLINE>
-<?xml version="1.0" encoding="utf-8"?>
-<django-objects version="1.0"><object pk="6" model="threadedcomments.freethreadedcomment"><field to="contenttypes.contenttype" name="content_type" rel="ManyToOneRel">10</field><field type="PositiveIntegerField" name="object_id">2</field><field to="threadedcomments.freethreadedcomment" name="parent" rel="ManyToOneRel">1</field><field type="CharField" name="name">eric</field><field type="CharField" name="website">http://www.eflorenzano.com/</field><field type="CharField" name="email">floguy@gmail.com</field>...
->>>
+>>> tmp = parseString(response.content)
+>>> FreeThreadedComment.objects.latest().get_base_data()
+
   #######################################
   ### ThreadedComments URLs Testsests ###
   #######################################
@@ -209,37 +234,23 @@ True
 ...     kwargs={'content_type': content_type.id, 'object_id' : topic.id}
 ... )
 >>> response = c.post(url, {'comment' : 'test', 'next' : '/'})
->>> print response
-Vary: Cookie
-Content-Type: text/html; charset=utf-8
-Location: http://testserver/
-<BLANKLINE>
-<BLANKLINE>
+>>> ThreadedComment.objects.latest().get_base_data()
 
 >>> url = reverse('tc_comment_ajax', 
 ...     kwargs={'content_type': content_type.id, 'object_id' : topic.id,
 ...         'ajax' : 'json'}
 ... )
 >>> response = c.post(url, {'comment' : 'test'})
->>> print response
-Vary: Cookie
-Content-Type: application/json
-<BLANKLINE>
-[{"pk": 10, "model": "threadedcomments.threadedcomment", "fields": {"comment": "test", "is_approved": true, "parent": null, "date_modified":...
->>>
+>>> tmp = loads(response.content)
+>>> ThreadedComment.objects.latest().get_base_data()
 
 >>> url = reverse('tc_comment_ajax', 
 ...     kwargs={'content_type': content_type.id, 'object_id' : topic.id,
 ...         'ajax' : 'xml'}
 ... )
 >>> response = c.post(url, {'comment' : 'test'})
->>> print response
-Vary: Cookie
-Content-Type: application/xml
-<BLANKLINE>
-<?xml version="1.0" encoding="utf-8"?>
-<django-objects version="1.0"><object pk="11" model="threadedcomments.threadedcomment"><field to="contenttypes.contenttype" name="content_type" rel="ManyToOneRel">10</field><field type="PositiveIntegerField" name="object_id">2</field><field to="threadedcomments.threadedcomment" name="parent" rel="ManyToOneRel"><None></None></field><field to="auth.user" name="user" rel="ManyToOneRel">3</field>...
->>>
+>>> tmp = parseString(response.content)
+>>> ThreadedComment.objects.latest().get_base_data()
 
 >>> parent = ThreadedComment.objects.get_tree(topic)[0]
 
@@ -248,35 +259,39 @@ Content-Type: application/xml
 ...         'parent_id' : parent.id}
 ... )
 >>> response = c.post(url, {'comment' : 'test', 'next' : '/'})
->>> print response
-Vary: Cookie
-Content-Type: text/html; charset=utf-8
-Location: http://testserver/
-<BLANKLINE>
-<BLANKLINE>
+>>> ThreadedComment.objects.latest().get_base_data()
 
 >>> url = reverse('tc_comment_parent_ajax', 
 ...     kwargs={'content_type': content_type.id, 'object_id' : topic.id, 
 ...         'parent_id' : parent.id, 'ajax' : 'json'}
 ... )
 >>> response = c.post(url, {'comment' : 'test'})
->>> print response
-Vary: Cookie
-Content-Type: application/json
-<BLANKLINE>
-[{"pk": 13, "model": "threadedcomments.threadedcomment", "fields": {"comment": "test", "is_approved": true, "parent": 9, "date_modified":...
->>>
+>>> tmp = loads(response.content)
+>>> ThreadedComment.objects.latest().get_base_data()
 
 >>> url = reverse('tc_comment_parent_ajax', 
 ...     kwargs={'content_type': content_type.id, 'object_id' : topic.id, 
 ...         'parent_id' : parent.id, 'ajax' : 'xml'}
 ... )
 >>> response = c.post(url, {'comment' : 'test'})
->>> print response
-Vary: Cookie
-Content-Type: application/xml
-<BLANKLINE>
-<?xml version="1.0" encoding="utf-8"?>
-<django-objects version="1.0"><object pk="14" model="threadedcomments.threadedcomment"><field to="contenttypes.contenttype" name="content_type" rel="ManyToOneRel">10</field><field type="PositiveIntegerField" name="object_id">2</field><field to="threadedcomments.threadedcomment" name="parent" rel="ManyToOneRel">9</field><field to="auth.user" name="user" rel="ManyToOneRel">3</field>...
+>>> tmp = parseData(response.content)
+>>> ThreadedComment.objects.latest().get_base_data()
 >>>
+#########################
+### Templatetag Tests ###
+#########################
+>>> from django.template import Context, Template
+>>> from threadedcomments.templatetags import threadedcommentstags as tags
+
+>>> topic = TestModel.objects.create(name = "Test3")
+>>> c = Context({'topic' : topic, 'parent' : comment9})
+
+>>> Template('{% load threadedcommentstags %}{% get_comment_url topic %}').render(c)
+u'/comment/10/3/'
+
+>>> Template('{% load threadedcommentstags %}{% get_comment_url topic parent %}').render(c)
+u'/comment/10/3/8/'
+
+>>> Template('{% load threadedcommentstags %}{% get_comment_url_json topic %}').render(c)
+u'/comment/10/3/json/'
 """

@@ -4,6 +4,19 @@ from django.contrib.contenttypes import generic
 from django.contrib.auth.models import User
 from datetime import datetime
 
+MARKDOWN = 1
+TEXTILE = 2
+REST = 3
+HTML = 4
+PLAINTEXT = 5
+MARKUP_CHOICES = (
+    (MARKDOWN, "markdown"),
+    (TEXTILE, "textile"),
+    (REST, "restructuredtext"),
+    (HTML, "html"),
+    (PLAINTEXT, "plaintext"),
+)
+
 def dfs(node, todo):
     node.depth = 0
     to_return = [node,]
@@ -60,6 +73,7 @@ class ThreadedComment(models.Model):
     date_modified = models.DateTimeField(default = datetime.now)
     date_approved = models.DateTimeField(default = datetime.now)
     comment = models.TextField()
+    markup = models.ChoiceField(choices=MARKUP_CHOICES, default=PLAINTEXT)
     is_public = models.BooleanField(default = True)
     is_approved = models.BooleanField(default = True)
     ip_address = models.IPAddressField(null=True, blank=True)
@@ -90,10 +104,29 @@ class ThreadedComment(models.Model):
         self.date_modified = datetime.now()
         super(ThreadedComment, self).save()
     
+    def get_base_data(self):
+        markup = "plaintext"
+        for markup_choice in MARKUP_CHOICES:
+            if self.markup == markup_choice[0]:
+                markup = markup_choice[1]
+                break
+        return {
+            'content_object' : self.get_content_object(),
+            'parent' : self.parent,
+            'user' : self.user,
+            'date_submitted' : self.date_submitted,
+            'comment' : self.comment,
+            'is_public' : self.is_public,
+            'is_approved' : self.is_approved,
+            'ip_address' : self.ip_address,
+            'markup' : markup,
+        }
+    
     class Meta:
         ordering = ('date_submitted',)
         verbose_name = "Threaded Comment"
         verbose_name_plural = "Threaded Comments"
+        get_latest_by = "date_submitted"
     
     class Admin:
         fields = (
@@ -126,6 +159,8 @@ class FreeThreadedComment(models.Model):
     date_modified = models.DateTimeField(default = datetime.now)
     date_approved = models.DateTimeField(default = datetime.now)
     comment = models.TextField()
+    markup = models.ChoiceField(choices=MARKUP_CHOICES, default=PLAINTEXT)
+    
     is_public = models.BooleanField(default = True)
     is_approved = models.BooleanField(default = True)
     ip_address = models.IPAddressField(null=True, blank=True)
@@ -156,10 +191,30 @@ class FreeThreadedComment(models.Model):
         self.date_modified = datetime.now()
         super(FreeThreadedComment, self).save()
     
+    def get_base_data(self):
+        markup = "plaintext"
+        for markup_choice in MARKUP_CHOICES:
+            if self.markup == markup_choice[0]:
+                markup = markup_choice[1]
+                break
+        return {
+            'content_object' : self.get_content_object(),
+            'parent' : self.parent,
+            'name' : self.name,
+            'website' : self.website,
+            'email' : self.email,
+            'comment' : self.comment,
+            'is_public' : self.is_public,
+            'is_approved' : self.is_approved,
+            'ip_address' : self.ip_address,
+            'markup' : markup,
+        }
+    
     class Meta:
         ordering = ('date_submitted',)
         verbose_name = "Free Threaded Comment"
         verbose_name_plural = "Free Threaded Comments"
+        get_latest_by = "date_submitted"
     
     class Admin:
         fields = (
