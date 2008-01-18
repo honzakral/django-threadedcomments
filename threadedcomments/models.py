@@ -73,7 +73,7 @@ class ThreadedComment(models.Model):
     date_modified = models.DateTimeField(default = datetime.now)
     date_approved = models.DateTimeField(default = datetime.now)
     comment = models.TextField()
-    markup = models.IntegerField(choices=MARKUP_CHOICES, default=PLAINTEXT)
+    markup = models.IntegerField(choices=MARKUP_CHOICES, default=PLAINTEXT, null=True, blank=True)
     is_public = models.BooleanField(default = True)
     is_approved = models.BooleanField(default = True)
     ip_address = models.IPAddressField(null=True, blank=True)
@@ -101,6 +101,8 @@ class ThreadedComment(models.Model):
         return self.comment[:50]
     
     def save(self):
+        if not self.markup:
+            self.markup = PLAINTEXT
         self.date_modified = datetime.now()
         super(ThreadedComment, self).save()
     
@@ -163,7 +165,7 @@ class FreeThreadedComment(models.Model):
     date_modified = models.DateTimeField(default = datetime.now)
     date_approved = models.DateTimeField(default = datetime.now)
     comment = models.TextField()
-    markup = models.IntegerField(choices=MARKUP_CHOICES, default=PLAINTEXT)
+    markup = models.IntegerField(choices=MARKUP_CHOICES, default=PLAINTEXT, null=True, blank=True)
     
     is_public = models.BooleanField(default = True)
     is_approved = models.BooleanField(default = True)
@@ -192,6 +194,8 @@ class FreeThreadedComment(models.Model):
         return self.comment[:50]
     
     def save(self):
+        if not self.markup:
+            self.markup = PLAINTEXT
         self.date_modified = datetime.now()
         super(FreeThreadedComment, self).save()
     
