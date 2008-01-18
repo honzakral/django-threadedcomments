@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django import newforms as forms
-from models import FreeThreadedComment, ThreadedComment, Vote
+from models import FreeThreadedComment, ThreadedComment
 
 class ThreadedCommentForm(forms.ModelForm):
     
