@@ -2,9 +2,19 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
+from django.newforms.util import ErrorDict
+from django.utils.encoding import smart_unicode, force_unicode
+from django.utils.safestring import mark_safe
 from forms import FreeThreadedCommentForm, ThreadedCommentForm
 from models import ThreadedComment, FreeThreadedComment
 from utils import JSONResponse, XMLResponse
+from copy import deepcopy
+
+def _get_next(request):
+    next = request.POST.get('next', request.GET.get('next', request.META.get('HTTP_REFERER', None)))
+    if not next or next == request.path:
+        raise Http404 # No next url was supplied in GET or POST.
+    return next
 
 def comment(request, content_type, object_id, parent_id=None, add_messages=True, ajax=False):
     """
@@ -44,11 +54,7 @@ def comment(request, content_type, object_id, parent_id=None, add_messages=True,
         elif ajax == 'xml':
             return XMLResponse([new_comment,])
         else:
-            # Determine next url
-            next = request.POST.get('next', request.GET.get('next', request.META.get('HTTP_REFERER', None)))
-            if not next or next == request.path:
-                next = '/'# No next was specified in POST or GET, will go to website root.
-            return HttpResponseRedirect(next)
+            return HttpResponseRedirect(_get_next(request))
     else:
         if add_messages:
             for error in form.errors:
@@ -78,7 +84,7 @@ def free_comment(request, content_type, object_id, parent_id=None, ajax=False):
     
     If invalid POST data is submitted, this will return an *Http404* error.
     """
-    form = FreeThreadedCommentForm(request.POST or None)
+    form = FreeThreadedCommentForm(request.POST or None, error_class=ErrorDict)
     if form.is_valid():
         new_comment = form.save(commit=False)
         new_comment.ip_address = request.META.get('REMOTE_ADDR', None)
@@ -92,10 +98,7 @@ def free_comment(request, content_type, object_id, parent_id=None, ajax=False):
         elif ajax == 'xml':
             return XMLResponse([new_comment,])
         else:
-            # Determine next url
-            next = request.POST.get('next', request.GET.get('next', request.META.get('HTTP_REFERER', None)))
-            if not next or next == request.path:
-                raise Http404 # No next url was supplied in GET or POST.
-            return HttpResponseRedirect(next)
+            return HttpResponseRedirect(_get_next(request))
     else:
-        raise Http404
+        request.session['errors'] = dict([(smart_unicode(e), [force_unicode(f) for f in form.errors[e]]) for e in form.errors])
+        return HttpResponseRedirect(_get_next(request))

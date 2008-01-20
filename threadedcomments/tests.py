@@ -291,10 +291,10 @@ u'/freecomment/9/3/6/xml/'
 
 >>> c = Context({'topic' : old_topic, 'parent' : FreeThreadedComment.objects.latest()})
 >>> Template('{% load threadedcommentstags %}{% get_free_threaded_comment_tree for topic as tree %}[{% for item in tree %}({{ item.depth }}){{ item.comment }},{% endfor %}]').render(c)
-u'[(0)test1,(0)test2,(0)test3,(1)test4,(1)test6,(0)test5,]'
+u'[(0)test1,(0)test2,(0)test3,(1)test4,(1)test5,(1)test6,]'
 
 >>> Template('{% load threadedcommentstags %}{% get_threaded_comment_tree for topic as tree %}[{% for item in tree %}({{ item.depth }}){{ item.comment }},{% endfor %}]').render(c)
-u'[(0)test7,(0)test8,(0)test9,(1)test10,(1)test12,(0)test11,]'
+u'[(0)test7,(0)test8,(0)test9,(1)test10,(1)test11,(1)test12,]'
 
 >>> markdown_txt = '''
 ... A First Level Header
