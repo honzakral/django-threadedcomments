@@ -279,8 +279,8 @@ In this case, we're calling ``show_reply_form`` for comment ``c1``, the URL to
 POST to is ``/threadedcomments/freecomment/12/1/1/``, and the person's name
 that we'd like to respond to is ``Eric Florenzano``.
 
-Upgrading from ``django.contrib.comments``
-==========================================
+Step 5: Upgrading from ``django.contrib.comments``
+==================================================
 
 *django_threadedcomments* provides a simple management command to allow for
 the simple upgrading of the built-in ``django.contrib.comments``.  To use it,
@@ -299,4 +299,9 @@ comments, but future commenters can reply to those legacy comments just fine.
 Wrapping Up
 ===========
 
-We've 
+We've finished!  Now it's up to you to style the page according to your wishes,
+or even better, apply the techniques from this tutorial on your own blog or 
+web application.  For a live example of this, `visit this link`_.  Try it out 
+for yourself and leave comments on that page, if you wish.
+
+.. _`visit this link`: http://www.eflorenzano.com/threadedcomments/example/
