@@ -93,6 +93,11 @@ def free_comment(request, content_type, object_id, parent_id=None, ajax=False):
         if parent_id:
             new_comment.parent = get_object_or_404(FreeThreadedComment, id = int(parent_id))
         new_comment.save()
+        request.session['successful_data'] = {
+            'name' : form.cleaned_data['name'],
+            'website' : form.cleaned_data['website'],
+            'email' : form.cleaned_data['email'],
+        }
         if ajax == 'json':
             return JSONResponse([new_comment,])
         elif ajax == 'xml':
@@ -100,5 +105,5 @@ def free_comment(request, content_type, object_id, parent_id=None, ajax=False):
         else:
             return HttpResponseRedirect(_get_next(request))
     else:
-        request.session['errors'] = dict([(smart_unicode(e), [force_unicode(f) for f in form.errors[e]]) for e in form.errors])
+        request.session['threadedcomment_errors'] = dict([(smart_unicode(e), [force_unicode(f) for f in form.errors[e]]) for e in form.errors])
         return HttpResponseRedirect(_get_next(request))

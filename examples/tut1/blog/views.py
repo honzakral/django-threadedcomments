@@ -9,7 +9,7 @@ def latest_post(request):
         post = BlogPost.objects.latest('date_posted')
     except BlogPost.DoesNotExist:
         raise Http404
-    errors = request.session.pop('errors', None)
+    errors = request.session.pop('threadedcomment_errors', None)
     if errors:
         errors = ["%s: %s" % (e, ' '.join(errors[e])) for e in errors]
     context = {
