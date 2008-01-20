@@ -17,20 +17,17 @@ MARKUP_CHOICES = (
     (PLAINTEXT, "plaintext"),
 )
 
-def dfs(node, todo):
+def dfs(node, all_nodes, depth):
     """
     Performs a recursive depth-first search starting at ``node``.  This function
     also annotates an attribute, ``depth``, which is an integer that represents
     how deeply nested this node is away from the original object.
     """
-    node.depth = 0
+    node.depth = depth
     to_return = [node,]
-    for n in todo:
-        if n.parent is not None and n.parent.id == node.id:
-            todo.remove(n)
-            for subnode in dfs(n, todo):
-                subnode.depth = subnode.depth + 1
-                to_return.append(subnode)
+    for subnode in all_nodes:
+        if subnode.parent and subnode.parent.id == node.id:
+            to_return.extend(dfs(subnode, all_nodes, depth+1))
     return to_return
 
 class ThreadedCommentManager(models.Manager):
@@ -61,7 +58,8 @@ class ThreadedCommentManager(models.Manager):
         ).select_related())
         to_return = []
         for child in children:
-            to_return.extend(dfs(child, children))
+            if not child.parent:
+                to_return.extend(dfs(child, children, 0))
         return to_return
 
     def _generate_object_kwarg_dict(self, content_object, **kwargs):
@@ -207,7 +205,7 @@ class ThreadedComment(models.Model):
             ('Content', {'fields': ('user', 'comment')}),
             ('Meta', {'fields': ('is_public', 'date_submitted', 'date_modified', 'date_approved', 'is_approved', 'ip_address')}),
         )
-        list_display = ('user', 'date_submitted', 'content_type', 'get_content_object', 'parent')
+        list_display = ('user', 'date_submitted', 'content_type', 'get_content_object', 'parent', '__unicode__')
         list_filter = ('date_submitted',)
         date_hierarchy = 'date_submitted'
         search_fields = ('comment', 'user__username')
@@ -325,7 +323,7 @@ class FreeThreadedComment(models.Model):
             ('Content', {'fields': ('name', 'website', 'email', 'comment')}),
             ('Meta', {'fields': ('date_submitted', 'date_modified', 'date_approved', 'is_public', 'ip_address', 'is_approved')}),
         )
-        list_display = ('name', 'date_submitted', 'content_type', 'get_content_object', 'parent')
+        list_display = ('name', 'date_submitted', 'content_type', 'get_content_object', 'parent', '__unicode__')
         list_filter = ('date_submitted',)
         date_hierarchy = 'date_submitted'
         search_fields = ('comment', 'name', 'email', 'website')
