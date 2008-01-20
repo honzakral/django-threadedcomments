@@ -270,8 +270,11 @@ this::
 
 That's one long link right there!  What we're doing here is dynamically 
 creating a Javascript function call to ``show_reply_form`` using Django's 
-context variables as parameters for ``show_reply_form``.  Once Django has 
-processed this template, the result will look something like this::
+context variables as parameters for ``show_reply_form``.  Note that 
+``get_free_comment_url`` takes a second argument--the parent comment.  In this
+case, we're creating a response form, so the parent comment to the reply will
+be the comment that we're currently displaying.  Once Django has processed 
+this template, the result will look something like this::
 
     <a id="c1" href="javascript:show_reply_form('c1','/threadedcomments/freecomment/12/1/1/','Eric Florenzano')">Reply</a>
 
