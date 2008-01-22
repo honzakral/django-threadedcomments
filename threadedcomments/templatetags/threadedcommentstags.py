@@ -136,8 +136,8 @@ def auto_transform_markup(comment):
             return markup.textile(comment.comment)
         elif comment.markup == REST:
             return markup.restructuredtext(comment.comment)
-        elif comment.markup == HTML:
-            return mark_safe(force_unicode(comment.comment))
+#        elif comment.markup == HTML:
+#            return mark_safe(force_unicode(comment.comment))
         elif comment.markup == PLAINTEXT:
             return escape(comment.comment)
     except ImportError:
