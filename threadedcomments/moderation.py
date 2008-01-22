@@ -7,9 +7,9 @@ from django.core.mail import send_mail
 from django.dispatch import dispatcher
 from django.db.models import signals
 from django.db.models.base import ModelBase
-from models import ThreadedComment, FreeThreadedComment
+from models import ThreadedComment, FreeThreadedComment, MARKUP_CHOICES
 
-AKISMET_DEFAULT = getattr(settings, 'AKISMET_DEFAULT_ON', False)
+MARKUP_CHOICES_IDS = [c[0] for c in MARKUP_CHOICES]
 
 class ThreadedCommentManager(object):
     """
@@ -23,6 +23,9 @@ class ThreadedCommentManager(object):
     close_after = None
     enable_field = None
     email_notification = None
+    max_comment_length = None
+
+DEFAULT_MAX_COMMENT_LENGTH = getattr(settings, 'DEFAULT_MAX_COMMENT_LENGTH', 1000000)
 
 class Moderator(object):
     """
@@ -35,9 +38,10 @@ class Moderator(object):
     def __init__(self):
         self._registry = {}
 
-    def register(self, model, manager=None, akismet=AKISMET_DEFAULT, 
+    def register(self, model, manager = None, akismet = None, 
         auto_close_field = None, close_after = None, enable_field = None,
-        email_notification = None):
+        email_notification = None, max_comment_length = DEFAULT_MAX_COMMENT_LENGTH,
+        allowed_markup = MARKUP_CHOICES_IDS):
         """
         Registers a model with a set of moderation options in one of two ways:
 
@@ -69,11 +73,28 @@ class Moderator(object):
            :email_notification:
                *True* or *False*, dictates whether to send administrators an
                email upon a successfully saved new comment.
+        
+           :max_comment_length:
+               An integer representing the maximum length (in characters) that the
+               comment may be.  Defaults to 1000.
+            
+           :allowed_markup:
+               A list of integers derived from ``MARKUP_CHOICES`` in the models
+               file.  If a comment is submitted on an object with a different
+               markup than is allowed, then it will be immediately deleted.
 
         .. _comment_utils: http://code.google.com/p/django-comment-utils/
         """
         if manager:
-            self._registry[model] = manager
+            moderation_obj = ThreadedCommentManager()
+            moderation_obj.akismet = manager.akismet
+            moderation_obj.auto_close_field = manager.auto_close_field
+            moderation_obj.close_after = manager.close_after
+            moderation_obj.enable_field = manager.enable_field
+            moderation_obj.email_notification = manager.email_notification
+            moderation_obj.max_comment_length = getattr(manager, 'max_comment_length', max_comment_length)
+            moderation_obj.allowed_markup = getattr(manager, 'allowed_markup', allowed_markup)
+            self._registry[model] = moderation_obj
         else:
             if close_after:
                 assert auto_close_field is not None
@@ -83,6 +104,8 @@ class Moderator(object):
             moderation_obj.close_after = close_after
             moderation_obj.enable_field = enable_field
             moderation_obj.email_notification = email_notification
+            moderation_obj.max_comment_length = max_comment_length
+            moderation_obj.allowed_markup = allowed_markup
             self._registry[model] = moderation_obj
         for klass in (ThreadedComment, FreeThreadedComment):
             dispatcher.connect(self.pre_save, sender=klass, signal=signals.pre_save)
@@ -171,6 +194,11 @@ class Moderator(object):
         # c is the moderation object or moderation configuration, named c for conciseness
         if c.akismet and self.is_spam(instance):
             instance.is_public = False
+        if len(instance.comment) > c.max_comment_length:
+            instance.is_public = False
+        if instance.markup not in c.allowed_markup:
+            self.annotate_deletion(instance)
+            return
         if c.enable_field and self.is_disabled(instance.content_object, c.enable_field):
             self.annotate_deletion(instance)
             return
@@ -192,6 +220,12 @@ class Moderator(object):
             return
         if self._registry[model].email_notification:
             self.do_emails(instance)
+    
+    def get_max_comment_length(self, model):
+        if model not in self._registry:
+            return DEFAULT_MAX_COMMENT_LENGTH
+        else:
+            return self._registry[model].max_comment_length
 
 # Instantiate the ``Moderator`` so that other modules can import and begin to register
 # with it.

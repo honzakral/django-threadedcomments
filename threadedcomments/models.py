@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.contrib.auth.models import User
 from datetime import datetime
+from django.db.models import Q
 
 MARKDOWN = 1
 TEXTILE = 2
@@ -95,7 +96,9 @@ class PublicThreadedCommentManager(ThreadedCommentManager):
     (in other words, ``is_public = True``).
     """
     def get_query_set(self):
-        return super(ThreadedCommentManager, self).get_query_set().filter(is_public = True)
+        return super(ThreadedCommentManager, self).get_query_set().filter(
+            Q(is_public = True) | Q(is_approved = True)
+        )
 
 class ThreadedComment(models.Model):
     """
@@ -133,7 +136,7 @@ class ThreadedComment(models.Model):
     
     # Status Fields
     is_public = models.BooleanField(default = True)
-    is_approved = models.BooleanField(default = True)
+    is_approved = models.BooleanField(default = False)
     
     # Extra Field
     ip_address = models.IPAddressField(null=True, blank=True)
@@ -241,7 +244,7 @@ class FreeThreadedComment(models.Model):
     # Date Fields
     date_submitted = models.DateTimeField(default = datetime.now)
     date_modified = models.DateTimeField(default = datetime.now)
-    date_approved = models.DateTimeField(default=None, null=True, blank=True)
+    date_approved = models.DateTimeField(default = None, null=True, blank=True)
     
     # Meat n' Potatoes
     comment = models.TextField()
@@ -249,7 +252,7 @@ class FreeThreadedComment(models.Model):
     
     # Status Fields
     is_public = models.BooleanField(default = True)
-    is_approved = models.BooleanField(default = True)
+    is_approved = models.BooleanField(default = False)
     
     # Extra Field
     ip_address = models.IPAddressField(null=True, blank=True)

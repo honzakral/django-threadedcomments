@@ -1,11 +1,67 @@
 =================================
-threadedcomment API Documentation
+threadedcomments API Documentation
 =================================
 
 Models
 ======
 
-TODO: Summary Here.
+*threadedcomments* has two basic models that are included and supported by
+default: ``ThreadedComment``, and ``FreeThreadedComment``.  The difference
+between these two models is slight.  In essence, every ``ThreadedComment`` 
+instance is associated with a user from ``django.contrib.auth.models.User``,
+whereas ``FreeThreadedComment`` has no such association, but provides a few
+other identifying fields instead.
+
+Common Fields
+-------------
+
+Below is a listing of all of the fields that are shared by both 
+``ThreadedComment`` and ``FreeThreadedComment``.
+
+These first three fields deal with the object with which this comment is
+associated::
+    :content_type (``ForeignKey``):
+        The content type (``django.contrib.contenttypes.models.ContentType``
+        instance with which this comment is associated.
+    :object_id (``PositiveIntegerField``):
+        The value of the primary key to which this comment is associated.
+    :content_object (``GenericForeignKey``):
+        Combines the ``content_type`` and ``object_id`` fields to act as a
+        virtual foreign key to the associated object.
+
+The next field is how we build our "threads", or hierarchy::
+    :parent (``ForeignKey``):
+        A self-referencing foreign key to whom this comment is addressed, 
+        being ``None`` if it is a toplevel comment (addressed directly to 
+        the original content object).
+
+The following fields deal with keeping track of dates of some events on 
+this comment::
+    :date_submitted (``DateTimeField``):
+        The date and time that this comment was saved for the first time.
+    :date_modified (``DateTimeField``):
+        The most recent date and time that this comment was saved.
+    :date_approved (``DateTimeField``):
+        The date and time that this comment set as ``is_approved=True``.
+
+The following fields deal with the actual content of the comment itself:
+    :comment (``TextField``):
+        The content of the comment.
+    :markup (``IntegerField``):
+        The format of the comment.  Values may be ``MARKDOWN``, 
+        ``TEXTILE``, ``REST``, ``PLAINTEXT``.  This can be used for display
+        purposes when deciding how to format the comment for viewing.
+
+The following fields have to do with the status of the comment.  Combined,
+they describe whether the comment should be viewable or not::
+    :is_public (``BooleanField``):
+        This field defaults to ``True``, but will bet set to ``False`` if 
+        any of the moderation checks in an associated ``Moderator`` fail.
+    :is_approved (``BooleanField``):
+        This field defaults to ``False``, and it acts as an administrative
+        override.  It allows administrators to manually "whitelist"
+        comments which fail a moderation test resulting in ``is_public``
+        being set to ``False``.
 
 ``ThreadedComment``
 -------------------
@@ -15,6 +71,21 @@ TODO: Write Me.
 
 ``FreeThreadedComment``
 -----------------------
+
+TODO: Write Me.
+
+Custom Managers
+===============
+
+TODO: Summary Here.
+
+``ThreadedCommentManager``
+--------------------------
+
+TODO: Write Me.
+
+``PublicThreadedCommentManager``
+--------------------------------
 
 TODO: Write Me.
 
