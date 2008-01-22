@@ -4,7 +4,7 @@
 ##################################
 >>> import datetime
 >>> from models import FreeThreadedComment, ThreadedComment, TestModel
->>> from models import MARKDOWN, TEXTILE, REST, HTML, PLAINTEXT
+>>> from models import MARKDOWN, TEXTILE, REST, PLAINTEXT
 >>> from django.contrib.auth.models import User
 >>> from django.contrib.contenttypes.models import ContentType
 >>> from moderation import moderator
@@ -143,7 +143,7 @@
 ... )
 >>> response = c.post(url, {'comment' : 'test1', 'name' : 'eric', 'website' : 'http://www.eflorenzano.com/', 'email' : 'floguy@gmail.com', 'next' : '/'})
 >>> FreeThreadedComment.objects.latest().get_base_data(show_dates=False)
-{'website': u'http://www.eflorenzano.com/', 'comment': u'test1', 'name': u'eric', 'parent': None, 'markup': 'plaintext', 'content_object': <TestModel: TestModel object>, 'is_public': True, 'ip_address': None, 'email': u'floguy@gmail.com', 'is_approved': True}
+{'website': u'http://www.eflorenzano.com/', 'comment': u'test1', 'name': u'eric', 'parent': None, 'markup': 'plaintext', 'content_object': <TestModel: TestModel object>, 'is_public': True, 'ip_address': None, 'email': u'floguy@gmail.com', 'is_approved': False}
 
 >>> url = reverse('tc_free_comment_ajax', 
 ...     kwargs={'content_type': content_type.id, 'object_id' : topic.id,
@@ -152,7 +152,7 @@
 >>> response = c.post(url, {'comment' : 'test2', 'name' : 'eric', 'website' : 'http://www.eflorenzano.com/', 'email' : 'floguy@gmail.com'})
 >>> tmp = loads(response.content)
 >>> FreeThreadedComment.objects.latest().get_base_data(show_dates=False)
-{'website': u'http://www.eflorenzano.com/', 'comment': u'test2', 'name': u'eric', 'parent': None, 'markup': 'plaintext', 'content_object': <TestModel: TestModel object>, 'is_public': True, 'ip_address': None, 'email': u'floguy@gmail.com', 'is_approved': True}
+{'website': u'http://www.eflorenzano.com/', 'comment': u'test2', 'name': u'eric', 'parent': None, 'markup': 'plaintext', 'content_object': <TestModel: TestModel object>, 'is_public': True, 'ip_address': None, 'email': u'floguy@gmail.com', 'is_approved': False}
 
 >>> url = reverse('tc_free_comment_ajax', 
 ...     kwargs={'content_type': content_type.id, 'object_id' : topic.id,
@@ -161,7 +161,7 @@
 >>> response = c.post(url, {'comment' : 'test3', 'name' : 'eric', 'website' : 'http://www.eflorenzano.com/', 'email' : 'floguy@gmail.com', 'next' : '/'})
 >>> tmp = parseString(response.content)
 >>> FreeThreadedComment.objects.latest().get_base_data(show_dates=False)
-{'website': u'http://www.eflorenzano.com/', 'comment': u'test3', 'name': u'eric', 'parent': None, 'markup': 'plaintext', 'content_object': <TestModel: TestModel object>, 'is_public': True, 'ip_address': None, 'email': u'floguy@gmail.com', 'is_approved': True}
+{'website': u'http://www.eflorenzano.com/', 'comment': u'test3', 'name': u'eric', 'parent': None, 'markup': 'plaintext', 'content_object': <TestModel: TestModel object>, 'is_public': True, 'ip_address': None, 'email': u'floguy@gmail.com', 'is_approved': False}
 
 >>> parent = FreeThreadedComment.objects.latest()
 
@@ -171,7 +171,7 @@
 ... )
 >>> response = c.post(url, {'comment' : 'test4', 'name' : 'eric', 'website' : 'http://www.eflorenzano.com/', 'email' : 'floguy@gmail.com', 'next' : '/'})
 >>> FreeThreadedComment.objects.latest().get_base_data(show_dates=False)
-{'website': u'http://www.eflorenzano.com/', 'comment': u'test4', 'name': u'eric', 'parent': <FreeThreadedComment: test3>, 'markup': 'plaintext', 'content_object': <TestModel: TestModel object>, 'is_public': True, 'ip_address': None, 'email': u'floguy@gmail.com', 'is_approved': True}
+{'website': u'http://www.eflorenzano.com/', 'comment': u'test4', 'name': u'eric', 'parent': <FreeThreadedComment: test3>, 'markup': 'plaintext', 'content_object': <TestModel: TestModel object>, 'is_public': True, 'ip_address': None, 'email': u'floguy@gmail.com', 'is_approved': False}
 
 >>> url = reverse('tc_free_comment_parent_ajax', 
 ...     kwargs={'content_type': content_type.id, 'object_id' : topic.id, 
@@ -180,7 +180,7 @@
 >>> response = c.post(url, {'comment' : 'test5', 'name' : 'eric', 'website' : 'http://www.eflorenzano.com/', 'email' : 'floguy@gmail.com'})
 >>> tmp = loads(response.content)
 >>> FreeThreadedComment.objects.latest().get_base_data(show_dates=False)
-{'website': u'http://www.eflorenzano.com/', 'comment': u'test5', 'name': u'eric', 'parent': <FreeThreadedComment: test3>, 'markup': 'plaintext', 'content_object': <TestModel: TestModel object>, 'is_public': True, 'ip_address': None, 'email': u'floguy@gmail.com', 'is_approved': True}
+{'website': u'http://www.eflorenzano.com/', 'comment': u'test5', 'name': u'eric', 'parent': <FreeThreadedComment: test3>, 'markup': 'plaintext', 'content_object': <TestModel: TestModel object>, 'is_public': True, 'ip_address': None, 'email': u'floguy@gmail.com', 'is_approved': False}
 
 >>> url = reverse('tc_free_comment_parent_ajax',
 ...     kwargs={'content_type': content_type.id, 'object_id' : topic.id, 
@@ -189,7 +189,7 @@
 >>> response = c.post(url, {'comment' : 'test6', 'name' : 'eric', 'website' : 'http://www.eflorenzano.com/', 'email' : 'floguy@gmail.com'})
 >>> tmp = parseString(response.content)
 >>> FreeThreadedComment.objects.latest().get_base_data(show_dates=False)
-{'website': u'http://www.eflorenzano.com/', 'comment': u'test6', 'name': u'eric', 'parent': <FreeThreadedComment: test3>, 'markup': 'plaintext', 'content_object': <TestModel: TestModel object>, 'is_public': True, 'ip_address': None, 'email': u'floguy@gmail.com', 'is_approved': True}
+{'website': u'http://www.eflorenzano.com/', 'comment': u'test6', 'name': u'eric', 'parent': <FreeThreadedComment: test3>, 'markup': 'plaintext', 'content_object': <TestModel: TestModel object>, 'is_public': True, 'ip_address': None, 'email': u'floguy@gmail.com', 'is_approved': False}
 
   ###################################
   ### ThreadedComments URLs Tests ###
@@ -205,7 +205,7 @@ True
 ... )
 >>> response = c.post(url, {'comment' : 'test7', 'next' : '/'})
 >>> ThreadedComment.objects.latest().get_base_data(show_dates=False)
-{'comment': u'test7', 'is_approved': True, 'parent': None, 'markup': 'plaintext', 'content_object': <TestModel: TestModel object>, 'user': <User: testuser>, 'is_public': True, 'ip_address': None}
+{'comment': u'test7', 'is_approved': False, 'parent': None, 'markup': 'plaintext', 'content_object': <TestModel: TestModel object>, 'user': <User: testuser>, 'is_public': True, 'ip_address': None}
 
 >>> url = reverse('tc_comment_ajax', 
 ...     kwargs={'content_type': content_type.id, 'object_id' : topic.id,
@@ -214,7 +214,7 @@ True
 >>> response = c.post(url, {'comment' : 'test8'})
 >>> tmp = loads(response.content)
 >>> ThreadedComment.objects.latest().get_base_data(show_dates=False)
-{'comment': u'test8', 'is_approved': True, 'parent': None, 'markup': 'plaintext', 'content_object': <TestModel: TestModel object>, 'user': <User: testuser>, 'is_public': True, 'ip_address': None}
+{'comment': u'test8', 'is_approved': False, 'parent': None, 'markup': 'plaintext', 'content_object': <TestModel: TestModel object>, 'user': <User: testuser>, 'is_public': True, 'ip_address': None}
 
 >>> url = reverse('tc_comment_ajax', 
 ...     kwargs={'content_type': content_type.id, 'object_id' : topic.id,
@@ -223,7 +223,7 @@ True
 >>> response = c.post(url, {'comment' : 'test9'})
 >>> tmp = parseString(response.content)
 >>> ThreadedComment.objects.latest().get_base_data(show_dates=False)
-{'comment': u'test9', 'is_approved': True, 'parent': None, 'markup': 'plaintext', 'content_object': <TestModel: TestModel object>, 'user': <User: testuser>, 'is_public': True, 'ip_address': None}
+{'comment': u'test9', 'is_approved': False, 'parent': None, 'markup': 'plaintext', 'content_object': <TestModel: TestModel object>, 'user': <User: testuser>, 'is_public': True, 'ip_address': None}
 
 >>> parent = ThreadedComment.objects.latest()
 
@@ -233,7 +233,7 @@ True
 ... )
 >>> response = c.post(url, {'comment' : 'test10', 'next' : '/'})
 >>> ThreadedComment.objects.latest().get_base_data(show_dates=False)
-{'comment': u'test10', 'is_approved': True, 'parent': <ThreadedComment: test9>, 'markup': 'plaintext', 'content_object': <TestModel: TestModel object>, 'user': <User: testuser>, 'is_public': True, 'ip_address': None}
+{'comment': u'test10', 'is_approved': False, 'parent': <ThreadedComment: test9>, 'markup': 'plaintext', 'content_object': <TestModel: TestModel object>, 'user': <User: testuser>, 'is_public': True, 'ip_address': None}
 
 >>> url = reverse('tc_comment_parent_ajax', 
 ...     kwargs={'content_type': content_type.id, 'object_id' : topic.id, 
@@ -242,7 +242,7 @@ True
 >>> response = c.post(url, {'comment' : 'test11'})
 >>> tmp = loads(response.content)
 >>> ThreadedComment.objects.latest().get_base_data(show_dates=False)
-{'comment': u'test11', 'is_approved': True, 'parent': <ThreadedComment: test9>, 'markup': 'plaintext', 'content_object': <TestModel: TestModel object>, 'user': <User: testuser>, 'is_public': True, 'ip_address': None}
+{'comment': u'test11', 'is_approved': False, 'parent': <ThreadedComment: test9>, 'markup': 'plaintext', 'content_object': <TestModel: TestModel object>, 'user': <User: testuser>, 'is_public': True, 'ip_address': None}
 
 >>> url = reverse('tc_comment_parent_ajax', 
 ...     kwargs={'content_type': content_type.id, 'object_id' : topic.id, 
@@ -251,7 +251,7 @@ True
 >>> response = c.post(url, {'comment' : 'test12'})
 >>> tmp = parseString(response.content)
 >>> ThreadedComment.objects.latest().get_base_data(show_dates=False)
-{'comment': u'test12', 'is_approved': True, 'parent': <ThreadedComment: test9>, 'markup': 'plaintext', 'content_object': <TestModel: TestModel object>, 'user': <User: testuser>, 'is_public': True, 'ip_address': None}
+{'comment': u'test12', 'is_approved': False, 'parent': <ThreadedComment: test9>, 'markup': 'plaintext', 'content_object': <TestModel: TestModel object>, 'user': <User: testuser>, 'is_public': True, 'ip_address': None}
 >>>
 #########################
 ### Templatetag Tests ###
@@ -453,14 +453,6 @@ u'<h2 style="color:green;">This is a title</h2>\\n\\n<h3>This is a subhead</h3>\
 >>> Template("{% load threadedcommentstags %}{% auto_transform_markup comment %}").render(c)
 u'<p>reStructuredText is <strong>nice</strong>. It has its own <a class="reference" href="http://docutils.sourceforge.net/rst.html">webpage</a>.</p>\\n<p>A table:</p>\\n<table border="1" class="docutils">\\n<colgroup>\\n<col width="31%" />\\n<col width="31%" />\\n<col width="38%" />\\n</colgroup>\\n<thead valign="bottom">\\n<tr><th class="head" colspan="2">Inputs</th>\\n<th class="head">Output</th>\\n</tr>\\n<tr><th class="head">A</th>\\n<th class="head">B</th>\\n<th class="head">A or B</th>\\n</tr>\\n</thead>\\n<tbody valign="top">\\n<tr><td>False</td>\\n<td>False</td>\\n<td>False</td>\\n</tr>\\n<tr><td>True</td>\\n<td>False</td>\\n<td>True</td>\\n</tr>\\n<tr><td>False</td>\\n<td>True</td>\\n<td>True</td>\\n</tr>\\n<tr><td>True</td>\\n<td>True</td>\\n<td>True</td>\\n</tr>\\n</tbody>\\n</table>\\n<div class="section">\\n<h1><a id="rst-traclinks" name="rst-traclinks">RST TracLinks</a></h1>\\n<p>See also ticket <cite>#42</cite>::.</p>\\n</div>\\n'
 
->>> comment_html = ThreadedComment.objects.create_for_object(
-...     old_topic, user = user, ip_address = '127.0.0.1', markup = HTML,
-...     comment = '<b>This is Funny</b>',
-... )
->>> c = Context({'comment' : comment_html})
->>> Template("{% load threadedcommentstags %}{% auto_transform_markup comment %}").render(c)
-u'<b>This is Funny</b>'
-
 >>> comment_plaintext = ThreadedComment.objects.create_for_object(
 ...     old_topic, user = user, ip_address = '127.0.0.1', markup = PLAINTEXT,
 ...     comment = '<b>This is Funny</b>',
@@ -468,4 +460,13 @@ u'<b>This is Funny</b>'
 >>> c = Context({'comment' : comment_plaintext})
 >>> Template("{% load threadedcommentstags %}{% auto_transform_markup comment %}").render(c)
 u'&lt;b&gt;This is Funny&lt;/b&gt;'
+
+>>> comment_plaintext = ThreadedComment.objects.create_for_object(
+...     old_topic, user = user, ip_address = '127.0.0.1', markup = PLAINTEXT,
+...     comment = '<b>This is Funny</b>',
+... )
+>>> c = Context({'comment' : comment_plaintext})
+>>> Template("{% load threadedcommentstags %}{% auto_transform_markup comment as abc %}{{ abc }}").render(c)
+u'&lt;b&gt;This is Funny&lt;/b&gt;'
+>>>
 """
