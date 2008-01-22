@@ -7,13 +7,13 @@ from datetime import datetime
 MARKDOWN = 1
 TEXTILE = 2
 REST = 3
-HTML = 4
+#HTML = 4
 PLAINTEXT = 5
 MARKUP_CHOICES = (
     (MARKDOWN, "markdown"),
     (TEXTILE, "textile"),
     (REST, "restructuredtext"),
-    (HTML, "html"),
+#    (HTML, "html"),
     (PLAINTEXT, "plaintext"),
 )
 
