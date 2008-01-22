@@ -152,7 +152,7 @@ def do_auto_transform_markup(parser, token):
     if len(split) == 2:
         return AutoTransformMarkupNode(split[1])
     elif len(split) == 4:
-        return AutoTransformMarkupNode(split[1], context_vname=split[3])
+        return AutoTransformMarkupNode(split[1], context_name=split[3])
     else:
         raise template.TemplateSyntaxError, "Invalid number of arguments for tag %r" % split[0]
 
