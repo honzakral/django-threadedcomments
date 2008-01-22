@@ -1,3 +1,4 @@
+import re
 from django import template
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
@@ -5,6 +6,10 @@ from django.utils.encoding import smart_str, force_unicode
 from django.utils.safestring import mark_safe
 from threadedcomments.models import ThreadedComment, FreeThreadedComment
 from django import template
+
+# Regular expressions for getting rid of newlines and witespace
+inbetween = re.compile('>[ \r\n]+<')
+newlines = re.compile('\r|\n')
 
 def get_contenttype_kwargs(content_object):
     """
@@ -179,6 +184,16 @@ class FreeCommentTreeNode(template.Node):
         context[self.context_name] = FreeThreadedComment.public.get_tree(content_object)
         return ''
 
+def oneline(value):
+    """
+    Takes some HTML and gets rid of newlines and spaces between tags, rendering
+    the result all on one line.
+    """
+    try:
+        return mark_safe(newlines.sub('', inbetween.sub('><', value)))
+    except:
+        return value
+
 register = template.Library()
 register.simple_tag(get_comment_url)
 register.simple_tag(get_comment_url_json)
@@ -187,6 +202,8 @@ register.simple_tag(get_free_comment_url)
 register.simple_tag(get_free_comment_url_json)
 register.simple_tag(get_free_comment_url_xml)
 register.simple_tag(auto_transform_markup)
+
+register.filter('oneline', oneline)
 
 register.tag('get_threaded_comment_tree', do_get_threaded_comment_tree)
 register.tag('get_free_threaded_comment_tree', do_get_free_threaded_comment_tree)

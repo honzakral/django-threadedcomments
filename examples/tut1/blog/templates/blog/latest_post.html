@@ -6,22 +6,12 @@
 <script type="text/javascript">
 function show_reply_form(comment_id, url, person_name) {
     var comment_reply = $('#' + comment_id);
-    var to_add = $(
-    new Array('<div class="response"><p>Reply to ' + person_name + ':</p>',
+    var to_add = $( new Array(
+    '<div class="response"><p>Reply to ' + person_name + ':</p>',
     '<form method="POST" action="' + url + '">',
-    '<ul><li>Name :<input type="text" name="name" maxlength="128" /></li>',
-    '<li>Website: <input type="text" name="website" maxlength="200" /></li>',
-    '<li>Email: <input type="text" name="email" maxlength="75" /></li>',
-    '<li>Comment: <textarea rows="10" cols="40" name="comment"></textarea>',
-    '</li><li>Markup: <select name="markup" id="id_markup">',
-    '<option value="">---------</option>',
-    '<option value="1">markdown</option>',
-    '<option value="2">textile</option>',
-    '<option value="3">restructuredtext</option>',
-    '<option value="4">html</option>',
-    '<option value="5" selected="selected">plaintext</option></select></li>',
-    '<li><input type="submit" value="Submit Comment"',
-    '/></li></ul></form></div>').join(''));
+    '<ul>',  '{{ form.as_ul|oneline }}',
+    '<li><input type="submit" value="Submit Comment" /></li>',
+    '</ul>', '</form>', '</div>').join(''));
     to_add.css("display", "none");
     comment_reply.after(to_add);
     to_add.slideDown(function() {
