@@ -156,7 +156,7 @@ def do_auto_transform_markup(parser, token):
     else:
         raise template.TemplateSyntaxError, "Invalid number of arguments for tag %r" % split[0]
 
-class CommentTreeNode(template.Node):
+class AutoTransformMarkupNode(template.Node):
     def __init__(self, comment, context_name=None):
         self.comment = template.Variable(comment)
         self.context_name = context_name
