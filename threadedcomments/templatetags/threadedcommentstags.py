@@ -125,6 +125,9 @@ def auto_transform_markup(comment):
     """
     Given a comment (``ThreadedComment`` or ``FreeThreadedComment``), this tag
     looks up the markup type of the comment and formats the output accordingly.
+    
+    It can also output the formatted content to a context variable, if a context name is
+    specified.
     """
     try:
         from django.contrib.markup.templatetags import markup
