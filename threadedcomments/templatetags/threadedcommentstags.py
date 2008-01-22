@@ -144,6 +144,30 @@ def auto_transform_markup(comment):
         # Not marking safe, in case tag fails and users input malicious code.
         return force_unicode(comment.comment)
 
+def do_auto_transform_markup(parser, token):
+    try:
+        split = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError, "%r tag must be of format {%% %r COMMENT %%} or of format {%% %r COMMENT as CONTEXT_VARIABLE %%}" % (token.contents.split()[0], token.contents.split()[0], token.contents.split()[0])
+    if len(split) == 2:
+        return AutoTransformMarkupNode(split[1])
+    elif len(split) == 4:
+        return AutoTransformMarkupNode(split[1], context_vname=split[3])
+    else:
+        raise template.TemplateSyntaxError, "Invalid number of arguments for tag %r" % split[0]
+
+class CommentTreeNode(template.Node):
+    def __init__(self, comment, context_name=None):
+        self.comment = template.Variable(comment)
+        self.context_name = context_name
+    def render(self, context):
+        comment = self.comment.resolve(context)
+        if self.context_name:
+            context[self.context_name] = auto_transform_markup(comment)
+            return ''
+        else:
+            return auto_transform_markup(comment)
+
 def do_get_threaded_comment_tree(parser, token):
     """
     Gets a tree (list of objects ordered by preorder tree traversal, and with an
@@ -201,9 +225,9 @@ register.simple_tag(get_comment_url_xml)
 register.simple_tag(get_free_comment_url)
 register.simple_tag(get_free_comment_url_json)
 register.simple_tag(get_free_comment_url_xml)
-register.simple_tag(auto_transform_markup)
 
 register.filter('oneline', oneline)
 
+register.tag('auto_transform_markup', do_auto_transform_markup)
 register.tag('get_threaded_comment_tree', do_get_threaded_comment_tree)
 register.tag('get_free_threaded_comment_tree', do_get_free_threaded_comment_tree)
