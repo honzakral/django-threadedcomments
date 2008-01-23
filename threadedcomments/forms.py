@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django import newforms as forms
+from moderation import DEFAULT_MAX_COMMENT_LENGTH
 from models import FreeThreadedComment, ThreadedComment
 from django.contrib.contenttypes.models import ContentType
 
@@ -10,6 +11,11 @@ class ThreadedCommentForm(forms.ModelForm):
     
     The ``comment`` field is the only one which is required.
     """
+
+    comment = forms.CharField(
+        max_length = DEFAULT_MAX_COMMENT_LENGTH,
+        widget = forms.Textarea
+    )
 
     class Meta:
         model = ThreadedComment
@@ -23,6 +29,11 @@ class FreeThreadedCommentForm(forms.ModelForm):
     
     The fields ``comment``, and ``name`` are the only ones which are required.
     """
+
+    comment = forms.CharField(
+        max_length = DEFAULT_MAX_COMMENT_LENGTH,
+        widget = forms.Textarea
+    )
 
     class Meta:
         model = FreeThreadedComment

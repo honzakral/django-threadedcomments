@@ -10,6 +10,7 @@ from django.db.models.base import ModelBase
 from models import ThreadedComment, FreeThreadedComment, MARKUP_CHOICES
 
 MARKUP_CHOICES_IDS = [c[0] for c in MARKUP_CHOICES]
+DEFAULT_MAX_COMMENT_LENGTH = getattr(settings, 'DEFAULT_MAX_COMMENT_LENGTH', 1000)
 
 class ThreadedCommentManager(object):
     """
@@ -24,8 +25,7 @@ class ThreadedCommentManager(object):
     enable_field = None
     email_notification = None
     max_comment_length = None
-
-DEFAULT_MAX_COMMENT_LENGTH = getattr(settings, 'DEFAULT_MAX_COMMENT_LENGTH', 1000000)
+    allowed_markup = None
 
 class Moderator(object):
     """
@@ -220,12 +220,6 @@ class Moderator(object):
             return
         if self._registry[model].email_notification:
             self.do_emails(instance)
-    
-    def get_max_comment_length(self, model):
-        if model not in self._registry:
-            return DEFAULT_MAX_COMMENT_LENGTH
-        else:
-            return self._registry[model].max_comment_length
 
 # Instantiate the ``Moderator`` so that other modules can import and begin to register
 # with it.
