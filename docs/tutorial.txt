@@ -114,7 +114,9 @@ Our example will be for the "latest" blog post.  The view is as follows::
             context_instance = RequestContext(request)
         )
 
-There are two potentially interesting things about this view.  Firstly, there is an unbound form, ``FreeThreadedCommentForm``, which is instantiated and added to the context of the response.  This is so that we can supply a response
+There are two potentially interesting things about this view.  Firstly, there 
+is an unbound form, ``FreeThreadedCommentForm``, which is instantiated and 
+added to the context of the response.  This is so that we can supply a response
 form with which new comments may be posted.  Secondly, errors are retrieved
 from ``request.session``.  This is because if a bad comment submissions is
 attempted, we will only be able to retrieve errors through the session.

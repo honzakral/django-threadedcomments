@@ -132,7 +132,7 @@ def auto_transform_markup(comment):
     try:
         from django.contrib.markup.templatetags import markup
         from django.utils.html import escape
-        from threadedcomments.models import MARKDOWN, TEXTILE, REST, HTML, PLAINTEXT
+        from threadedcomments.models import MARKDOWN, TEXTILE, REST, PLAINTEXT
         if comment.markup == MARKDOWN:
             return markup.markdown(comment.comment)
         elif comment.markup == TEXTILE:

@@ -1,6 +1,6 @@
-=================================
+==================================
 threadedcomments API Documentation
-=================================
+==================================
 
 Models
 ======
@@ -8,8 +8,8 @@ Models
 *threadedcomments* has two basic models that are included and supported by
 default: ``ThreadedComment``, and ``FreeThreadedComment``.  The difference
 between these two models is slight.  In essence, every ``ThreadedComment`` 
-instance is associated with a user from ``django.contrib.auth.models.User``,
-whereas ``FreeThreadedComment`` has no such association, but provides a few
+instance is associated with a user from ``django.contrib.auth.models.User``.
+While ``FreeThreadedComment`` has no such user association, it provides a few
 other identifying fields instead.
 
 Common Fields
@@ -19,95 +19,341 @@ Below is a listing of all of the fields that are shared by both
 ``ThreadedComment`` and ``FreeThreadedComment``.
 
 These first three fields deal with the object with which this comment is
-associated::
-    :content_type (``ForeignKey``):
-        The content type (``django.contrib.contenttypes.models.ContentType``
-        instance with which this comment is associated.
-    :object_id (``PositiveIntegerField``):
-        The value of the primary key to which this comment is associated.
-    :content_object (``GenericForeignKey``):
-        Combines the ``content_type`` and ``object_id`` fields to act as a
-        virtual foreign key to the associated object.
+associated:
 
-The next field is how we build our "threads", or hierarchy::
-    :parent (``ForeignKey``):
-        A self-referencing foreign key to whom this comment is addressed, 
-        being ``None`` if it is a toplevel comment (addressed directly to 
-        the original content object).
+:``content_type`` [``ForeignKey``]:
+    **required** The content type 
+    (``django.contrib.contenttypes.models.ContentType``) instance with which 
+    this comment is associated.
+
+:``object_id`` [``PositiveIntegerField``]:
+    **required** The value of the primary key to which this comment is 
+    associated.
+
+:``content_object`` [``GenericForeignKey``]:
+    Combines the ``content_type`` and ``object_id`` fields to act as a
+    virtual foreign key to the associated object.
+
+The next field is how we build our "threads", or hierarchy:
+
+:``parent`` [``ForeignKey``]:
+    A self-referencing foreign key to whom this comment is addressed, 
+    being ``None`` if it is a toplevel comment (addressed directly to 
+    the original content object).
 
 The following fields deal with keeping track of dates of some events on 
-this comment::
-    :date_submitted (``DateTimeField``):
-        The date and time that this comment was saved for the first time.
-    :date_modified (``DateTimeField``):
-        The most recent date and time that this comment was saved.
-    :date_approved (``DateTimeField``):
-        The date and time that this comment set as ``is_approved=True``.
+this comment:
+
+:``date_submitted`` [``DateTimeField``]:
+    The date and time that this comment was saved for the first time.
+
+:``date_modified`` [``DateTimeField``]:
+    The most recent date and time that this comment was saved.
+
+:``date_approved`` [``DateTimeField``]:
+    The date and time that this comment set as ``is_approved=True``.
 
 The following fields deal with the actual content of the comment itself:
-    :comment (``TextField``):
-        The content of the comment.
-    :markup (``IntegerField``):
-        The format of the comment.  Values may be ``MARKDOWN``, 
-        ``TEXTILE``, ``REST``, ``PLAINTEXT``.  This can be used for display
-        purposes when deciding how to format the comment for viewing.
+
+:``comment`` [``TextField``]:
+    **required** The content of the comment.
+
+:``markup`` [``IntegerField``]:
+    **required** The format of the comment.  Values may be ``MARKDOWN``, 
+    ``TEXTILE``, ``REST``, ``PLAINTEXT``.  This can be used for display
+    purposes when deciding how to format the comment for viewing.
 
 The following fields have to do with the status of the comment.  Combined,
-they describe whether the comment should be viewable or not::
-    :is_public (``BooleanField``):
-        This field defaults to ``True``, but will bet set to ``False`` if 
-        any of the moderation checks in an associated ``Moderator`` fail.
-    :is_approved (``BooleanField``):
-        This field defaults to ``False``, and it acts as an administrative
-        override.  It allows administrators to manually "whitelist"
-        comments which fail a moderation test resulting in ``is_public``
-        being set to ``False``.
+they describe whether the comment should be viewable or not:
+
+:``is_public`` [``BooleanField``]:
+    **required** This field defaults to ``True``, but will bet set to 
+    ``False`` if any of the moderation checks in an associated ``Moderator`` 
+    fail.
+
+:``is_approved`` [``BooleanField``]:
+    **required** This field defaults to ``False``, and it acts as an 
+    administrative override.  It allows administrators to manually "whitelist"
+    comments which fail a moderation test resulting in ``is_public``
+    being set to ``False``.
+
+The following field is extra metadata that may be generally useful:
+
+:``ip_address`` [``IPAddressField``]:
+    This field stores the IP address of the computer that is submits the
+    comment.
 
 ``ThreadedComment``
 -------------------
 
-TODO: Write Me.
+``ThreadedComment`` is useful for allowing registered users to comment. It is
+for this reason that there is a required foreign key to ``User``.
+
+:``user`` [``ForeignKey``]:
+    Associates this comment with a particular user from 
+    ``django.contrib.auth.models.User``.
 
 
 ``FreeThreadedComment``
 -----------------------
 
-TODO: Write Me.
+``FreeThreadedComment`` is better suited for allowing just about anyone to
+post comments on an item.  Instead of being associated with a particular user,
+instead it asks for some additional information like name and e-mail.
+
+:``name`` [``CharField``]:
+    **required** The name of the person leaving the comment.
+
+:``website`` [``URLField``]:
+    If the person leavin the comment runs or is affiliated with a website,
+    this is where that information would be stored.
+
+:``email`` [``EmailField``]:
+    An e-mail address where the person leaving the comment can be reached.
 
 Custom Managers
 ===============
 
-TODO: Summary Here.
+Since it's not a feature of most databases to store hierarchical information,
+some methods are needed to be able to access that hierarchical information in a
+meaningful way.  Also, since these comment objects can attach to any object,
+some convenience methods are helpful to query for and to create comments.  
+These types of methods do not belong on the model itself, but rather on the 
+``Manager``.
+
+Common Methods
+--------------
+
+:``get_tree(content_object)``:
+    Runs a depth-first search on all of the comments attached to the given
+    content object.  It then annotates a ``depth`` field which is an integer 
+    representing how many nodes away it is from the root node (the content
+    object itself).  It also orders the comments appropriately into threads.
+
+:``create_for_object(content_object, **kwargs)``:
+    Wraps the ``create`` method, and automatically fills out ``content_type``
+    and ``object_id`` fields based on those given by the content object.
+
+:``get_or_create_for_object(content_object, **kwargs)``:
+    Wraps the ``get_or_create`` method, and automatically fills out 
+    ``content_type`` and ``object_id`` fields based on those given by the 
+    content object.
+
+:``get_for_object(content_object, **kwargs)``:
+    Wraps the ``get`` method, and automatically fills out ``content_type``
+    and ``object_id`` fields based on those given by the content object.
+
 
 ``ThreadedCommentManager``
 --------------------------
 
-TODO: Write Me.
+This manager simply adds all of the aformentioned common methods onto the 
+default manager.
+
+It can be used by using the ``objects`` property on either ``ThreadedComment`` 
+or ``FreeThreadedComment``.  An example would be::
+
+    >>> FreeThreadedComment.objects.all()
+    [<FreeThreadedComment: This is a test.>, <FreeThreadedComment: spam>]
 
 ``PublicThreadedCommentManager``
 --------------------------------
 
-TODO: Write Me.
+This manager adds all of the aformentioned common methods onto the default
+manager, and then restricts all results to either be ``is_public = True`` or
+(by way of administrative override) ``is_approved = True``.
+
+It can be used by using the ``public`` property on either ``ThreadedComment`` 
+or ``FreeThreadedComment``.  An example would be::
+
+    >>> FreeThreadedComment.public.all()
+    [<FreeThreadedComment: This is a test.>]
 
 Moderation
 ==========
 
-TODO: Write Me.
+Moderation is how you are able to assign custom functionality to comments.  
+Almost all moderation settings take place by registering manager objects in 
+lieu of Django settings.  This means that you may choose different options for comments on different pages, etc.
+
+The design of this moderation system is largely inspired by `James Bennett`_'s
+excellent comment_utils_ appplication--in fact, it provides compatibility with
+a good portion of the options in comment_utils_' managers.  The implementation, however, is almost entirely dissimilar and much more simplistic.
+
+.. _`James Bennett`: http://www.b-list.org/
+.. _comment_utils: http://code.google.com/p/django-comment-utils/
+
+Customization can happen in one of two ways:
+
+1. Keyword Arguments
+
+2. Registration of a ``ThreadedCommentManager``
+
+Note that the keyword arguments are the exact same as the properties on the
+``ThreadedCommentManager``, so learning about one implies learning about the
+other.
+
+Manager Properties (Or Keyword Arguments)
+-----------------------------------------
+
+:``akismet``:
+    Set this to either ``True`` or ``False``.  If ``True``, it will check
+    Akismet_ to see if it believes the comment to be spam.  If it does, it will
+    set ``is_public = False`` before saving.
+
+:``auto_close_field``:
+    A string representation of a field name on a model.  It must refer to a 
+    ``DateField`` or a ``DateTimeField``.  Combined with ``close_after``, this 
+    can disallow comments after a certain number of days has passed.
+
+
+:``close_after``:
+    An integer representing the number of days after the specified 
+    ``auto_close_field`` before comments will no longer be accepted.
+
+:``enable_field``:
+    A string representation of a field name on a model.  It should refer to a
+    ``BooleanField``.  If that field evaluates to ``False`` on a comment's
+    ``content_object`` model instance, then the comment will be deleted
+    immediately.
+
+:``email_notification``:
+    A boolean representing whether or not e-mail notifications should be sent
+    out to each manager listed in Django's settings module.  ``True`` means 
+    that e-mails will be sent upon each new comment, and ``False`` means that
+    they will not.
+
+:``max_comment_length``:
+    The maximum length of a comment, in characters.  Defaults to 
+    ``settings.DEFAULT_MAX_COMMENT_LENGTH``.  If a comment goes beyond this 
+    length, the manager will set ``is_public = False`` before saving.
+
+:``allowed_markup``:
+    A list of which markup types this manager will allow.  If a different
+    markup is submitted, the manager will set ``is_public = False`` before
+    saving.
+
+    This list can be comprised of zero or more of the following imported 
+    constants::
+        
+        from threadedcomments.models import MARKDOWN, TEXTILE, REST, PLAINTEXT
+
+.. _Akismet: http://akismet.com/
+
+Model-Manager Registration
+--------------------------
+
+To register a manager with a model, first the moderator must be imported::
+
+    from threadedcomments.moderation import moderator
+
+Then, the moderator has ``register`` and ``unregister`` functions.
+
+:``register(model, [manager=None, **kwargs])``:
+    Registers a model class with a manager or with the aformentioned keyword
+    arguments.
+
+:``unregister(model)``:
+    Unregisters the manager that's currently associated with the given model.
+
+Examples
+--------
+
+Both of the following examples will assume that a "BlogPost" model exists::
+
+    class BlogPost(models.Model):
+        title = models.CharField(max_length=128)
+        body = models.TextField()
+        allows_comments = models.BooleanField(default = True)
+
+1. Using a Manager::
+
+    from threadedcomments.moderation import moderator, ThreadedCommentManager
+
+    class BlogPostManager(ThreadedCommentManager):
+        akismet = True
+        enable_field = 'allows_comments'
+
+    moderator.register(BlogPost, manager=BlogPostManager)
+    
+
+2. Using Keyword Arguments::
+
+    from threadedcomments.moderation import moderator
+
+    moderator.register(BlogPost, akismet=True, enable_field='allows_comments')
 
 Template Helpers
 ================
 
-TODO: Summary Here.
+While it's possible to import the comment models and use them to query for the
+appropriate comments, sometimes it's easier to do some of that manipulation
+in the template.  There are several tags and filters which will help to begin
+using *threadedcomments*.
+
+To use any of these tags or filters, first make sure to have 'threadedcomments'
+listed in your ``INSTALLED_APPS``, and then include the following in your
+template::
+
+    {% load threadedcommentstags %}
+
+After "threadedcommentstags" has been loaded, all of the following become
+available.
 
 Tags
 ----
 
-TODO: Write Me.
+:``{% get_comment_url OBJECT [PARENT=None] %}``:
+    Gets the URL to post to for the given object and optional parent comment.
+
+:``{% get_comment_url_json OBJECT [PARENT=None] %}``:
+    Gets the URL to post to for the given object and optional parent comment, 
+    which will respond with JSON (useful for AJAX).
+
+:``{% get_comment_url_xml OBJECT [PARENT=None] %}``:
+    Gets the URL to post to for the given object and optional parent comment, 
+    which will respond with XML (useful for AJAX).
+
+:``{% get_free_comment_url OBJECT [PARENT=None] %}``:
+    Gets the URL to post to for the given object and optional parent free 
+    comment.
+
+:``{% get_free_comment_url_json OBJECT [PARENT=None] %}``:
+    Gets the URL to post to for the given object and optional parent free 
+    comment, which will respond with JSON (useful for AJAX).
+
+:``{% get_free_comment_url_xml OBJECT [PARENT=None] %}``:
+    Gets the URL to post to for the given object and optional parent free 
+    comment, which will respond with XML (useful for AJAX).
+
+:``{% auto_transform_markup COMMENT [as CONTEXT_VAR] %}``:
+    Inspects the given comment and its markup, and either outputs it using the
+    correct markup processor, or if a context variable is specified, outputs
+    it into the context for further use.
+
+:``{% get_threaded_comment_tree for OBJECT as CONTEXT_VAR %}``:
+    Calls ``ThreadedComment.public.get_tree(OBJECT)`` and places the result 
+    into the specified context variable.
+
+:``{% get_free_threaded_comment_tree for OBJECT as CONTEXT_VAR %}``:
+    Calls ``FreeThreadedComment.public.get_tree(OBJECT)`` and places the result 
+    into the specified context variable.
+
 
 Filters
 -------
 
-TODO: Write Me.
+:oneline:
+    Gets rid of all newlines and spaces in-between tags.  This is useful for
+    calling when passing, for example, a form to javascript.  You could use it
+    like so::
+
+        <script type="text/javascript">
+            var form_html_fragment = '{{ form.as_ul|oneline }}';
+        </script>
+
+    Now you could use that ``form_html_fragment`` Javascript variable to 
+    dynamically add or remove comment forms to the page.
 
 Views
 =====

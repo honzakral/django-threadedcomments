@@ -46,7 +46,7 @@ class ThreadedCommentManager(models.Manager):
         Ideally, one would use this ``depth`` attribute in the display of the comment to
         offset that comment by some specified length.
         
-        The following is a (VERY) simple example of how it might be used in a template:
+        The following is a (VERY) simple example of how the depth property might be used in a template:
         
             {% for comment in comment_tree %}
                 <p style="margin-left: {{ comment.depth }}em">{{ comment.comment }}</p>
