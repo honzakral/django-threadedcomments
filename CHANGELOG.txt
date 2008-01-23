@@ -1,0 +1,7 @@
+Version 0.1, 23th January 2008:
+-------------------------------
+
+Packaged from revision ?? in Subversion; download at
+http://django-threadedcomments.googlecode.com/files/threadedcomments-0.1.zip
+
+* First packaged version using distutils.

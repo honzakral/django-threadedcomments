@@ -393,6 +393,36 @@ the view, it will return a JSON or an XML (as requested by URL) representation
 of the object just committed.  It's up to you to dynamically
 insert its content into the comment thread.
 
+Errors
+------
+
+If a view encounters an error (form validation being the most common case), 
+then depending on the type of comment, one of several things will happen.  If
+it's a ``FreeThreadedComment``, then any validation errors will be stored in 
+the session under the name ``threadedcomment_errors``.
+
+If it's a ``ThreadedComment``, then any validation errors are added to the
+user's ``message_set``.  Read the documentation on messages_ to determine how
+you would like to query for and display this error information.
+
+.. _messages: http://www.djangoproject.com/documentation/authentication/#messages
+
+.. tip::
+
+    When using ``FreeThreadedComment`` and after a comment is successfully
+    saved, the successful ``name``, ``website``, and ``email`` fields will be
+    placed into the session under the name ``successful_data``.  To use this
+    data for the next time a user visits the website, simply populate the
+    initial data for a form with the ``successful_data`` dict.
+
+    For example::
+
+        successful_data = request.session.get('successful_data', {})
+        form = FreeThreadedCommentForm(initial = successful_data)
+
+    Now that form will have the user's simple data prepopulated.  It's that
+    easy!
+
 Forms
 =====
 
