@@ -13,6 +13,11 @@
 >>> topic = TestModel.objects.create(name = "Test")
 >>> user = User.objects.create_user('user', 'floguy@gmail.com', password='password')
 >>> user2 = User.objects.create_user('user2', 'floguy@gmail.com', password='password')
+
+  #######################
+  ### ThreadedComment ###
+  #######################
+
 >>> comment1 = ThreadedComment.objects.create_for_object(
 ...     topic, user = user, ip_address = '127.0.0.1',
 ...     comment = 'This is fun!  This is very fun!',
@@ -86,6 +91,7 @@
 
 >>> len(mail.outbox)
 1
+>>> mail.outbox = []
 
 >>> topic.date = topic.date - datetime.timedelta(days = 20)
 >>> topic.save()
@@ -94,6 +100,37 @@
 ...     topic, user = user, ip_address = '127.0.0.1', parent = comment7,
 ...     comment = "This shouldn't appear, due to close_after=15.",
 ... )
+
+>>> topic.date = topic.date + datetime.timedelta(days = 20)
+>>> topic.save()
+
+>>> moderator.unregister(TestModel)
+>>> moderator.register(TestModel, max_comment_length = 10)
+
+>>> comment13 = ThreadedComment.objects.create_for_object(
+...     topic, user = user, ip_address = '127.0.0.1', parent = comment7,
+...     comment = "This shouldn't appear because it has more than 10 chars.",
+... )
+
+>>> comment14 = ThreadedComment.objects.create_for_object(
+...     topic, user = user, ip_address = '127.0.0.1', parent = comment7,
+...     comment = "<10chars",
+... )
+
+>>> moderator.unregister(TestModel)
+>>> moderator.register(TestModel, allowed_markup=[REST,])
+
+>>> comment15 = ThreadedComment.objects.create_for_object(
+...     topic, user = user, ip_address = '127.0.0.1', parent = comment7,
+...     comment = "INVALID Markup.  Should not show up.", markup=TEXTILE
+... )
+
+>>> comment16 = ThreadedComment.objects.create_for_object(
+...     topic, user = user, ip_address = '127.0.0.1', parent = comment7,
+...     comment = "VALID Markup.  Should show up.", markup=REST
+... )
+
+>>> moderator.unregister(TestModel)
 
 >>> tree = ThreadedComment.public.get_tree(topic)
 >>> for comment in tree:
@@ -106,6 +143,8 @@
          I'm a fanboy!
  What are we talking about?
  Post moderator addition.  Does it still work?
+     <10chars
+     VALID Markup.  Should show up.
  This should appear again, due to unregistration
 
 >>> tree = ThreadedComment.objects.get_tree(topic)
@@ -119,8 +158,163 @@
          I'm a fanboy!
  What are we talking about?
  Post moderator addition.  Does it still work?
+     This shouldn't appear because it has more than 10 chars.
+     <10chars
+     VALID Markup.  Should show up.
  This should appear again, due to unregistration
 >>>
+
+  ###########################
+  ### FreeThreadedComment ###
+  ###########################
+
+>>> fcomment1 = FreeThreadedComment.objects.create_for_object(
+...     topic, name = "Eric", ip_address = '127.0.0.1',
+...     comment = 'This is fun!  This is very fun!',
+... )
+>>> fcomment2 = FreeThreadedComment.objects.create_for_object(
+...     topic, name = "Eric", ip_address = '127.0.0.1',
+...     comment = 'This is stupid!  I hate it!',
+... )
+>>> fcomment3 = FreeThreadedComment.objects.create_for_object(
+...     topic, name = "Eric", ip_address = '127.0.0.1', parent = fcomment2,
+...     comment = 'I agree, the first comment was wrong and you are right!',
+... )
+>>> fcomment4 = FreeThreadedComment.objects.create_for_object(
+...     topic, name = "Eric", ip_address = '127.0.0.1', 
+...     website="http://www.eflorenzano.com/", email="floguy@gmail.com",
+...     comment = 'What are we talking about?',
+... )
+>>> fcomment5 = FreeThreadedComment.objects.create_for_object(
+...     topic, name = "Eric", ip_address = '127.0.0.1', parent = fcomment3,
+...     comment = "I'm a fanboy!",
+... )
+>>> fcomment6 = FreeThreadedComment.objects.create_for_object(
+...     topic, name = "Eric", ip_address = '127.0.0.1', parent = fcomment1,
+...     comment = "What are you talking about?",
+... )
+
+>>> moderator.register(TestModel, enable_field='is_public', auto_close_field='date', close_after=15)
+
+>>> fcomment7 = FreeThreadedComment.objects.create_for_object(
+...     topic, name = "Eric", ip_address = '127.0.0.1',
+...     comment = "Post moderator addition.  Does it still work?",
+... )
+
+>>> topic.is_public = False
+>>> topic.save()
+
+>>> fcomment8 = FreeThreadedComment.objects.create_for_object(
+...     topic, name = "Eric", ip_address = '127.0.0.1', parent = fcomment7,
+...     comment = "This should not appear, due to enable_field",
+... )
+
+>>> moderator.unregister(TestModel)
+
+>>> fcomment9 = FreeThreadedComment.objects.create_for_object(
+...     topic, name = "Eric", ip_address = '127.0.0.1',
+...     comment = "This should appear again, due to unregistration",
+... )
+
+>>> len(mail.outbox)
+0
+
+>>> class Manager(object):
+...     enable_field = 'is_public'
+...     auto_close_field = 'date'
+...     close_after = 15
+...     akismet = False
+...     email_notification = True
+>>> moderator.register(TestModel, manager=Manager)
+
+>>> fcomment10 = FreeThreadedComment.objects.create_for_object(
+...     topic, name = "Eric", ip_address = '127.0.0.1',
+...     comment = "This should not appear again, due to registration with a new manager.",
+... )
+
+>>> topic.is_public = True
+>>> topic.save()
+
+>>> fcomment11 = FreeThreadedComment.objects.create_for_object(
+...     topic, name = "Eric", ip_address = '127.0.0.1', parent = fcomment1,
+...     comment = "This should appear again.",
+... )
+
+>>> len(mail.outbox)
+1
+>>> mail.outbox = []
+
+>>> topic.date = topic.date - datetime.timedelta(days = 20)
+>>> topic.save()
+
+>>> fcomment12 = FreeThreadedComment.objects.create_for_object(
+...     topic, name = "Eric", ip_address = '127.0.0.1', parent = fcomment7,
+...     comment = "This shouldn't appear, due to close_after=15.",
+... )
+
+>>> topic.date = topic.date + datetime.timedelta(days = 20)
+>>> topic.save()
+
+>>> moderator.unregister(TestModel)
+>>> moderator.register(TestModel, max_comment_length = 10)
+
+>>> fcomment13 = FreeThreadedComment.objects.create_for_object(
+...     topic, name = "Eric", ip_address = '127.0.0.1', parent = fcomment7,
+...     comment = "This shouldn't appear because it has more than 10 chars.",
+... )
+
+>>> fcomment14 = FreeThreadedComment.objects.create_for_object(
+...     topic, name = "Eric", ip_address = '127.0.0.1', parent = fcomment7,
+...     comment = "<10chars",
+... )
+
+>>> moderator.unregister(TestModel)
+>>> moderator.register(TestModel, allowed_markup=[REST,])
+
+>>> fcomment15 = FreeThreadedComment.objects.create_for_object(
+...     topic, name = "Eric", ip_address = '127.0.0.1', parent = fcomment7,
+...     comment = "INVALID Markup.  Should not show up.", markup=TEXTILE
+... )
+
+>>> fcomment16 = FreeThreadedComment.objects.create_for_object(
+...     topic, name = "Eric", ip_address = '127.0.0.1', parent = fcomment7,
+...     comment = "VALID Markup.  Should show up.", markup=REST
+... )
+
+>>> moderator.unregister(TestModel)
+
+>>> tree = FreeThreadedComment.public.get_tree(topic)
+>>> for comment in tree:
+...     print "%s %s" % ("    " * comment.depth, comment.comment)
+ This is fun!  This is very fun!
+     What are you talking about?
+     This should appear again.
+ This is stupid!  I hate it!
+     I agree, the first comment was wrong and you are right!
+         I'm a fanboy!
+ What are we talking about?
+ Post moderator addition.  Does it still work?
+     <10chars
+     VALID Markup.  Should show up.
+ This should appear again, due to unregistration
+
+>>> tree = FreeThreadedComment.objects.get_tree(topic)
+>>> for comment in tree:
+...     print "%s %s" % ("    " * comment.depth, comment.comment)
+ This is fun!  This is very fun!
+     What are you talking about?
+     This should appear again.
+ This is stupid!  I hate it!
+     I agree, the first comment was wrong and you are right!
+         I'm a fanboy!
+ What are we talking about?
+ Post moderator addition.  Does it still work?
+     This shouldn't appear because it has more than 10 chars.
+     <10chars
+     VALID Markup.  Should show up.
+ This should appear again, due to unregistration
+>>>
+
 ############################
 ### Views and URLs Tests ###
 ############################
@@ -279,15 +473,15 @@ u'/comment/9/3/8/xml/'
 >>> Template('{% load threadedcommentstags %}{% get_free_comment_url topic %}').render(c)
 u'/freecomment/9/3/'
 >>> Template('{% load threadedcommentstags %}{% get_free_comment_url topic parent %}').render(c)
-u'/freecomment/9/3/6/'
+u'/freecomment/9/3/18/'
 >>> Template('{% load threadedcommentstags %}{% get_free_comment_url_json topic %}').render(c)
 u'/freecomment/9/3/json/'
 >>> Template('{% load threadedcommentstags %}{% get_free_comment_url_xml topic %}').render(c)
 u'/freecomment/9/3/xml/'
 >>> Template('{% load threadedcommentstags %}{% get_free_comment_url_json topic parent %}').render(c)
-u'/freecomment/9/3/6/json/'
+u'/freecomment/9/3/18/json/'
 >>> Template('{% load threadedcommentstags %}{% get_free_comment_url_xml topic parent %}').render(c)
-u'/freecomment/9/3/6/xml/'
+u'/freecomment/9/3/18/xml/'
 
 >>> c = Context({'topic' : old_topic, 'parent' : FreeThreadedComment.objects.latest()})
 >>> Template('{% load threadedcommentstags %}{% get_free_threaded_comment_tree for topic as tree %}[{% for item in tree %}({{ item.depth }}){{ item.comment }},{% endfor %}]').render(c)
