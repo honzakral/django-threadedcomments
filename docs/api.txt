@@ -2,6 +2,9 @@
 threadedcomments API Documentation
 ==================================
 
+.. contents:: Table of Contents
+    :backlinks: none
+
 Models
 ======
 
@@ -105,7 +108,7 @@ instead it asks for some additional information like name and e-mail.
     **required** The name of the person leaving the comment.
 
 :``website`` [``URLField``]:
-    If the person leavin the comment runs or is affiliated with a website,
+    If the person leaving the comment runs or is affiliated with a website,
     this is where that information would be stored.
 
 :``email`` [``EmailField``]:
@@ -222,6 +225,11 @@ Manager Properties (Or Keyword Arguments)
     out to each manager listed in Django's settings module.  ``True`` means 
     that e-mails will be sent upon each new comment, and ``False`` means that
     they will not.
+
+    If this is set to ``True``, it will render the template in 
+    "threadedcomments/comment_notification_email.txt" with the "comment" (the
+    comment instance) as context.  There is a default template available for
+    this purpose, but you may want to create your own and override it.
 
 :``max_comment_length``:
     The maximum length of a comment, in characters.  Defaults to 
@@ -358,34 +366,98 @@ Filters
 Views
 =====
 
-TODO: Summary Here.
+These views are more of a web service than anything else.  In fact, the only
+real difference between the normal view, JSON view, and XML view is what 
+happens after the view has finished creating a new comment.
 
-``comment``
+Redirection
 -----------
 
-TODO: Write Me.
+After a comment is posted, choosing where to go next happens in this order:
 
-``free_comment``
-----------------
+1. If there exists a ``next`` variable in the POST data, it will redirect 
+   there.
 
-TODO: Write Me.
+2. If there exists a ``next`` variable in the GET data, it will redirect there.
+
+3. If ``HTTP_REFERER`` exists in the request's META information, it will 
+   redirect there--as long as it doesn't create an infinite loop.
+
+4. It will raise an ``Http404``.
+
+AJAX
+----
+
+*threadedcomments* provides a very basic AJAX implementation.  Upon POSTing to
+the view, it will return a JSON or an XML (as requested by URL) representation 
+of the object just committed.  It's up to you to dynamically
+insert its content into the comment thread.
 
 Forms
 =====
 
-TODO: Summary Here.
+*threadedcomments* provides two basic forms that you can use and/or subclass
+to suit your needs: ``ThreadedCommentForm``, and ``FreeThreadedCommentForm``.
 
 ``ThreadedCommentForm``
 -----------------------
 
-TODO: Write Me.
+Simply includes two fields: comment, and markup.
+
+:comment:
+    **required** The content of the comment.
+
+:markup:
+    **required** The type of markup that the comment is using.  This may be 
+    easily overridden in a subclass to become a ``HiddenInput``, if the user is 
+    not to be given a choice of markup options.
 
 ``FreeThreadedCommentForm``
 ---------------------------
 
-TODO: Write Me.
+Includes a few fields: comment, name, website, email, and markup.
+
+:comment:
+    **required** The content of the comment.
+
+:name:
+    **required** The name of the person 
+
+:website:
+    A website for the commenter, if he or she has one to list.
+
+:email:
+    An e-mail address where the person leaving the comment can be reached.
+
+:markup:
+    **required** The type of markup that the comment is using.  This may be 
+    esaily overridden in a subclass to become a ``HiddenInput``, if the user is 
+    not to be given a choice of markup options.
 
 Settings
 ========
 
-TODO: Write Me.
+Most of the configuration will be done via the use of the Moderation_ features
+of *threadedcomments* itself, but there are a few settings that you might want 
+or need to apply globally in the settings file.
+
+:``AKISMET_API_KEY``:
+    Your API key for Akismet.  This will only be needed if you enable Akismet
+    moderation of comments on one of your models.
+
+:``DEFAULT_MAX_COMMENT_LENGTH = 1000``:
+    The default max_length that the comment forms should validate against
+    if an override isn't specified in per-model moderation.  If this isn't
+    specified, then a default DEFAULT_MAX_COMMENT_LENGTH of 1000 is used.
+
+More
+====
+
+This is as good as it gets for now.  Until more documentation is posted, check 
+out `Tutorial 1`_.  Beyond that, there's fairly extensive in-line 
+documentation, so you can `browse the source code`_.  If you're the kind of
+person who likes to scan doctests, you can check the tests out here_.
+
+.. _`Tutorial 1`: http://api.rst2a.com/1.0/rst2/html?uri=http%3A//django-threadedcomments.googlecode.com/svn/trunk/docs/tutorial.txt&style=zope
+.. _`browse the source code`: http://django-threadedcomments.googlecode.com/svn/trunk/
+.. _here: http://django-threadedcomments.googlecode.com/svn/trunk/threadedcomments/tests.py
