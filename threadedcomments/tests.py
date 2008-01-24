@@ -454,7 +454,7 @@ True
 >>> from threadedcomments.templatetags import threadedcommentstags as tags
 
 >>> topic = TestModel.objects.create(name = "Test3")
->>> c = Context({'topic' : topic, 'parent' : comment9})
+>>> c = Context({'topic' : topic, 'old_topic' : old_topic, 'parent' : comment9})
 
 >>> Template('{% load threadedcommentstags %}{% get_comment_url topic %}').render(c)
 u'/comment/9/3/'
@@ -469,7 +469,10 @@ u'/comment/9/3/8/json/'
 >>> Template('{% load threadedcommentstags %}{% get_comment_url_xml topic parent %}').render(c)
 u'/comment/9/3/8/xml/'
 
->>> c = Context({'topic' : topic, 'parent' : FreeThreadedComment.objects.latest()})
+>>> Template('{% load threadedcommentstags %}{% get_comment_count for old_topic as count %}{{ count }}').render(c)
+u'6'
+
+>>> c = Context({'topic' : topic, 'old_topic' : old_topic, 'parent' : FreeThreadedComment.objects.latest()})
 >>> Template('{% load threadedcommentstags %}{% get_free_comment_url topic %}').render(c)
 u'/freecomment/9/3/'
 >>> Template('{% load threadedcommentstags %}{% get_free_comment_url topic parent %}').render(c)
@@ -482,6 +485,9 @@ u'/freecomment/9/3/xml/'
 u'/freecomment/9/3/18/json/'
 >>> Template('{% load threadedcommentstags %}{% get_free_comment_url_xml topic parent %}').render(c)
 u'/freecomment/9/3/18/xml/'
+
+>>> Template('{% load threadedcommentstags %}{% get_free_comment_count for old_topic as count %}{{ count }}').render(c)
+u'6'
 
 >>> c = Context({'topic' : old_topic, 'parent' : FreeThreadedComment.objects.latest()})
 >>> Template('{% load threadedcommentstags %}{% get_free_threaded_comment_tree for topic as tree %}[{% for item in tree %}({{ item.depth }}){{ item.comment }},{% endfor %}]').render(c)
