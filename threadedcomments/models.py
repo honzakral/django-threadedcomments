@@ -89,6 +89,12 @@ class ThreadedCommentManager(models.Manager):
         """
         return self.get(**self._generate_object_kwarg_dict(content_object, **kwargs))
 
+    def all_for_object(self, content_object, **kwargs):
+        """
+        Prepopulates a QuerySet with all comments related to the given ``content_object``.
+        """
+        return self.filter(**self._generate_object_kwarg_dict(content_object, **kwargs))
+
 class PublicThreadedCommentManager(ThreadedCommentManager):
     """
     A ``Manager`` which borrows all of the same methods from ``ThreadedCommentManager``,

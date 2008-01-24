@@ -1,3 +1,11 @@
+Version 0.1.1, 24th January 2008:
+---------------------------------
+
+Added get_comment_count and get_free_comment_count templatetags.  Also updated
+the manager to have a all_for_object method which gets all related objects
+to the given content object.
+
+
 Version 0.1, 23th January 2008:
 -------------------------------
 

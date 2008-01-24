@@ -211,6 +211,52 @@ class FreeCommentTreeNode(template.Node):
         context[self.context_name] = FreeThreadedComment.public.get_tree(content_object)
         return ''
 
+def do_get_comment_count(parser, token):
+    """
+    Gets a count of how many ThreadedComment objects are attached to the given
+    object.
+    """
+    error_message = "%r tag must be of format {%% %r for OBJECT as CONTEXT_VARIABLE %%}" % (token.contents.split()[0], token.contents.split()[0])
+    try:
+        split = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError, error_message
+    if split[1] != 'for' or split[3] != 'as':
+        raise template.TemplateSyntaxError, error_message
+    return ThreadedCommentCountNode(split[2], split[4])
+
+class ThreadedCommentCountNode(template.Node):
+    def __init__(self, content_object, context_name):
+        self.content_object = template.Variable(content_object)
+        self.context_name = context_name
+    def render(self, context):
+        content_object = self.content_object.resolve(context)
+        context[self.context_name] = ThreadedComment.public.all_for_object(content_object).count()
+        return ''
+        
+def do_get_free_comment_count(parser, token):
+    """
+    Gets a count of how many FreeThreadedComment objects are attached to the 
+    given object.
+    """
+    error_message = "%r tag must be of format {%% %r for OBJECT as CONTEXT_VARIABLE %%}" % (token.contents.split()[0], token.contents.split()[0])
+    try:
+        split = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError, error_message
+    if split[1] != 'for' or split[3] != 'as':
+        raise template.TemplateSyntaxError, error_message
+    return FreeThreadedCommentCountNode(split[2], split[4])
+
+class FreeThreadedCommentCountNode(template.Node):
+    def __init__(self, content_object, context_name):
+        self.content_object = template.Variable(content_object)
+        self.context_name = context_name
+    def render(self, context):
+        content_object = self.content_object.resolve(context)
+        context[self.context_name] = FreeThreadedComment.public.all_for_object(content_object).count()
+        return ''
+
 def oneline(value):
     """
     Takes some HTML and gets rid of newlines and spaces between tags, rendering
@@ -234,3 +280,6 @@ register.filter('oneline', oneline)
 register.tag('auto_transform_markup', do_auto_transform_markup)
 register.tag('get_threaded_comment_tree', do_get_threaded_comment_tree)
 register.tag('get_free_threaded_comment_tree', do_get_free_threaded_comment_tree)
+register.tag('get_free_threaded_comment_tree', do_get_free_threaded_comment_tree)
+register.tag('get_comment_count', do_get_comment_count)
+register.tag('get_free_comment_count', do_get_free_comment_count)

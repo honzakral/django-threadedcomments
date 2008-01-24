@@ -146,6 +146,10 @@ Common Methods
     Wraps the ``get`` method, and automatically fills out ``content_type``
     and ``object_id`` fields based on those given by the content object.
 
+:``all_for_object(content_object, **kwargs)``:
+    Prepopulates a QuerySet with all comments related to the given 
+    ``content_object``.
+
 
 ``ThreadedCommentManager``
 --------------------------
@@ -333,6 +337,14 @@ Tags
 :``{% get_free_comment_url_xml OBJECT [PARENT=None] %}``:
     Gets the URL to post to for the given object and optional parent free 
     comment, which will respond with XML (useful for AJAX).
+
+:``{% get_comment_count for OBJECT as CONTEXT_VAR %}``:
+    Calls ``ThreadedComment.public.all_for_object(OBJECT).count()`` and places 
+    the result into the specified context variable.
+
+:``{% get_free_comment_count for OBJECT as CONTEXT_VAR %}``:
+    Calls ``FreeThreadedComment.public.all_for_object(OBJECT).count()`` and 
+    places the result into the specified context variable.
 
 :``{% auto_transform_markup COMMENT [as CONTEXT_VAR] %}``:
     Inspects the given comment and its markup, and either outputs it using the
