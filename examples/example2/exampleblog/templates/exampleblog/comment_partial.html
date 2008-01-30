@@ -7,17 +7,17 @@
     <div class="body">{{ marked_up|linebreaks }}</div>
     <div class="vote" {% if user.is_authenticated %}{% else %}style="display: none;"{% endif %}>
         {% if vote.is_upvote %}
-        <span class="up voted" title="{% url vote_on_object comment.id,"up" %}"><img src="{{ MEDIA_URL }}img/arrow_up_gray.png"></img></span>
+        <a href="javascript:vote({{ comment.id }},'clear')" class="up"><img src="{{ MEDIA_URL }}img/arrow_up_gray.png"></img></a>
         {% else %}
-        <a href="javascript:vote('{% url vote_on_object comment.id,"up" %}',{{ comment.id }},'up')" class="up"><img src="{{ MEDIA_URL }}img/arrow_up.png"></img></a>
+        <a href="javascript:vote({{ comment.id }},'up')" class="up"><img src="{{ MEDIA_URL }}img/arrow_up.png"></img></a>
         {% endif %}
     </div>
     <p class="score">{{ score.score }}</p>
     <div class="vote" {% if user.is_authenticated %}{% else %}style="display: none;"{% endif %}>
         {% if vote.is_downvote %}
-        <span class="down voted" title="{% url vote_on_object comment.id,"down" %}"><img src="{{ MEDIA_URL }}img/arrow_down_gray.png"></img></span>
+        <a href="javascript:vote({{ comment.id }},'clear')" class="down"><img src="{{ MEDIA_URL }}img/arrow_down_gray.png"></img></a>
         {% else %}
-        <a href="javascript:vote('{% url vote_on_object comment.id,"down" %}',{{ comment.id }},'down')" class="down"><img src="{{ MEDIA_URL }}img/arrow_down.png"></img></a>
+        <a href="javascript:vote({{ comment.id }},'down')" class="down"><img src="{{ MEDIA_URL }}img/arrow_down.png"></img></a>
         {% endif %}
     </div>
     {% if vote.is_downvote %}
