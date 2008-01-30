@@ -12,7 +12,7 @@
         <a href="javascript:vote('{% url vote_on_object comment.id,"up" %}',{{ comment.id }},'up')" class="up"><img src="{{ MEDIA_URL }}img/arrow_up.png"></img></a>
         {% endif %}
     </div>
-    <p class="scorewrapper">Score: <span class="score">{{ score.score }}</span></p>
+    <p class="score">{{ score.score }}</p>
     <div class="vote" {% if user.is_authenticated %}{% else %}style="display: none;"{% endif %}>
         {% if vote.is_downvote %}
         <span class="down voted" title="{% url vote_on_object comment.id,"down" %}"><img src="{{ MEDIA_URL }}img/arrow_down_gray.png"></img></span>
