@@ -59,6 +59,7 @@ def comment(request, content_type, object_id, parent_id=None, add_messages=True,
         if add_messages:
             for error in form.errors:
                 request.user.message_set.create(message=error)
+        return HttpResponseRedirect(_get_next(request))
 # Require login to be required, as request.user must exist and be valid.
 comment = login_required(comment)
 
