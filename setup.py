@@ -2,7 +2,7 @@ from distutils.core import setup
 
 kwargs = {
     'name' : 'threadedcomments',
-    'version' : '0.1.1',
+    'version' : '0.2',
     'description' : 'A simple yet flexible threaded commenting system.',
     'author' : 'Eric Florenzano',
     'author_email' : 'floguy@gmail.com',
