@@ -1,0 +1,14 @@
+{% load threadedcommentstags %}
+
+{% extends "threadedcomments_base.html" %}
+
+{% block content %}
+    <p>Are you sure that you would like to delete this comment?</p>
+    <div id="comment_preview">{% auto_transform_markup comment %}</div>
+    <ul>
+    <form method="POST" action=".">
+        <li><input type="submit" value="Yes" /></li>
+    </form>
+    <li><a href="{{ next }}">No</a></li>
+    </ul>
+{% endblock %}

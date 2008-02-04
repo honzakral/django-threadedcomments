@@ -1,110 +1,166 @@
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render_to_response
 from django.newforms.util import ErrorDict
 from django.utils.encoding import smart_unicode, force_unicode
 from django.utils.safestring import mark_safe
+from django.template import RequestContext
+from django.contrib.auth.decorators import permission_required
 from forms import FreeThreadedCommentForm, ThreadedCommentForm
 from models import ThreadedComment, FreeThreadedComment
 from utils import JSONResponse, XMLResponse
 from copy import deepcopy
 
 def _get_next(request):
+    """
+    The part that's the least straightforward about views in this module is how they 
+    determine their redirects after they have finished computation.
+
+    In short, they will try and determine the next place to go in the following order:
+
+    1. If there is a variable named ``next`` in the *POST* parameters, the view will
+    redirect to that variable's value.
+    2. If there is a variable named ``next`` in the *GET* parameters, the view will
+    redirect to that variable's value.
+    3. If Django can determine the previous page from the HTTP headers, the view will
+    redirect to that previous page.
+    4. Otherwise, the view will redirect to '/'.
+    """
     next = request.POST.get('next', request.GET.get('next', request.META.get('HTTP_REFERER', None)))
     if not next or next == request.path:
         raise Http404 # No next url was supplied in GET or POST.
     return next
 
-def comment(request, content_type, object_id, parent_id=None, add_messages=True, ajax=False):
+def _preview(request, context_processors, extra_context, edit_id=None, model=ThreadedComment):
     """
-    Receives POST data and creates a new ``ThreadedComment`` based upon the 
-    specified parameters.
+    Returns a preview of the comment so that the user may decide if he or she wants to
+    edit it before submitting it permanently.
+    """
+    if edit_id:
+        instance = get_object_or_404(model, id=edit_id)
+    else:
+        instance = None
+    if model == ThreadedComment:
+        form = ThreadedCommentForm(request.POST or None, instance=instance)
+    else:
+        form = FreeThreadedCommentForm(request.POST or None, instance=instance)
+    context = {
+        'next' : _get_next(request),
+        'form' : form,
+    }
+    if form.is_valid():
+        new_comment = form.save(commit=False)
+        context['comment'] = new_comment
+    else:
+        context['comment'] = None
+    return render_to_response(
+        'threadedcomments/preview_comment.html',
+        extra_context, 
+        context_instance = RequestContext(request, context, context_processors)
+    )
 
-    The part that's the least straightforward is how this redirects afterwards.
-    It will try and get the next place to go in the following order:
+def free_comment(request, content_type=None, object_id=None, edit_id=None, parent_id=None, add_messages=False, ajax=False, model=FreeThreadedComment, context_processors=[], extra_context={}):
+    """
+    Receives POST data and either creates a new ``ThreadedComment`` or 
+    ``FreeThreadedComment``, or edits an old one based upon the specified parameters.
 
-    1. If there is a variable named ``next`` in the *POST* parameters, it will
-    redirect to that variable's value.
-    2. If there is a variable named ``next`` in the *GET* parameters, it will
-    redirect to that variable's value.
-    3. If Django can determine the previous page from the HTTP headers, it will
-    redirect to that previous page.
-    4. Otherwise, it will redirect to '/'.
+    If there is a 'preview' key in the POST request, a preview will be forced and the
+    comment will not be saved until a 'preview' key is no longer in the POST request.
     
     If it is an *AJAX* request (either XML or JSON), it will return a serialized
     version of the last created ``ThreadedComment`` and there will be no redirect.
     
     If invalid POST data is submitted, this will return an *Http404* error.
     """
-    form = ThreadedCommentForm(request.POST or None)
+    if not edit_id and not (content_type and object_id):
+        raise Http404 # Must specify either content_type and object_id or edit_id
+    if "preview" in request.POST:
+        return _preview(request, context_processors, extra_context, model=model)
+    if edit_id:
+        instance = get_object_or_404(model, id=edit_id)
+    else:
+        instance = None
+    if model == ThreadedComment:
+        form = ThreadedCommentForm(request.POST, instance=instance)
+    else:
+        form = FreeThreadedCommentForm(request.POST, instance=instance)
     if form.is_valid():
         new_comment = form.save(commit=False)
-        new_comment.ip_address = request.META.get('REMOTE_ADDR', None)
-        new_comment.content_type = get_object_or_404(ContentType, id = int(content_type))
-        new_comment.object_id = int(object_id)
-        new_comment.user = request.user
+        if not edit_id:
+            new_comment.ip_address = request.META.get('REMOTE_ADDR', None)
+            new_comment.content_type = get_object_or_404(ContentType, id = int(content_type))
+            new_comment.object_id = int(object_id)
+        if model == ThreadedComment:
+            new_comment.user = request.user
         if parent_id:
-            new_comment.parent = get_object_or_404(ThreadedComment, id = int(parent_id))
+            new_comment.parent = get_object_or_404(model, id = int(parent_id))
         new_comment.save()
-        if add_messages:
-            request.user.message_set.create(message="Your message has been posted successfully.")
+        if model == ThreadedComment:
+            if add_messages:
+                request.user.message_set.create(message="Your message has been posted successfully.")
+        else:
+            request.session['successful_data'] = {
+                'name' : form.cleaned_data['name'],
+                'website' : form.cleaned_data['website'],
+                'email' : form.cleaned_data['email'],
+            }
         if ajax == 'json':
             return JSONResponse([new_comment,])
         elif ajax == 'xml':
             return XMLResponse([new_comment,])
         else:
             return HttpResponseRedirect(_get_next(request))
-    else:
+    elif model == ThreadedComment:
         if add_messages:
             for error in form.errors:
                 request.user.message_set.create(message=error)
         return HttpResponseRedirect(_get_next(request))
-# Require login to be required, as request.user must exist and be valid.
-comment = login_required(comment)
-
-def free_comment(request, content_type, object_id, parent_id=None, ajax=False):
-    """
-    Receives POST data and creates a new ``FreeThreadedComment`` based upon the 
-    specified parameters.
-    
-    The part that's the least straightforward is how this redirects afterwards.
-    It will try and get the next place to go in the following order:
-
-    1. If there is a variable named ``next`` in the *POST* parameters, it will
-    redirect to that variable's value.
-    2. If there is a variable named ``next`` in the *GET* parameters, it will
-    redirect to that variable's value.
-    3. If Django can determine the previous page from the HTTP headers, it will
-    redirect to that previous page.
-    4. Otherwise, it will redirect to '/'.
-    
-    If it is an *AJAX* request (either XML or JSON), it will return a serialized
-    version of the last created ``FreeThreadedComment`` and there will be no 
-    redirect.
-    
-    If invalid POST data is submitted, this will return an *Http404* error.
-    """
-    form = FreeThreadedCommentForm(request.POST or None, error_class=ErrorDict)
-    if form.is_valid():
-        new_comment = form.save(commit=False)
-        new_comment.ip_address = request.META.get('REMOTE_ADDR', None)
-        new_comment.content_type = get_object_or_404(ContentType, id = int(content_type))
-        new_comment.object_id = int(object_id)
-        if parent_id:
-            new_comment.parent = get_object_or_404(FreeThreadedComment, id = int(parent_id))
-        new_comment.save()
-        request.session['successful_data'] = {
-            'name' : form.cleaned_data['name'],
-            'website' : form.cleaned_data['website'],
-            'email' : form.cleaned_data['email'],
-        }
-        if ajax == 'json':
-            return JSONResponse([new_comment,])
-        elif ajax == 'xml':
-            return XMLResponse([new_comment,])
-        else:
-            return HttpResponseRedirect(_get_next(request))
     else:
         request.session['threadedcomment_errors'] = dict([(smart_unicode(e), [force_unicode(f) for f in form.errors[e]]) for e in form.errors])
         return HttpResponseRedirect(_get_next(request))
+        
+def comment(*args, **kwargs):
+    """
+    Thin wrapper around free_comment which adds login_required status and also assigns
+    the ``model`` to be ``ThreadedComment``.
+    """
+    kwargs['model'] = ThreadedComment
+    return free_comment(*args, **kwargs)
+# Require login to be required, as request.user must exist and be valid.
+comment = login_required(comment)
+
+def comment_delete(request, object_id, model=ThreadedComment, extra_context = {}, context_processors = []):
+    """
+    Deletes the specified comment, which can be either a ``FreeThreadedComment`` or a
+    ``ThreadedComment``.  If it is a POST request, then the comment will be deleted
+    outright, however, if it is a GET request, a confirmation page will be shown.
+
+    Requires 'threadedcomments.can_delete' permission to proceed.
+    """
+    tc = get_object_or_404(model, id=int(object_id))
+    if request.method == "POST":
+        tc.delete()
+        return HttpResponseRedirect(_get_next(request))
+    else:
+        if model == ThreadedComment:
+            is_free_threaded_comment = False
+            is_threaded_comment = True
+        else:
+            is_free_threaded_comment = True
+            is_threaded_comment = False
+        return render_to_response(
+            'threadedcomments/confirm_delete.html',
+            extra_context, 
+            context_instance = RequestContext(
+                request, 
+                {
+                    'comment' : tc, 
+                    'is_free_threaded_comment' : is_free_threaded_comment,
+                    'is_threaded_comment' : is_threaded_comment,
+                    'next' : _get_next(request),
+                },
+                context_processors
+            )
+        )
+comment_delete = permission_required('threadedcomments.can_delete')(comment_delete)
