@@ -1,3 +1,17 @@
+Version 0.2, 4th February 2008:
+---------------------------------
+
+Added the ability to edit or delete comments.  Also added the ability to 
+preview comments (like django.contrib.comments does) and confirm deletion of 
+comments.
+
+Also fixed a few bugs, one which was major and made it so that redirection
+worked improperly after a new ThreadedComment was posted.
+
+Finally, added max_depth as an attribute to the moderation system, so that
+someone cannot vandalize the system by posting a long series of replies to
+replies.
+
 Version 0.1.1, 24th January 2008:
 ---------------------------------
 
@@ -9,7 +23,7 @@ to the given content object.
 Version 0.1, 23th January 2008:
 -------------------------------
 
-Packaged from revision ?? in Subversion; download at
+Packaged from revision 59 in Subversion; download at
 http://django-threadedcomments.googlecode.com/files/threadedcomments-0.1.zip
 
 * First packaged version using distutils.

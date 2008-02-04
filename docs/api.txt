@@ -250,6 +250,13 @@ Manager Properties (Or Keyword Arguments)
         
         from threadedcomments.models import MARKDOWN, TEXTILE, REST, PLAINTEXT
 
+:max_depth:
+    The maximum "depth" of a comment.  That is, it will take no more than 
+    max_depth parent relationship traversals to hit a comment with no parent.
+    Defaults to ``settings.DEFAULT_MAX_COMMENT_DEPTH``.  If a comment goes 
+    beyond this depth, the manager will set ``is_public = False`` before 
+    saving.
+
 .. _Akismet: http://akismet.com/
 
 Model-Manager Registration
@@ -378,9 +385,166 @@ Filters
 Views
 =====
 
-These views are more of a web service than anything else.  In fact, the only
-real difference between the normal view, JSON view, and XML view is what 
-happens after the view has finished creating a new comment.
+There are three basic view types included with threadedcomments: **create**, 
+**edit**, and **delete**.  The following are the URL names and what inputs they 
+take.
+
+**Create**
+----------
+
+:``tc_comment``:
+
+    :``content_type``:
+        The content type of the model to attach to.
+
+    :``object_id``:
+        The primary key of the model to attach to.
+
+:``tc_comment_parent``:
+
+    :``content_type``:
+        The content type of the model to attach to.
+
+    :``object_id``:
+        The primary key of the model to attach to.
+
+    :``parent_id``:
+        The primary key of the parent comment to which this comment is a
+        response.
+
+:``tc_comment_ajax``:
+
+    :``content_type``:
+        The content type of the model to attach to.
+
+    :``object_id``:
+        The primary key of the model to attach to.
+
+    :``ajax``:
+        'json' or 'xml', depending on the response type that is wanted.
+
+:``tc_comment_parent_ajax``:
+
+    :``content_type``:
+        The content type of the model to attach to.
+
+    :``object_id``:
+        The primary key of the model to attach to.
+
+    :``parent_id``:
+        The primary key of the parent comment to which this comment is a
+        response.
+
+    :``ajax``:
+        'json' or 'xml', depending on the response type that is wanted.
+
+:``tc_free_comment``:
+    The same as ``tc_comment``, only it deals with ``FreeThreadedComment`` 
+    model objects instead of ``ThreadedComment`` objects.
+
+:``tc_free_comment_parent``:
+    The same as ``tc_comment_parent``, only it deals with 
+    ``FreeThreadedComment`` model objects instead of ``ThreadedComment`` 
+    objects.
+
+:``tc_free_comment_ajax``:
+    The same as ``tc_comment_ajax``, only it deals with ``FreeThreadedComment`` 
+    model objects instead of ``ThreadedComment`` objects.
+
+:``tc_free_comment_parent_ajax``:
+    The same as ``tc_comment_parent_ajax``, only it deals with 
+    ``FreeThreadedComment`` model objects instead of ``ThreadedComment`` 
+    objects.
+
+**Edit**
+--------
+
+:``tc_comment_edit``:
+    
+    :``edit_id``:
+        The primary key of the comment that should be edited.
+
+:``tc_comment_edit_ajax``:
+
+    :``edit_id``:
+        The primary key of the comment that should be edited.
+
+    :``ajax``:
+        'json' or 'xml', depending on the response type that is wanted.
+
+:``tc_free_comment_edit``:
+    The same as ``tc_comment_edit``, only it deals with ``FreeThreadedComment``
+    model objects instead of ``ThreadedComment`` objects.
+
+:``tc_free_comment_edit_ajax``:
+    The same as ``tc_comment_edit_ajax``, only it deals with 
+    ``FreeThreadedComment`` model objects instead of ``ThreadedComment`` 
+    objects.
+
+**Delete**
+----------
+
+:``tc_comment_delete``:
+
+    :``object_id``:
+        The primary key of the ``ThreadedComment`` to delete.
+
+:``tc_free_comment_delete``:
+
+    :``object_id``:
+        The primary key of the ``FreeThreadedComment`` to delete.
+
+Previewing
+----------
+
+If the key 'preview' is inserted into any of the following views, a preview
+page ('threadedcomments/preview_comment.html') will be shown:
+
+* ``tc_comment``
+
+* ``tc_comment_parent``
+
+* ``tc_comment_edit``
+
+* ``tc_free_comment``
+
+* ``tc_free_comment_parent``
+
+* ``tc_free_comment_edit``
+
+The context will be:
+
+:next:
+    The page to which the user should be redirected after successfully posting
+    a comment.  This is usually to be used in a hidden input field in a form
+    that tells the view where to go next.
+
+:form:
+    Either a ``FreeThreadedCommentForm`` or a ``ThreadedCommentForm``, 
+    depending on the type of view.
+
+:comment:
+    If the parameters in POST validate correctly with the appropriate form, the
+    unsaved comment will be passed in through this variable.
+
+If a GET request is sent to the **Delete** views, a confirmation/preview page
+('threadedcomments/confirm_delete.html') will be shown with context:
+
+:comment:
+    The comment object to be deleted.
+
+:is_free_threaded_comment:
+    True if comment to be deleted is a ``FreeThreadedComment``, and False
+    otherwise.
+
+:is_threaded_comment:
+    True if comment to be deleted is a ``ThreadedComment``, and False 
+    otherwise.
+
+:next:
+    The page to which the user should be redirected after successfully deleting
+    a comment.  This is usually to be used in a hidden input field in a form
+    that tells the view where to go next.
 
 Redirection
 -----------
@@ -485,12 +649,18 @@ or need to apply globally in the settings file.
 
 :``AKISMET_API_KEY``:
     Your API key for Akismet.  This will only be needed if you enable Akismet
-    moderation of comments on one of your models.
+    moderation of comments on one or more of your models.
 
 :``DEFAULT_MAX_COMMENT_LENGTH = 1000``:
     The default max_length that the comment forms should validate against
     if an override isn't specified in per-model moderation.  If this isn't
     specified, then a default DEFAULT_MAX_COMMENT_LENGTH of 1000 is used.
+
+:``DEFAULT_MAX_COMMENT_DEPTH = 8``:
+    The default max_depth that the moderation should validate against if it
+    isn't explicitly defined in the moderator.  Keep in mind that if no 
+    moderator is registered against a model, this default depth will not be
+    adhered to either.
 
 More
 ====

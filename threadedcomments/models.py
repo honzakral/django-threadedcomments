@@ -56,7 +56,7 @@ class ThreadedCommentManager(models.Manager):
         children = list(self.get_query_set().filter(
             content_type = content_type,
             object_id = getattr(content_object, 'pk', getattr(content_object, 'id')),
-        ).select_related())
+        ).select_related().order_by('date_submitted'))
         to_return = []
         for child in children:
             if not child.parent:
@@ -147,8 +147,8 @@ class ThreadedComment(models.Model):
     # Extra Field
     ip_address = models.IPAddressField(null=True, blank=True)
     
-    public = PublicThreadedCommentManager()
     objects = ThreadedCommentManager()
+    public = PublicThreadedCommentManager()
     
     def __unicode__(self):
         if len(self.comment) > 50:
@@ -202,7 +202,7 @@ class ThreadedComment(models.Model):
         return to_return
     
     class Meta:
-        ordering = ('date_submitted',)
+        ordering = ('-date_submitted',)
         verbose_name = "Threaded Comment"
         verbose_name_plural = "Threaded Comments"
         get_latest_by = "date_submitted"
@@ -263,8 +263,8 @@ class FreeThreadedComment(models.Model):
     # Extra Field
     ip_address = models.IPAddressField(null=True, blank=True)
     
-    public = PublicThreadedCommentManager()
     objects = ThreadedCommentManager()
+    public = PublicThreadedCommentManager()
     
     def __unicode__(self):
         if len(self.comment) > 50:
@@ -320,7 +320,7 @@ class FreeThreadedComment(models.Model):
         return to_return
     
     class Meta:
-        ordering = ('date_submitted',)
+        ordering = ('-date_submitted',)
         verbose_name = "Free Threaded Comment"
         verbose_name_plural = "Free Threaded Comments"
         get_latest_by = "date_submitted"

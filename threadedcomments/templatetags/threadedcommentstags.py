@@ -130,15 +130,17 @@ def auto_transform_markup(comment):
     specified.
     """
     try:
-        from django.contrib.markup.templatetags import markup
         from django.utils.html import escape
         from threadedcomments.models import MARKDOWN, TEXTILE, REST, PLAINTEXT
         if comment.markup == MARKDOWN:
-            return markup.markdown(comment.comment)
+            from django.contrib.markup.templatetags.markup import markdown
+            return markdown(comment.comment)
         elif comment.markup == TEXTILE:
-            return markup.textile(comment.comment)
+            from django.contrib.markup.templatetags.markup import textile
+            return textile(comment.comment)
         elif comment.markup == REST:
-            return markup.restructuredtext(comment.comment)
+            from django.contrib.markup.templatetags.markup import restructuredtext
+            return restructuredtext(comment.comment)
 #        elif comment.markup == HTML:
 #            return mark_safe(force_unicode(comment.comment))
         elif comment.markup == PLAINTEXT:

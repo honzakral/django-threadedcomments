@@ -11,6 +11,7 @@ from models import ThreadedComment, FreeThreadedComment, MARKUP_CHOICES
 
 MARKUP_CHOICES_IDS = [c[0] for c in MARKUP_CHOICES]
 DEFAULT_MAX_COMMENT_LENGTH = getattr(settings, 'DEFAULT_MAX_COMMENT_LENGTH', 1000)
+DEFAULT_MAX_COMMENT_DEPTH = getattr(settings, 'DEFAULT_MAX_COMMENT_DEPTH', 8)
 
 class ThreadedCommentManager(object):
     """
@@ -26,6 +27,7 @@ class ThreadedCommentManager(object):
     email_notification = None
     max_comment_length = None
     allowed_markup = None
+    max_depth = None
 
 class Moderator(object):
     """
@@ -41,7 +43,7 @@ class Moderator(object):
     def register(self, model, manager = None, akismet = None, 
         auto_close_field = None, close_after = None, enable_field = None,
         email_notification = None, max_comment_length = DEFAULT_MAX_COMMENT_LENGTH,
-        allowed_markup = MARKUP_CHOICES_IDS):
+        allowed_markup = MARKUP_CHOICES_IDS, max_depth=DEFAULT_MAX_COMMENT_DEPTH):
         """
         Registers a model with a set of moderation options in one of two ways:
 
@@ -83,6 +85,11 @@ class Moderator(object):
                file.  If a comment is submitted on an object with a different
                markup than is allowed, then it will be immediately deleted.
 
+            :max_depth:
+               The maximum "depth" of a comment.  That is, it will take no
+               more than max_depth parent relationship traversals to hit a
+               comment with no parent.
+
         .. _comment_utils: http://code.google.com/p/django-comment-utils/
         """
         if manager:
@@ -94,6 +101,7 @@ class Moderator(object):
             moderation_obj.email_notification = manager.email_notification
             moderation_obj.max_comment_length = getattr(manager, 'max_comment_length', max_comment_length)
             moderation_obj.allowed_markup = getattr(manager, 'allowed_markup', allowed_markup)
+            moderation_obj.max_depth = getattr(manager, 'max_depth', max_depth)
             self._registry[model] = moderation_obj
         else:
             if close_after:
@@ -106,6 +114,7 @@ class Moderator(object):
             moderation_obj.email_notification = email_notification
             moderation_obj.max_comment_length = max_comment_length
             moderation_obj.allowed_markup = allowed_markup
+            moderation_obj.max_depth = max_depth
             self._registry[model] = moderation_obj
         for klass in (ThreadedComment, FreeThreadedComment):
             dispatcher.connect(self.pre_save, sender=klass, signal=signals.pre_save)
@@ -155,6 +164,16 @@ class Moderator(object):
             return True
         return False
 
+    def is_past_max_depth(self, comment, max_depth):
+        i = 1
+        c = comment.parent
+        while c != None:
+            c = c.parent
+            i = i + 1
+            if i > max_depth:
+                return True
+        return False
+
     def do_emails(self, comment):
         """
         Renders and sends e-mails to all administrators listed in the settings.
@@ -195,6 +214,8 @@ class Moderator(object):
         if c.akismet and self.is_spam(instance):
             instance.is_public = False
         if len(instance.comment) > c.max_comment_length:
+            instance.is_public = False
+        if self.is_past_max_depth(instance, c.max_depth):
             instance.is_public = False
         if instance.markup not in c.allowed_markup:
             self.annotate_deletion(instance)
