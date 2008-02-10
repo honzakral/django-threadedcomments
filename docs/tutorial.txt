@@ -99,28 +99,18 @@ Our example will be for the "latest" blog post.  The view is as follows::
             post = BlogPost.objects.latest('date_posted')
         except BlogPost.DoesNotExist:
             raise Http404
-        errors = request.session.pop('threadedcomment_errors', None)
-        if errors:
-            errors = ["%s: %s" % (e, ' '.join(errors[e])) for e in errors]
         context = {
             'post' : post, 
             'form' : FreeThreadedCommentForm(),
-            'errors' : errors,
         }
         return render_to_response(
             'blog/latest_post.html', context,
             context_instance = RequestContext(request)
         )
 
-There are two potentially interesting things about this view.  Firstly, there 
-is an unbound form, ``FreeThreadedCommentForm``, which is instantiated and 
-added to the context of the response.  This is so that we can supply a response
-form with which new comments may be posted.  Secondly, errors are retrieved
-from ``request.session``.  We do this so that if a bad comment submission is
-attempted, we have the ability to retrieve errors through the session.
-
-All of these things will become more clear as we progress along with our 
-implementation, but for now simply add it to the context.
+Notice that there is an unbound form, ``FreeThreadedCommentForm``, which is 
+instantiated and added to the context of the response.  This is so that we can 
+supply a response form with which new comments may be posted.
 
 Step 3: Configuration
 =====================
@@ -186,14 +176,6 @@ Now with that said, let's begin to create our template.  We'll start like so::
                 {% auto_transform_markup comment %}
             </div>
         {% endfor %}
-        {% if errors %}
-            <h3 style="color: #FF0000;"><em>The following errors were found:</em></h3>
-            <ul>
-            {% for error in errors %}
-                <li style="color: #FF0000;">{{ error }}</li>
-            {% endfor %}
-            </ul>
-        {% endif %}
         <p>Reply to Original:</p>
         <form method="POST" action="{% get_free_comment_url post %}">
             <ul>
@@ -204,7 +186,7 @@ Now with that said, let's begin to create our template.  We'll start like so::
     </body>
     </html>
 
-There are four main parts to this template:
+There are three main parts to this template:
 
 1. **Displaying the blog post.**
 
@@ -221,11 +203,6 @@ There are four main parts to this template:
    We then call a tag named ``auto_transform_markup`` on the comment.  This  tag
    looks at the markup type and calls the appropriate filter on the body of the 
    post before displaying it.
-
-3. **Displaying errors in previous form submissions.**
-
-   If there are any errors in the form, we iterate over that error list and
-   display help to the user on what exactly has gone wrong.
 
 4. **Providing a form with which the user can reply to the original post.**
 
