@@ -9,13 +9,9 @@ def latest_post(request):
         post = BlogPost.objects.latest('date_posted')
     except BlogPost.DoesNotExist:
         raise Http404
-    errors = request.session.pop('threadedcomment_errors', None)
-    if errors:
-        errors = ["%s: %s" % (e, ' '.join(errors[e])) for e in errors]
     context = {
         'post' : post, 
         'form' : FreeThreadedCommentForm(),
-        'errors' : errors,
     }
     return render_to_response(
         'blog/latest_post.html', context,
