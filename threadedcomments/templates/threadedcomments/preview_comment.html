@@ -1,14 +1,17 @@
-{% load threadedcommentstags %}
-
 {% extends "threadedcomments_base.html" %}
 
+{% load threadedcommentstags %}
+
 {% block content %}
-    <div id="comment_preview">{% auto_transform_markup comment %}</div>
+    {% if comment %}
+        <div id="comment_preview">{% auto_transform_markup comment %}</div>
+    {% endif %}
     <form method="POST" action="">
         <ul>
             {{ form.as_ul }}
             <li><input type="submit" value="Submit Comment" /></li>
             <li><input type="submit" value="Preview Updated Comment" name="preview" /></li>
         </ul>
+        <input type="hidden" name="next" value="{{ next }}" />
     </form>
 {% endblock %}
