@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.newforms.util import ErrorDict
 from django.utils.encoding import smart_unicode, force_unicode
 from django.utils.safestring import mark_safe
-from django.template import RequestContext
+from django.template import RequestContext, Context, Template
 from django.contrib.auth.decorators import permission_required
 from forms import FreeThreadedCommentForm, ThreadedCommentForm
 from models import ThreadedComment, FreeThreadedComment
@@ -71,7 +71,8 @@ def free_comment(request, content_type=None, object_id=None, edit_id=None, paren
     If it is an *AJAX* request (either XML or JSON), it will return a serialized
     version of the last created ``ThreadedComment`` and there will be no redirect.
     
-    If invalid POST data is submitted, this will return an *Http404* error.
+    If invalid POST data is submitted, this will go to the comment preview page
+    where the comment may be edited until it does not contain errors.
     """
     if not edit_id and not (content_type and object_id):
         raise Http404 # Must specify either content_type and object_id or edit_id
@@ -111,15 +112,23 @@ def free_comment(request, content_type=None, object_id=None, edit_id=None, paren
             return XMLResponse([new_comment,])
         else:
             return HttpResponseRedirect(_get_next(request))
-    elif model == ThreadedComment:
-        if add_messages:
-            for error in form.errors:
-                request.user.message_set.create(message=error)
-        return HttpResponseRedirect(_get_next(request))
+    elif ajax=="json":
+        return JSONResponse({'errors' : form.errors}, is_iterable=False)
+    elif ajax=="xml":
+        template_str = """
+<errorlist>
+    {% for error,name in errors %}
+    <field name="{{ name }}">
+        {% for suberror in error %}<error>{{ suberror }}</error>{% endfor %}
+    </field>
+    {% endfor %}
+</errorlist>
+        """
+        response_str = Template(template_str).render(Context({'errors' : zip(form.errors.values(), form.errors.keys())}))
+        return XMLResponse(response_str, is_iterable=False)
     else:
-        request.session['threadedcomment_errors'] = dict([(smart_unicode(e), [force_unicode(f) for f in form.errors[e]]) for e in form.errors])
-        return HttpResponseRedirect(_get_next(request))
-        
+        return _preview(request, context_processors, extra_context, model=model)
+      
 def comment(*args, **kwargs):
     """
     Thin wrapper around free_comment which adds login_required status and also assigns
