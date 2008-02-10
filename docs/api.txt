@@ -573,15 +573,13 @@ Errors
 ------
 
 If a view encounters an error (form validation being the most common case), 
-then depending on the type of comment, one of several things will happen.  If
-it's a ``FreeThreadedComment``, then any validation errors will be stored in 
-the session under the name ``threadedcomment_errors``.
-
-If it's a ``ThreadedComment``, then any validation errors are added to the
-user's ``message_set``.  Read the documentation on messages_ to determine how
-you would like to query for and display this error information.
-
-.. _messages: http://www.djangoproject.com/documentation/authentication/#messages
+then depending on whether the comment is being created using the JSON, XML, or
+plain HTML APIs, different things will occur.  If it's using the JSON API, then
+it will return a JSON-formatted error string.  If it's using XML, it will 
+return an XML-formatted error string.  Otherwise, it will redirect the user to
+a preview page where he/she can edit the comment until it no longer has any
+errors.  At this point, the user will be redirected to the page to which they
+would have originally been redirected.
 
 .. tip::
 
