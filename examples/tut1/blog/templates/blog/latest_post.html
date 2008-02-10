@@ -57,16 +57,8 @@ a { color: #CC6633; font-size: 80%; }
             <a id="c{{ comment.id }}" href="javascript:show_reply_form('c{{ comment.id }}','{% get_free_comment_url post comment %}','{{ comment.name }}')">Reply</a>
         </div>
     {% endfor %}
-    {% if errors %}
-        <h3 style="color: #FF0000;"><em>The following errors were found:</em></h3>
-        <ul>
-        {% for error in errors %}
-            <li style="color: #FF0000;">{{ error }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
     <p>Reply to Original:</p>
-    <form method="POST" action="{% get_free_comment_url post %}">
+    <form method="POST" action="{% get_free_comment_url_xml post %}">
         <ul>
             {{ form.as_ul }}
             <li><input type="submit" value="Submit Comment" /></li>
