@@ -1,3 +1,10 @@
+Versino 0.3, 24th February 2008:
+---------------------------------
+
+Got rid of proprietary comment moderation tools in favor of the better-designed
+django-comment-utils by James Bennett.  Also, provided template tags which get
+unbound FreeThreadedCommentForm and ThreadedCommentForm forms.
+
 Version 0.2, 4th February 2008:
 ---------------------------------
 

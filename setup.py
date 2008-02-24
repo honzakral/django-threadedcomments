@@ -2,7 +2,7 @@ from distutils.core import setup
 
 kwargs = {
     'name' : 'threadedcomments',
-    'version' : '0.2.1',
+    'version' : '0.3',
     'description' : 'A simple yet flexible threaded commenting system.',
     'author' : 'Eric Florenzano',
     'author_email' : 'floguy@gmail.com',
@@ -21,5 +21,5 @@ kwargs = {
 }
 from sys import version_info
 if version_info[1] >= 4:
-    kwargs['package_data'] = {'threadedcomments' : ['templates/threadedcomments/comment_notification_email.txt']}
+    kwargs['package_data'] = {'threadedcomments' : ['templates/comment_utils/*.txt','templates/threadedcomments/*.html','templates/threadedcomments_base.html']}
 setup(**kwargs)
