@@ -10,7 +10,6 @@ from django.contrib.auth.decorators import permission_required
 from forms import FreeThreadedCommentForm, ThreadedCommentForm
 from models import ThreadedComment, FreeThreadedComment
 from utils import JSONResponse, XMLResponse
-from copy import deepcopy
 
 def _get_next(request):
     """
