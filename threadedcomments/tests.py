@@ -7,7 +7,7 @@
 >>> from models import MARKDOWN, TEXTILE, REST, PLAINTEXT
 >>> from django.contrib.auth.models import User
 >>> from django.contrib.contenttypes.models import ContentType
->>> from moderation import moderator
+>>> from moderation import moderator, CommentModerator
 >>> from django.core import mail
 
 >>> topic = TestModel.objects.create(name = "Test")
@@ -43,7 +43,11 @@
 ...     comment = "What are you talking about?",
 ... )
 
->>> moderator.register(TestModel, enable_field='is_public', auto_close_field='date', close_after=15)
+>>> class Moderator1(CommentModerator):
+...     enable_field = 'is_public'
+...     auto_close_field = 'date'
+...     close_after = 15
+>>> moderator.register(TestModel, Moderator1)
 
 >>> comment7 = ThreadedComment.objects.create_for_object(
 ...     topic, user = user, ip_address = '127.0.0.1',
@@ -68,13 +72,13 @@
 >>> len(mail.outbox)
 0
 
->>> class Manager(object):
+>>> class Moderator2(CommentModerator):
 ...     enable_field = 'is_public'
 ...     auto_close_field = 'date'
 ...     close_after = 15
 ...     akismet = False
 ...     email_notification = True
->>> moderator.register(TestModel, manager=Manager)
+>>> moderator.register(TestModel, Moderator2)
 
 >>> comment10 = ThreadedComment.objects.create_for_object(
 ...     topic, user = user, ip_address = '127.0.0.1',
@@ -105,7 +109,10 @@
 >>> topic.save()
 
 >>> moderator.unregister(TestModel)
->>> moderator.register(TestModel, max_comment_length = 10)
+
+>>> class Moderator3(CommentModerator):
+...     max_comment_length = 10
+>>> moderator.register(TestModel, Moderator3)
 
 >>> comment13 = ThreadedComment.objects.create_for_object(
 ...     topic, user = user, ip_address = '127.0.0.1', parent = comment7,
@@ -118,7 +125,9 @@
 ... )
 
 >>> moderator.unregister(TestModel)
->>> moderator.register(TestModel, allowed_markup=[REST,])
+>>> class Moderator4(CommentModerator):
+...     allowed_markup = [REST,]
+>>> moderator.register(TestModel, Moderator4)
 
 >>> comment15 = ThreadedComment.objects.create_for_object(
 ...     topic, user = user, ip_address = '127.0.0.1', parent = comment7,
@@ -194,7 +203,7 @@
 ...     comment = "What are you talking about?",
 ... )
 
->>> moderator.register(TestModel, enable_field='is_public', auto_close_field='date', close_after=15)
+>>> moderator.register(TestModel, Moderator1)
 
 >>> fcomment7 = FreeThreadedComment.objects.create_for_object(
 ...     topic, name = "Eric", ip_address = '127.0.0.1',
@@ -219,13 +228,7 @@
 >>> len(mail.outbox)
 0
 
->>> class Manager(object):
-...     enable_field = 'is_public'
-...     auto_close_field = 'date'
-...     close_after = 15
-...     akismet = False
-...     email_notification = True
->>> moderator.register(TestModel, manager=Manager)
+>>> moderator.register(TestModel, Moderator2)
 
 >>> fcomment10 = FreeThreadedComment.objects.create_for_object(
 ...     topic, name = "Eric", ip_address = '127.0.0.1',
@@ -256,7 +259,7 @@
 >>> topic.save()
 
 >>> moderator.unregister(TestModel)
->>> moderator.register(TestModel, max_comment_length = 10)
+>>> moderator.register(TestModel, Moderator3)
 
 >>> fcomment13 = FreeThreadedComment.objects.create_for_object(
 ...     topic, name = "Eric", ip_address = '127.0.0.1', parent = fcomment7,
@@ -269,7 +272,10 @@
 ... )
 
 >>> moderator.unregister(TestModel)
->>> moderator.register(TestModel, allowed_markup=[REST,], max_depth = 3)
+>>> class Moderator5(CommentModerator):
+...     allowed_markup = [REST,]
+...     max_depth = 3
+>>> moderator.register(TestModel, Moderator5)
 
 >>> fcomment15 = FreeThreadedComment.objects.create_for_object(
 ...     topic, name = "Eric", ip_address = '127.0.0.1', parent = fcomment7,
@@ -332,7 +338,6 @@
  VALID Markup.  Should show up.
      Building Depth...Should Show Up.
          More Depth...Should Show Up.
-             Too Deep..Should NOT Show UP
 >>>
 
 ############################
@@ -642,15 +647,15 @@ u'6'
 >>> Template('{% load threadedcommentstags %}{% get_free_comment_url topic %}').render(c)
 u'/freecomment/9/3/'
 >>> Template('{% load threadedcommentstags %}{% get_free_comment_url topic parent %}').render(c)
-u'/freecomment/9/3/21/'
+u'/freecomment/9/3/20/'
 >>> Template('{% load threadedcommentstags %}{% get_free_comment_url_json topic %}').render(c)
 u'/freecomment/9/3/json/'
 >>> Template('{% load threadedcommentstags %}{% get_free_comment_url_xml topic %}').render(c)
 u'/freecomment/9/3/xml/'
 >>> Template('{% load threadedcommentstags %}{% get_free_comment_url_json topic parent %}').render(c)
-u'/freecomment/9/3/21/json/'
+u'/freecomment/9/3/20/json/'
 >>> Template('{% load threadedcommentstags %}{% get_free_comment_url_xml topic parent %}').render(c)
-u'/freecomment/9/3/21/xml/'
+u'/freecomment/9/3/20/xml/'
 
 >>> Template('{% load threadedcommentstags %}{% get_free_comment_count for old_topic as count %}{{ count }}').render(c)
 u'6'
@@ -692,7 +697,7 @@ u'[(0)test7,(0)test8,(0)test9,(1)test10,(1)test11,(1)test12,]'
 
 >>> c = Context({'comment' : comment_markdown})
 >>> Template("{% load threadedcommentstags %}{% auto_transform_markup comment %}").render(c)
-u"\\n\\n<h1> A First Level Header</h1>\\n\\n<h2> A Second Level Header</h2>\\n<p>Now is the time for all good men to come to\\n   the aid of their country. This is just a\\n   regular paragraph.\\n</p>\\n<p>The quick brown fox jumped over the lazy\\n   dog's back.\\n</p>\\n\\n<h3> Header 3</h3>\\n<blockquote><p>This is a blockquote.\\n</p>\\n<p>This is the second paragraph in the blockquote.\\n</p>\\n\\n<h2> This is an H2 in a blockquote</h2>\\n</blockquote>\\n"
+u"<h1>A First Level Header</h1>\\n\\n<h2>A Second Level Header</h2>\\n<p>Now is the time for all good men to come to\\n   the aid of their country. This is just a\\n   regular paragraph.\\n</p>\\n<p>The quick brown fox jumped over the lazy\\n   dog's back.\\n</p>\\n\\n<h3>Header 3</h3>\\n<blockquote><p>This is a blockquote.\\n</p>\\n<p>This is the second paragraph in the blockquote.\\n</p>\\n\\n<h2>This is an H2 in a blockquote</h2>\\n</blockquote>"
 
 >>> textile_txt = '''
 ... h2{color:green}. This is a title

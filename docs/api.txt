@@ -180,60 +180,42 @@ Moderation
 ==========
 
 Moderation is how you are able to assign custom functionality to comments.  
-Almost all moderation settings take place by registering manager objects in 
-lieu of Django settings.  This means that you may choose different options for comments on different pages, etc.
+Almost all moderation settings take place by registering moderator objects in 
+lieu of Django settings.  This means that you may choose different options for
+comments on different pages, etc.
 
-The design of this moderation system is largely inspired by `James Bennett`_'s
-excellent comment_utils_ appplication--in fact, it provides compatibility with
-a good portion of the options in comment_utils_' managers.  The implementation, however, is almost entirely dissimilar and much more simplistic.
+*threadedcomments* uses a customized version of _django-comment-utils for its 
+comment moderation.  If you have used _django-comment-utils with the built-in
+``django.contrib.comments`` application, you will find all of this very 
+familiar.
 
-.. _`James Bennett`: http://www.b-list.org/
-.. _comment_utils: http://code.google.com/p/django-comment-utils/
+.. caution::
 
-Customization can happen in one of two ways:
+    Prior to version 0.3, *threadedcomments* used a custom moderation system,
+    however, due to a lack of robustness in the included implementation,
+    django-comment-utils is now a required dependency.
 
-1. Keyword Arguments
+.. _django-comment-utils: http://code.google.com/p/django-comment-utils/
 
-2. Registration of a ``ThreadedCommentManager``
+In ``threadedcomments.moderation`` there exists two items of note:
 
-Note that the keyword arguments are the exact same as the properties on the
-``ThreadedCommentManager``, so learning about one implies learning about the
-other.
+1. ``CommentModerator``, which subclasses ``comment_utils.CommentModerator``.
+   You can subclass this to provide moderation functionality for your content 
+   objects.
 
-Manager Properties (Or Keyword Arguments)
------------------------------------------
+2. ``moderator``, an instance of ``Moderator``, which subclasses 
+   ``comment_utils.Moderator``.  It is with this that you will register your
+   ``CommentModerator`` objects.
 
-:``akismet``:
-    Set this to either ``True`` or ``False``.  If ``True``, it will check
-    Akismet_ to see if it believes the comment to be spam.  If it does, it will
-    set ``is_public = False`` before saving.
+Additional ``CommentModerator`` Properties
+------------------------------------------
 
-:``auto_close_field``:
-    A string representation of a field name on a model.  It must refer to a 
-    ``DateField`` or a ``DateTimeField``.  Combined with ``close_after``, this 
-    can disallow comments after a certain number of days has passed.
+``CommentModerator`` has many different properties, most of which are listed in
+the `django-comment-utils documentation`_.  Listed below are the extra 
+properties that can be set by using the ``CommentModerator`` provided by
+*threadedcomments*.
 
-
-:``close_after``:
-    An integer representing the number of days after the specified 
-    ``auto_close_field`` before comments will no longer be accepted.
-
-:``enable_field``:
-    A string representation of a field name on a model.  It should refer to a
-    ``BooleanField``.  If that field evaluates to ``False`` on a comment's
-    ``content_object`` model instance, then the comment will be deleted
-    immediately.
-
-:``email_notification``:
-    A boolean representing whether or not e-mail notifications should be sent
-    out to each manager listed in Django's settings module.  ``True`` means 
-    that e-mails will be sent upon each new comment, and ``False`` means that
-    they will not.
-
-    If this is set to ``True``, it will render the template in 
-    "threadedcomments/comment_notification_email.txt" with the "comment" (the
-    comment instance) as context.  There is a default template available for
-    this purpose, but you may want to create your own and override it.
+.. _`django-comment-utils documentation`: http://django-comment-utils.googlecode.com/svn/trunk/docs/
 
 :``max_comment_length``:
     The maximum length of a comment, in characters.  Defaults to 
@@ -257,8 +239,6 @@ Manager Properties (Or Keyword Arguments)
     beyond this depth, the manager will set ``is_public = False`` before 
     saving.
 
-.. _Akismet: http://akismet.com/
-
 Model-Manager Registration
 --------------------------
 
@@ -268,7 +248,7 @@ To register a manager with a model, first the moderator must be imported::
 
 Then, the moderator has ``register`` and ``unregister`` functions.
 
-:``register(model, [manager=None, **kwargs])``:
+:``register(model, moderator)``:
     Registers a model class with a manager or with the aformentioned keyword
     arguments.
 
@@ -285,22 +265,16 @@ Both of the following examples will assume that a "BlogPost" model exists::
         body = models.TextField()
         allows_comments = models.BooleanField(default = True)
 
-1. Using a Manager::
+Using ``CommentModerator``::
 
-    from threadedcomments.moderation import moderator, ThreadedCommentManager
+    from threadedcomments.moderation import moderator, CommentModerator
 
-    class BlogPostManager(ThreadedCommentManager):
+    class BlogPostModerator(CommentModerator):
         akismet = True
         enable_field = 'allows_comments'
+        max_depth = 5
 
-    moderator.register(BlogPost, manager=BlogPostManager)
-    
-
-2. Using Keyword Arguments::
-
-    from threadedcomments.moderation import moderator
-
-    moderator.register(BlogPost, akismet=True, enable_field='allows_comments')
+    moderator.register(BlogPost, BlogPostModerator)
 
 Template Helpers
 ================
