@@ -1,4 +1,11 @@
-Versino 0.3, 24th February 2008:
+Version 0.3.1, 24th February 2008
+----------------------------------
+
+Bugfix release, fixed problem with django-comment-utils always being required
+and added extra keyword argument onto each of the comment views which allows
+for the specification of a custom form.
+
+Version 0.3, 24th February 2008:
 ---------------------------------
 
 Got rid of proprietary comment moderation tools in favor of the better-designed
