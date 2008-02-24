@@ -194,6 +194,8 @@ familiar.
     Prior to version 0.3, *threadedcomments* used a custom moderation system,
     however, due to a lack of robustness in the included implementation,
     django-comment-utils is now a required dependency.
+    This is a backwards-incompatible change, so take care when upgrading to
+    re-visit your old moderation code.
 
 .. _django-comment-utils: http://code.google.com/p/django-comment-utils/
 
@@ -255,10 +257,10 @@ Then, the moderator has ``register`` and ``unregister`` functions.
 :``unregister(model)``:
     Unregisters the manager that's currently associated with the given model.
 
-Examples
---------
+Example
+-------
 
-Both of the following examples will assume that a "BlogPost" model exists::
+The following example will assume that a "BlogPost" model exists::
 
     class BlogPost(models.Model):
         title = models.CharField(max_length=128)
@@ -275,6 +277,12 @@ Using ``CommentModerator``::
         max_depth = 5
 
     moderator.register(BlogPost, BlogPostModerator)
+
+What this has done is ensure that if allows_comments is set to false, all
+comments will be deleted.  Also, the maximum depth of the comment tree will
+be 5 comments deep.  Finally, each comment will be spam-checked by Akismet_.
+
+.. _Akismet: http://akismet.com/
 
 Template Helpers
 ================
