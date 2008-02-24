@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_str, force_unicode
 from django.utils.safestring import mark_safe
 from threadedcomments.models import ThreadedComment, FreeThreadedComment
+from threadedcomments.forms import ThreadedCommentForm, FreeThreadedCommentForm
 from django import template
 
 # Regular expressions for getting rid of newlines and witespace
@@ -269,6 +270,37 @@ def oneline(value):
     except:
         return value
 
+def do_get_threaded_comment_form(parser, token):
+    """
+    Gets a FreeThreadedCommentForm and inserts it into the context.
+    """
+    error_message = "%r tag must be of format {%% %r as CONTEXT_VARIABLE %%}" % (token.contents.split()[0], token.contents.split()[0])
+    try:
+        split = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError, error_message
+    if split[1] != 'as':
+        raise template.TemplateSyntaxError, error_message
+    if len(split) != 3:
+        raise template.TemplateSyntaxError, error_message
+    if "free" in split[0]:
+        free = True
+    else:
+        free = False
+    return ThreadedCommentFormNode(split[2], free=True)
+
+class ThreadedCommentFormNode(template.Node):
+    def __init__(self, context_name, free=False):
+        self.context_name = context_name
+        self.free = free
+    def render(self, context):
+        if self.free:
+            form = FreeThreadedCommentForm()
+        else:
+            form = ThreadedCommentForm()
+        context[self.context_name] = form
+        return ''
+
 register = template.Library()
 register.simple_tag(get_comment_url)
 register.simple_tag(get_comment_url_json)
@@ -285,3 +317,5 @@ register.tag('get_free_threaded_comment_tree', do_get_free_threaded_comment_tree
 register.tag('get_free_threaded_comment_tree', do_get_free_threaded_comment_tree)
 register.tag('get_comment_count', do_get_comment_count)
 register.tag('get_free_comment_count', do_get_free_comment_count)
+register.tag('get_free_threaded_comment_form', do_get_threaded_comment_form)
+register.tag('get_threaded_comment_form', do_get_threaded_comment_form)

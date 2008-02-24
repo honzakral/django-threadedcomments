@@ -348,6 +348,13 @@ Tags
     Calls ``FreeThreadedComment.public.get_tree(OBJECT)`` and places the result 
     into the specified context variable.
 
+:``{% get_threaded_comment_form as CONTEXT_VAR %}``:
+    Gets an unbound ``ThreadedCommentForm`` and assigns it to the specified
+    context variable.
+
+:``{% get_free_threaded_comment_form as CONTEXT_VAR %}``:
+    Gets an unbound ``FreeThreadedCommentForm`` and assigns it to the specified
+    context variable.
 
 Filters
 -------

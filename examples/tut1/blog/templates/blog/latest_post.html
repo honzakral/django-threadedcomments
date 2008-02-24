@@ -60,6 +60,7 @@ a { color: #CC6633; font-size: 80%; }
     <p>Reply to Original:</p>
     <form method="POST" action="{% get_free_comment_url_xml post %}">
         <ul>
+            {% get_free_threaded_comment_form as form %}
             {{ form.as_ul }}
             <li><input type="submit" value="Submit Comment" /></li>
         </ul>
