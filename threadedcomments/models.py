@@ -4,7 +4,9 @@ from django.contrib.contenttypes import generic
 from django.contrib.auth.models import User
 from datetime import datetime
 from django.db.models import Q
+from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
+from django.utils.encoding import force_unicode
 
 DEFAULT_MAX_COMMENT_LENGTH = getattr(settings, 'DEFAULT_MAX_COMMENT_LENGTH', 1000)
 DEFAULT_MAX_COMMENT_DEPTH = getattr(settings, 'DEFAULT_MAX_COMMENT_DEPTH', 8)
@@ -15,11 +17,11 @@ REST = 3
 #HTML = 4
 PLAINTEXT = 5
 MARKUP_CHOICES = (
-    (MARKDOWN, "markdown"),
-    (TEXTILE, "textile"),
-    (REST, "restructuredtext"),
-#    (HTML, "html"),
-    (PLAINTEXT, "plaintext"),
+    (MARKDOWN, _("markdown")),
+    (TEXTILE, _("textile")),
+    (REST, _("restructuredtext")),
+#    (HTML, _("html")),
+    (PLAINTEXT, _("plaintext")),
 )
 
 def dfs(node, all_nodes, depth):
@@ -126,7 +128,7 @@ class ThreadedComment(models.Model):
     """
     # Generic Foreign Key Fields
     content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
+    object_id = models.PositiveIntegerField(_('object ID'))
     content_object = generic.GenericForeignKey()
     
     # Hierarchy Field
@@ -136,20 +138,20 @@ class ThreadedComment(models.Model):
     user = models.ForeignKey(User)
     
     # Date Fields
-    date_submitted = models.DateTimeField(default = datetime.now)
-    date_modified = models.DateTimeField(default = datetime.now)
-    date_approved = models.DateTimeField(default=None, null=True, blank=True)
+    date_submitted = models.DateTimeField(_('date/time submitted'), default = datetime.now)
+    date_modified = models.DateTimeField(_('date/time modified'), default = datetime.now)
+    date_approved = models.DateTimeField(_('date/time approved'), default=None, null=True, blank=True)
     
     # Meat n' Potatoes
-    comment = models.TextField()
+    comment = models.TextField(_('comment'))
     markup = models.IntegerField(choices=MARKUP_CHOICES, default=PLAINTEXT, null=True, blank=True)
     
     # Status Fields
-    is_public = models.BooleanField(default = True)
-    is_approved = models.BooleanField(default = False)
+    is_public = models.BooleanField(_('is public'), default = True)
+    is_approved = models.BooleanField(_('is approved'), default = False)
     
     # Extra Field
-    ip_address = models.IPAddressField(null=True, blank=True)
+    ip_address = models.IPAddressField(_('IP address'), null=True, blank=True)
     
     objects = ThreadedCommentManager()
     public = PublicThreadedCommentManager()
@@ -197,7 +199,7 @@ class ThreadedComment(models.Model):
             'is_public' : self.is_public,
             'is_approved' : self.is_approved,
             'ip_address' : self.ip_address,
-            'markup' : markup,
+            'markup' : force_unicode(markup),
         }
         if show_dates:
             to_return['date_submitted'] = self.date_submitted
@@ -207,8 +209,8 @@ class ThreadedComment(models.Model):
     
     class Meta:
         ordering = ('-date_submitted',)
-        verbose_name = "Threaded Comment"
-        verbose_name_plural = "Threaded Comments"
+        verbose_name = _("Threaded Comment")
+        verbose_name_plural = _("Threaded Comments")
         get_latest_by = "date_submitted"
     
     class Admin:
@@ -240,32 +242,32 @@ class FreeThreadedComment(models.Model):
     """
     # Generic Foreign Key Fields
     content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
+    object_id = models.PositiveIntegerField(_('object ID'))
     content_object = generic.GenericForeignKey()
     
     # Hierarchy Field
     parent = models.ForeignKey('self', null = True, default = None, related_name='children')
     
     # User-Replacement Fields
-    name = models.CharField(max_length = 128)
-    website = models.URLField(blank = True)
-    email = models.EmailField(blank = True)
+    name = models.CharField(_('name'), max_length = 128)
+    website = models.URLField(_('site'), blank = True)
+    email = models.EmailField(_('e-mail address'), blank = True)
     
     # Date Fields
-    date_submitted = models.DateTimeField(default = datetime.now)
-    date_modified = models.DateTimeField(default = datetime.now)
-    date_approved = models.DateTimeField(default = None, null=True, blank=True)
+    date_submitted = models.DateTimeField(_('date/time submitted'), default = datetime.now)
+    date_modified = models.DateTimeField(_('date/time modified'), default = datetime.now)
+    date_approved = models.DateTimeField(_('date/time approved'), default=None, null=True, blank=True)
     
     # Meat n' Potatoes
-    comment = models.TextField()
+    comment = models.TextField(_('comment'))
     markup = models.IntegerField(choices=MARKUP_CHOICES, default=PLAINTEXT, null=True, blank=True)
     
     # Status Fields
-    is_public = models.BooleanField(default = True)
-    is_approved = models.BooleanField(default = False)
+    is_public = models.BooleanField(_('is public'), default = True)
+    is_approved = models.BooleanField(_('is approved'), default = False)
     
     # Extra Field
-    ip_address = models.IPAddressField(null=True, blank=True)
+    ip_address = models.IPAddressField(_('IP address'), null=True, blank=True)
     
     objects = ThreadedCommentManager()
     public = PublicThreadedCommentManager()
@@ -315,7 +317,7 @@ class FreeThreadedComment(models.Model):
             'is_public' : self.is_public,
             'is_approved' : self.is_approved,
             'ip_address' : self.ip_address,
-            'markup' : markup,
+            'markup' : force_unicode(markup),
         }
         if show_dates:
             to_return['date_submitted'] = self.date_submitted
@@ -325,8 +327,8 @@ class FreeThreadedComment(models.Model):
     
     class Meta:
         ordering = ('-date_submitted',)
-        verbose_name = "Free Threaded Comment"
-        verbose_name_plural = "Free Threaded Comments"
+        verbose_name = _("Free Threaded Comment")
+        verbose_name_plural = _("Free Threaded Comments")
         get_latest_by = "date_submitted"
     
     class Admin:
