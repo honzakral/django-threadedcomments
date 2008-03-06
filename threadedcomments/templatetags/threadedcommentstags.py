@@ -284,10 +284,10 @@ def do_get_threaded_comment_form(parser, token):
     if len(split) != 3:
         raise template.TemplateSyntaxError, error_message
     if "free" in split[0]:
-        free = True
+        is_free = True
     else:
-        free = False
-    return ThreadedCommentFormNode(split[2], free=True)
+        is_free = False
+    return ThreadedCommentFormNode(split[2], free=is_free)
 
 class ThreadedCommentFormNode(template.Node):
     def __init__(self, context_name, free=False):
