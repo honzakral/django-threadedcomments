@@ -846,4 +846,24 @@ u'&lt;b&gt;This is Funny&lt;/b&gt;'
 >>> Template("{% load threadedcommentstags %}{% auto_transform_markup comment as abc %}{{ abc }}").render(c)
 u'&lt;b&gt;This is Funny&lt;/b&gt;'
 >>>
+
+##################################
+### Gravatar Templatetag Tests ###
+##################################
+>>> c = Context({'email' : "floguy@gmail.com", 'rating' : "G", 'size' : 30, 'default': 'img:blank'})
+>>> Template('{% load gravatar %}{% get_gravatar_url for email %}').render(c)
+u'http://www.gravatar.com/avatar.php?gravatar_id=04d6b8e8d3c68899ac88eb8623392150&rating=R&size=80&default=http%3A%2F%2Fsite.gravatar.com%2Fimages%2Fcommon%2Ftop%2Flogo.gif'
+
+>>> Template('{% load gravatar %}{% get_gravatar_url for email as var %}Var: {{ var }}').render(c)
+u'Var: http://www.gravatar.com/avatar.php?gravatar_id=04d6b8e8d3c68899ac88eb8623392150&rating=R&size=80&default=http%3A%2F%2Fsite.gravatar.com%2Fimages%2Fcommon%2Ftop%2Flogo.gif'
+
+>>> Template('{% load gravatar %}{% get_gravatar_url for email size 30 rating "G" default img:blank as var %}Var: {{ var }}').render(c)
+u'Var: http://www.gravatar.com/avatar.php?gravatar_id=04d6b8e8d3c68899ac88eb8623392150&rating=G&size=30&default=img%3Ablank'
+
+>>> Template('{% load gravatar %}{% get_gravatar_url for email size size rating rating default default as var %}Var: {{ var }}').render(c)
+u'Var: http://www.gravatar.com/avatar.php?gravatar_id=04d6b8e8d3c68899ac88eb8623392150&rating=G&size=30&default=img%3Ablank'
+
+>>> Template('{% load gravatar %}{{ email|gravatar }}').render(c)
+u'http://www.gravatar.com/avatar.php?gravatar_id=04d6b8e8d3c68899ac88eb8623392150&rating=R&size=80&default=http%3A%2F%2Fsite.gravatar.com%2Fimages%2Fcommon%2Ftop%2Flogo.gif'
+
 """

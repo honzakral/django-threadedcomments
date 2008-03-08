@@ -7,6 +7,8 @@ DATABASE_NAME = os.path.join(os.path.dirname(__file__), 'threadedcomments_test.d
 
 ROOT_URLCONF = 'threadedcomments.urls'
 
+GRAVATAR_DEFAULT_IMG = 'http://site.gravatar.com/images/common/top/logo.gif'
+
 SITE_ID = 1
 
 INSTALLED_APPS = (

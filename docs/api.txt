@@ -371,6 +371,55 @@ Filters
     Now you could use that ``form_html_fragment`` Javascript variable to 
     dynamically add or remove comment forms to the page.
 
+Gravatar Support
+----------------
+
+*threadedcomments* now has support built-in for Gravatar_, the "globally 
+recognized avatar" system provided by Automattic_.  To use this functionality,
+load the gravatar template tags in your template like so::
+
+    {% load gravatar %}
+
+.. _Gravatar: http://site.gravatar.com/
+.. _Automattic: http://automattic.com/
+
+After the gravatar template library has been loaded, a new tag and filter 
+become available.
+
+Gravatar Tag
+~~~~~~~~~~~~
+
+Generates a gravatar image URL based on the given parameters.
+    
+Format is as follows (The square brackets indicate that those arguments are 
+optional.)::
+
+    {% get_gravatar_url for EMAIL_CONTEXT_VAR [rating "R" size 80 default img:blank as CONTEXT_VAR] %}
+
+If ``as`` is not specified, the URL will be output to the template in place.
+
+For all other arguments that are not specified, the appropriate default 
+settings attribute will be used instead. See the **Gravatar** portion of the 
+Settings_ section to see what those defaults are.
+
+Gravatar Filter
+~~~~~~~~~~~~~~~
+
+Generates a gravatar image URL based on the email address string provided and 
+settings or defaults.
+
+The best way to describe this filter is to show an example::
+
+    <img src="{{ user.email|gravatar }}" alt="Gravatar for {{ user.get_full_name }}" />
+
+In this example, we have a standard Django user object.  We're using the e-mail
+address for that user to generate a gravatar image and the other attributes
+from that user to generate some alternate text for accessibility.
+
+The maximum rating, default image, and image size of this gravatar are a result
+of the gravatar-specific settings provided.  See the **Gravatar** portion of
+the Settings_ section to see what those settings are.
+
 Views
 =====
 
@@ -634,6 +683,9 @@ Most of the configuration will be done via the use of the Moderation_ features
 of *threadedcomments* itself, but there are a few settings that you might want 
 or need to apply globally in the settings file.
 
+General
+-------
+
 :``AKISMET_API_KEY``:
     Your API key for Akismet.  This will only be needed if you enable Akismet
     moderation of comments on one or more of your models.
@@ -648,6 +700,20 @@ or need to apply globally in the settings file.
     isn't explicitly defined in the moderator.  Keep in mind that if no 
     moderator is registered against a model, this default depth will not be
     adhered to either.
+
+Gravatar
+--------
+
+:``GRAVATAR_MAX_RATING = "R"``:
+    The default maximum rating to display for gravatars.  Can be "G", "PG",
+    "R", or "X".
+
+:``GRAVATAR_DEFAULT_IMG = "img:blank"``:
+    The full URL to the default image if a gravatar image is not found.
+
+:``GRAVATAR_SIZE = 80``:
+    The size in which the gravatar should be displayed.  Values may be from 1
+    to 80, inclusive.
 
 More
 ====
