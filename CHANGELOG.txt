@@ -1,3 +1,9 @@
+Version 0.4, 7th March 2008
+---------------------------
+
+Added gravatar support, internationalization support on the comment models,
+and fixed a bug with get_threaded_comment_form.
+
 Version 0.3.1, 24th February 2008
 ----------------------------------
 

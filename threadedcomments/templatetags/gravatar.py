@@ -21,6 +21,10 @@ def get_gravatar_url(parser, token):
     
         {% get_gravatar_url for myemailvar [rating "R" size 80 default img:blank as gravatar_url] %}
     
+    Rating, size, and default may be either literal values or template variables.
+    The template tag will attempt to resolve variables first, and on resolution
+    failure it will use the literal value.
+    
     If ``as`` is not specified, the URL will be output to the template in place.
     
     For all other arguments that are not specified, the appropriate default 

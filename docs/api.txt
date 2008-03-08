@@ -394,7 +394,11 @@ Generates a gravatar image URL based on the given parameters.
 Format is as follows (The square brackets indicate that those arguments are 
 optional.)::
 
-    {% get_gravatar_url for EMAIL_CONTEXT_VAR [rating "R" size 80 default img:blank as CONTEXT_VAR] %}
+    {% get_gravatar_url for emailvar [rating "R" size 80 default img:blank as contextvar] %}
+
+Rating, size, and default may be either literal values or template variables.
+The template tag will attempt to resolve variables first, and on resolution
+failure it will use the literal value.
 
 If ``as`` is not specified, the URL will be output to the template in place.
 
