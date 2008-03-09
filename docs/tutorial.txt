@@ -200,7 +200,7 @@ There are three main parts to this template:
 
    We use ``get_free_threaded_comment_form`` to provide an unbound form to 
    display to the user.  Because of that, we can simply call write 
-    ``{{ form.as_ul }}`` and we've got a beautiful, accessible form displayed.
+   ``{{ form.as_ul }}`` and we've got a beautiful, accessible form displayed.
 
    The ``get_free_comment_url`` template tag gets the appropriate URL to post
    to, given an object.  All appropriate form submissions to that URL will then
