@@ -643,6 +643,9 @@ u'/comment/9/3/8/xml/'
 >>> Template('{% load threadedcommentstags %}{% get_comment_count for old_topic as count %}{{ count }}').render(c)
 u'6'
 
+>>> Template('{% load threadedcommentstags %}{% get_latest_comments 2 as comments %}{{ comments }}').render(c)
+u'[&lt;ThreadedComment: test12&gt;, &lt;ThreadedComment: test11&gt;]'
+
 >>> Template('{% load threadedcommentstags %}{% get_threaded_comment_form as form %}{{ form }}').render(c)
 u'<tr><th><label for="id_comment">Comment:</label></th><td><textarea id="id_comment" rows="10" cols="40" name="comment"></textarea></td></tr>\\n<tr><th><label for="id_markup">Markup:</label></th><td><select name="markup" id="id_markup">\\n<option value="">---------</option>\\n<option value="1">markdown</option>\\n<option value="2">textile</option>\\n<option value="3">restructuredtext</option>\\n<option value="5" selected="selected">plaintext</option>\\n</select></td></tr>'
 
@@ -662,6 +665,9 @@ u'/freecomment/9/3/20/xml/'
 
 >>> Template('{% load threadedcommentstags %}{% get_free_comment_count for old_topic as count %}{{ count }}').render(c)
 u'6'
+
+>>> Template('{% load threadedcommentstags %}{% get_latest_free_comments 2 as comments %}{{ comments }}').render(c)
+u'[&lt;FreeThreadedComment: test6&gt;, &lt;FreeThreadedComment: test5&gt;]'
 
 >>> Template('{% load threadedcommentstags %}{% get_free_threaded_comment_form as form %}{{ form }}').render(c)
 u'<tr><th><label for="id_name">Name:</label></th><td><input id="id_name" type="text" name="name" maxlength="128" /></td></tr>\\n<tr><th><label for="id_website">Site:</label></th><td><input id="id_website" type="text" name="website" maxlength="200" /></td></tr>\\n<tr><th><label for="id_email">E-mail address:</label></th><td><input id="id_email" type="text" name="email" maxlength="75" /></td></tr>\\n<tr><th><label for="id_comment">Comment:</label></th><td><textarea id="id_comment" rows="10" cols="40" name="comment"></textarea></td></tr>\\n<tr><th><label for="id_markup">Markup:</label></th><td><select name="markup" id="id_markup">\\n<option value="">---------</option>\\n<option value="1">markdown</option>\\n<option value="2">textile</option>\\n<option value="3">restructuredtext</option>\\n<option value="5" selected="selected">plaintext</option>\\n</select></td></tr>'

@@ -301,6 +301,38 @@ class ThreadedCommentFormNode(template.Node):
         context[self.context_name] = form
         return ''
 
+def do_get_latest_comments(parser, token):
+    """
+    Gets the latest comments by date_submitted.
+    """
+    error_message = "%r tag must be of format {%% %r NUM_TO_GET as CONTEXT_VARIABLE %%}" % (token.contents.split()[0], token.contents.split()[0])
+    try:
+        split = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError, error_message
+    if len(split) != 4:
+        raise template.TemplateSyntaxError, error_message
+    if split[2] != 'as':
+        raise template.TemplateSyntaxError, error_message
+    if "free" in split[0]:
+        is_free = True
+    else:
+        is_free = False
+    return LatestCommentsNode(split[1], split[3], free=is_free)
+
+class LatestCommentsNode(template.Node):
+    def __init__(self, num, context_name, free=False):
+        self.num = num
+        self.context_name = context_name
+        self.free = free
+    def render(self, context):
+        if self.free:
+            comments = FreeThreadedComment.objects.order_by('-date_submitted')[:self.num]
+        else:
+            comments = ThreadedComment.objects.order_by('-date_submitted')[:self.num]
+        context[self.context_name] = comments
+        return ''
+
 register = template.Library()
 register.simple_tag(get_comment_url)
 register.simple_tag(get_comment_url_json)
@@ -319,3 +351,5 @@ register.tag('get_comment_count', do_get_comment_count)
 register.tag('get_free_comment_count', do_get_free_comment_count)
 register.tag('get_free_threaded_comment_form', do_get_threaded_comment_form)
 register.tag('get_threaded_comment_form', do_get_threaded_comment_form)
+register.tag('get_latest_comments', do_get_latest_comments)
+register.tag('get_latest_free_comments', do_get_latest_comments)

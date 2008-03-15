@@ -356,6 +356,14 @@ Tags
     Gets an unbound ``FreeThreadedCommentForm`` and assigns it to the specified
     context variable.
 
+:``{% get_latest_comments NUM_TO_GET as CONTEXT_VAR %}``:
+    Gets the ``NUM_TO_GET`` latest ``ThreadedComment`` instances, ordered by
+    ``date_submitted`` and assigns it to the specified context variable.
+
+:``{% get_latest_free_comments NUM_TO_GET as CONTEXT_VAR %}``:
+    Gets the ``NUM_TO_GET`` latest ``FreeThreadedComment`` instances, ordered 
+    by ``date_submitted`` and assigns it to the specified context variable.
+
 Filters
 -------
 
