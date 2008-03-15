@@ -25,6 +25,8 @@ MARKUP_CHOICES = (
     (PLAINTEXT, _("plaintext")),
 )
 
+DEFAULT_MARKUP = getattr(settings, 'DEFAULT_MARKUP', PLAINTEXT)
+
 def dfs(node, all_nodes, depth):
     """
     Performs a recursive depth-first search starting at ``node``.  This function
@@ -145,7 +147,7 @@ class ThreadedComment(models.Model):
     
     # Meat n' Potatoes
     comment = models.TextField(_('comment'))
-    markup = models.IntegerField(choices=MARKUP_CHOICES, default=PLAINTEXT, null=True, blank=True)
+    markup = models.IntegerField(choices=MARKUP_CHOICES, default=DEFAULT_MARKUP, null=True, blank=True)
     
     # Status Fields
     is_public = models.BooleanField(_('is public'), default = True)
@@ -164,7 +166,7 @@ class ThreadedComment(models.Model):
     
     def save(self):
         if not self.markup:
-            self.markup = PLAINTEXT
+            self.markup = DEFAULT_MARKUP
         self.date_modified = datetime.now()
         if not self.date_approved and self.is_approved:
             self.date_approved = datetime.now()
@@ -261,7 +263,7 @@ class FreeThreadedComment(models.Model):
     
     # Meat n' Potatoes
     comment = models.TextField(_('comment'))
-    markup = models.IntegerField(choices=MARKUP_CHOICES, default=PLAINTEXT, null=True, blank=True)
+    markup = models.IntegerField(choices=MARKUP_CHOICES, default=DEFAULT_MARKUP, null=True, blank=True)
     
     # Status Fields
     is_public = models.BooleanField(_('is public'), default = True)
@@ -280,7 +282,7 @@ class FreeThreadedComment(models.Model):
     
     def save(self):
         if not self.markup:
-            self.markup = PLAINTEXT
+            self.markup = DEFAULT_MARKUP
         self.date_modified = datetime.now()
         if not self.date_approved and self.is_approved:
             self.date_approved = datetime.now()

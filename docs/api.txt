@@ -705,6 +705,16 @@ General
     moderator is registered against a model, this default depth will not be
     adhered to either.
 
+:``DEFAULT_MARKUP = PLAINTEXT``:
+    Every comment which is added to any object has not only some text, but that
+    text may be stored in some markup language like restructured text or
+    textile.  If django-comment-utils_ is not used, then the comment will fall
+    back to a default of whatever is specified here.  The default is 
+    ``PLAINTEXT``.
+    
+    Options are ``MARKDOWN``, ``TEXTILE``, ``REST``, ``PLAINTEXT``, and can be
+    imported from the models file.
+
 Gravatar
 --------
 
