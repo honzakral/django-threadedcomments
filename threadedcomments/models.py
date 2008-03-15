@@ -11,6 +11,7 @@ from django.utils.encoding import force_unicode
 DEFAULT_MAX_COMMENT_LENGTH = getattr(settings, 'DEFAULT_MAX_COMMENT_LENGTH', 1000)
 DEFAULT_MAX_COMMENT_DEPTH = getattr(settings, 'DEFAULT_MAX_COMMENT_DEPTH', 8)
 
+
 MARKDOWN = 1
 TEXTILE = 2
 REST = 3
@@ -132,7 +133,7 @@ class ThreadedComment(models.Model):
     content_object = generic.GenericForeignKey()
     
     # Hierarchy Field
-    parent = models.ForeignKey('self', null=True, default=None, related_name='children')
+    parent = models.ForeignKey('self', null=True, blank=True, default=None, related_name='children')
     
     # User Field
     user = models.ForeignKey(User)
@@ -246,7 +247,7 @@ class FreeThreadedComment(models.Model):
     content_object = generic.GenericForeignKey()
     
     # Hierarchy Field
-    parent = models.ForeignKey('self', null = True, default = None, related_name='children')
+    parent = models.ForeignKey('self', null = True, blank=True, default = None, related_name='children')
     
     # User-Replacement Fields
     name = models.CharField(_('name'), max_length = 128)
