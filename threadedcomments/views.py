@@ -31,16 +31,12 @@ def _get_next(request):
         raise Http404 # No next url was supplied in GET or POST.
     return next
 
-def _preview(request, context_processors, extra_context, edit_id=None, form_class=ThreadedCommentForm):
+def _preview(request, context_processors, extra_context, form_class=ThreadedCommentForm):
     """
     Returns a preview of the comment so that the user may decide if he or she wants to
     edit it before submitting it permanently.
     """
-    if edit_id:
-        instance = get_object_or_404(model, id=edit_id)
-    else:
-        instance = None
-    form = form_class(request.POST or None, instance=instance)
+    form = form_class(request.POST or None)
     context = {
         'next' : _get_next(request),
         'form' : form,
