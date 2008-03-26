@@ -1,5 +1,5 @@
 Max Battcher <me@worldmaker.net>
 Eric Florenzano <floguy@gmail.com>
 Kevin Fricovsky <kevin@carolynandco.com>
-Matt Hijskooijman
+Matthijs Kooijman <matthijs@stdin.nl>
 Christos Trochalakis <yatiohi@ideopolis.gr>
