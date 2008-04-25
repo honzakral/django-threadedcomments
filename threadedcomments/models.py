@@ -45,11 +45,13 @@ class ThreadedCommentManager(models.Manager):
     the retrieval of comments in tree form and also has utility methods for
     creating and retrieving objects related to a specific content object.
     """
-    def get_tree(self, content_object):
+    def get_tree(self, content_object, root=None):
         """
         Runs a depth-first search on all comments related to the given content_object.
         This depth-first search adds a ``depth`` attribute to the comment which
         signifies how how deeply nested the comment is away from the original object.
+        
+        If root is specified, it will start the tree from that comment's ID.
         
         Ideally, one would use this ``depth`` attribute in the display of the comment to
         offset that comment by some specified length.
@@ -66,9 +68,21 @@ class ThreadedCommentManager(models.Manager):
             object_id = getattr(content_object, 'pk', getattr(content_object, 'id')),
         ).select_related().order_by('date_submitted'))
         to_return = []
-        for child in children:
-            if not child.parent:
-                to_return.extend(dfs(child, children, 0))
+        if root:
+            if isinstance(root, int):
+                root_id = root
+            else:
+                root_id = root.id
+            to_return = [c for c in children if c.id == root_id]
+            if to_return:
+                to_return[0].depth = 0
+                for child in children:
+                    if child.parent_id == root_id:
+                        to_return.extend(dfs(child, children, 1))
+        else:
+            for child in children:
+                if not child.parent:
+                    to_return.extend(dfs(child, children, 0))
         return to_return
 
     def _generate_object_kwarg_dict(self, content_object, **kwargs):

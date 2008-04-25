@@ -127,11 +127,13 @@ These types of methods do not belong on the model itself, but rather on the
 Common Methods
 --------------
 
-:``get_tree(content_object)``:
+:``get_tree(content_object, root=None)``:
     Runs a depth-first search on all of the comments attached to the given
     content object.  It then annotates a ``depth`` field which is an integer 
     representing how many nodes away it is from the root node (the content
-    object itself).  It also orders the comments appropriately into threads.
+    object itself).  It also orders the comments appropriately into threads.  If
+    a root comment is specified, the comment tree will start at that specific
+    comment.  This way, one could get a single thread of the comments.
 
 :``create_for_object(content_object, **kwargs)``:
     Wraps the ``create`` method, and automatically fills out ``content_type``
@@ -340,13 +342,17 @@ Tags
     correct markup processor, or if a context variable is specified, outputs
     it into the context for further use.
 
-:``{% get_threaded_comment_tree for OBJECT as CONTEXT_VAR %}``:
+:``{% get_threaded_comment_tree for OBJECT [TREE_ROOT] as CONTEXT_VAR %}``:
     Calls ``ThreadedComment.public.get_tree(OBJECT)`` and places the result 
-    into the specified context variable.
+    into the specified context variable.  TREE_ROOT is an optional comment
+    or comment_id, which would be the root of the tree.  This way, querying for
+    a single thread of comments is made easy.
 
-:``{% get_free_threaded_comment_tree for OBJECT as CONTEXT_VAR %}``:
+:``{% get_free_threaded_comment_tree for OBJECT [TREE_ROOT] as CONTEXT_VAR %}``:
     Calls ``FreeThreadedComment.public.get_tree(OBJECT)`` and places the result 
-    into the specified context variable.
+    into the specified context variable.  TREE_ROOT is an optional comment
+    or comment_id, which would be the root of the tree.  This way, querying for
+    a single thread of comments is made easy.
 
 :``{% get_threaded_comment_form as CONTEXT_VAR %}``:
     Gets an unbound ``ThreadedCommentForm`` and assigns it to the specified

@@ -171,6 +171,20 @@
      <10chars
      VALID Markup.  Should show up.
  This should appear again, due to unregistration
+
+>>> tree = ThreadedComment.objects.get_tree(topic, root=comment2)
+>>> for comment in tree:
+...     print "%s %s" % ("    " * comment.depth, comment.comment)
+ This is stupid!  I hate it!
+     I agree, the first comment was wrong and you are right!
+         I'm a fanboy!
+
+>>> tree = ThreadedComment.objects.get_tree(topic, root=comment2.id)
+>>> for comment in tree:
+...     print "%s %s" % ("    " * comment.depth, comment.comment)
+ This is stupid!  I hate it!
+     I agree, the first comment was wrong and you are right!
+         I'm a fanboy!
 >>>
 
   ###########################
@@ -338,6 +352,20 @@
  VALID Markup.  Should show up.
      Building Depth...Should Show Up.
          More Depth...Should Show Up.
+
+>>> tree = FreeThreadedComment.objects.get_tree(topic, root=comment2)
+>>> for comment in tree:
+...     print "%s %s" % ("    " * comment.depth, comment.comment)
+ This is stupid!  I hate it!
+     I agree, the first comment was wrong and you are right!
+         I'm a fanboy!
+
+>>> tree = FreeThreadedComment.objects.get_tree(topic, root=comment2.id)
+>>> for comment in tree:
+...     print "%s %s" % ("    " * comment.depth, comment.comment)
+ This is stupid!  I hate it!
+     I agree, the first comment was wrong and you are right!
+         I'm a fanboy!
 >>>
 
 ############################
@@ -676,8 +704,14 @@ u'<tr><th><label for="id_name">Name:</label></th><td><input id="id_name" type="t
 >>> Template('{% load threadedcommentstags %}{% get_free_threaded_comment_tree for topic as tree %}[{% for item in tree %}({{ item.depth }}){{ item.comment }},{% endfor %}]').render(c)
 u'[(0)test1,(0)test2,(0)test3,(1)test4,(1)test5,(1)test6,]'
 
+>>> Template('{% load threadedcommentstags %}{% get_free_threaded_comment_tree for topic 17 as tree %}[{% for item in tree %}({{ item.depth }}){{ item.comment }},{% endfor %}]').render(c)
+u'[(0)test3,(1)test4,(1)test5,(1)test6,]'
+
 >>> Template('{% load threadedcommentstags %}{% get_threaded_comment_tree for topic as tree %}[{% for item in tree %}({{ item.depth }}){{ item.comment }},{% endfor %}]').render(c)
 u'[(0)test7,(0)test8,(0)test9,(1)test10,(1)test11,(1)test12,]'
+
+>>> Template('{% load threadedcommentstags %}{% get_threaded_comment_tree for topic 15 as tree %}[{% for item in tree %}({{ item.depth }}){{ item.comment }},{% endfor %}]').render(c)
+u'[(0)test9,(1)test10,(1)test11,(1)test12,]'
 
 >>> markdown_txt = '''
 ... A First Level Header
