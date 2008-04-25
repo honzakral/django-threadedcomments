@@ -3,6 +3,7 @@ from django import newforms as forms
 from models import DEFAULT_MAX_COMMENT_LENGTH
 from models import FreeThreadedComment, ThreadedComment
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import ugettext_lazy as _
 
 class ThreadedCommentForm(forms.ModelForm):
     """
@@ -13,6 +14,7 @@ class ThreadedCommentForm(forms.ModelForm):
     """
 
     comment = forms.CharField(
+        label = _('comment'),
         max_length = DEFAULT_MAX_COMMENT_LENGTH,
         widget = forms.Textarea
     )
@@ -31,6 +33,7 @@ class FreeThreadedCommentForm(forms.ModelForm):
     """
 
     comment = forms.CharField(
+        label = _('comment'),
         max_length = DEFAULT_MAX_COMMENT_LENGTH,
         widget = forms.Textarea
     )
