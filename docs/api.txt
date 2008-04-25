@@ -725,9 +725,6 @@ General
     textile.  If this information is not provided to the form, then the comment 
     will fall back to a default of whatever is specified here.  The default is 
     ``PLAINTEXT``.
-    
-    Options are ``MARKDOWN``, ``TEXTILE``, ``REST``, ``PLAINTEXT``, and can be
-    imported from the models file.
 
 Gravatar
 --------
