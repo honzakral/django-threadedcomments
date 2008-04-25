@@ -716,8 +716,8 @@ General
 :``DEFAULT_MARKUP = PLAINTEXT``:
     Every comment which is added to any object has not only some text, but that
     text may be stored in some markup language like restructured text or
-    textile.  If django-comment-utils_ is not used, then the comment will fall
-    back to a default of whatever is specified here.  The default is 
+    textile.  If this information is not provided to the form, then the comment 
+    will fall back to a default of whatever is specified here.  The default is 
     ``PLAINTEXT``.
     
     Options are ``MARKDOWN``, ``TEXTILE``, ``REST``, ``PLAINTEXT``, and can be

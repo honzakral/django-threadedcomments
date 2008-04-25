@@ -11,7 +11,6 @@ from django.utils.encoding import force_unicode
 DEFAULT_MAX_COMMENT_LENGTH = getattr(settings, 'DEFAULT_MAX_COMMENT_LENGTH', 1000)
 DEFAULT_MAX_COMMENT_DEPTH = getattr(settings, 'DEFAULT_MAX_COMMENT_DEPTH', 8)
 
-
 MARKDOWN = 1
 TEXTILE = 2
 REST = 3
