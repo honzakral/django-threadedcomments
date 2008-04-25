@@ -8,8 +8,15 @@ from django.utils.safestring import mark_safe
 from django.template import RequestContext, Context, Template
 from django.contrib.auth.decorators import permission_required
 from forms import FreeThreadedCommentForm, ThreadedCommentForm
-from models import ThreadedComment, FreeThreadedComment
+from models import ThreadedComment, FreeThreadedComment, DEFAULT_MAX_COMMENT_LENGTH
 from utils import JSONResponse, XMLResponse
+
+def _adjust_max_comment_length(form, field_name='comment'):
+    """
+    Sets the maximum comment length to that default specified in the settings.
+    """
+    attrib = getattr(form, field_name)
+    attrib.max_length = DEFAULT_MAX_COMMENT_LENGTH
 
 def _get_next(request):
     """
@@ -24,7 +31,7 @@ def _get_next(request):
     redirect to that variable's value.
     3. If Django can determine the previous page from the HTTP headers, the view will
     redirect to that previous page.
-    4. Otherwise, the view will redirect to '/'.
+    4. Otherwise, the view raise a 404 Not Found.
     """
     next = request.POST.get('next', request.GET.get('next', request.META.get('HTTP_REFERER', None)))
     if not next or next == request.path:
@@ -36,6 +43,7 @@ def _preview(request, context_processors, extra_context, form_class=ThreadedComm
     Returns a preview of the comment so that the user may decide if he or she wants to
     edit it before submitting it permanently.
     """
+    _adjust_max_comment_length(form_class)
     form = form_class(request.POST or None)
     context = {
         'next' : _get_next(request),
@@ -74,6 +82,7 @@ def free_comment(request, content_type=None, object_id=None, edit_id=None, paren
         instance = get_object_or_404(model, id=edit_id)
     else:
         instance = None
+    _adjust_max_comment_length(form_class)
     form = form_class(request.POST, instance=instance)
     if form.is_valid():
         new_comment = form.save(commit=False)
