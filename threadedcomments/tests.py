@@ -700,7 +700,7 @@ u'[&lt;FreeThreadedComment: test6&gt;, &lt;FreeThreadedComment: test5&gt;]'
 >>> Template('{% load threadedcommentstags %}{% get_free_threaded_comment_form as form %}{{ form }}').render(c)
 u'<tr><th><label for="id_name">Name:</label></th><td><input id="id_name" type="text" name="name" maxlength="128" /></td></tr>\\n<tr><th><label for="id_website">Site:</label></th><td><input id="id_website" type="text" name="website" maxlength="200" /></td></tr>\\n<tr><th><label for="id_email">E-mail address:</label></th><td><input id="id_email" type="text" name="email" maxlength="75" /></td></tr>\\n<tr><th><label for="id_comment">comment:</label></th><td><textarea id="id_comment" rows="10" cols="40" name="comment"></textarea></td></tr>\\n<tr><th><label for="id_markup">Markup:</label></th><td><select name="markup" id="id_markup">\\n<option value="">---------</option>\\n<option value="1">markdown</option>\\n<option value="2">textile</option>\\n<option value="3">restructuredtext</option>\\n<option value="5" selected="selected">plaintext</option>\\n</select></td></tr>'
 
->>> c = Context({'topic' : old_topic, 'parent' : FreeThreadedComment.objects.latest('date_submitted')})
+>>> c = Context({'topic' : old_topic, 'parent' : FreeThreadedComment.objects.latest('date_submitted'), 'user':user})
 >>> Template('{% load threadedcommentstags %}{% get_free_threaded_comment_tree for topic as tree %}[{% for item in tree %}({{ item.depth }}){{ item.comment }},{% endfor %}]').render(c)
 u'[(0)test1,(0)test2,(0)test3,(1)test4,(1)test5,(1)test6,]'
 
@@ -712,6 +712,12 @@ u'[(0)test7,(0)test8,(0)test9,(1)test10,(1)test11,(1)test12,]'
 
 >>> Template('{% load threadedcommentstags %}{% get_threaded_comment_tree for topic 15 as tree %}[{% for item in tree %}({{ item.depth }}){{ item.comment }},{% endfor %}]').render(c)
 u'[(0)test9,(1)test10,(1)test11,(1)test12,]'
+
+>>> Template('{% load threadedcommentstags %}{% get_user_comments for user as comments %}{{ comments }}').render(c)
+u'[&lt;ThreadedComment: VALID Markup.  Should show up.&gt;, &lt;ThreadedComment: &lt;10chars&gt;, &lt;ThreadedComment: This shouldn&#39;t appear because it has more than 10 ...&gt;, &lt;ThreadedComment: This should appear again.&gt;, &lt;ThreadedComment: This should appear again, due to unregistration&gt;, &lt;ThreadedComment: Post moderator addition.  Does it still work?&gt;, &lt;ThreadedComment: What are you talking about?&gt;, &lt;ThreadedComment: I&#39;m a fanboy!&gt;, &lt;ThreadedComment: What are we talking about?&gt;, &lt;ThreadedComment: I agree, the first comment was wrong and you are r...&gt;, &lt;ThreadedComment: This is stupid!  I hate it!&gt;, &lt;ThreadedComment: This is fun!  This is very fun!&gt;]'
+
+>>> Template('{% load threadedcommentstags %}{% get_user_comment_count for user as comment_count %}{{ comment_count }}').render(c)
+u'12'
 
 >>> markdown_txt = '''
 ... A First Level Header
@@ -742,8 +748,8 @@ u'[(0)test9,(1)test10,(1)test11,(1)test12,]'
 ... )
 
 >>> c = Context({'comment' : comment_markdown})
->>> Template("{% load threadedcommentstags %}{% auto_transform_markup comment %}").render(c)
-u"<h1>A First Level Header</h1>\\n\\n<h2>A Second Level Header</h2>\\n<p>Now is the time for all good men to come to\\n   the aid of their country. This is just a\\n   regular paragraph.\\n</p>\\n<p>The quick brown fox jumped over the lazy\\n   dog's back.\\n</p>\\n\\n<h3>Header 3</h3>\\n<blockquote><p>This is a blockquote.\\n</p>\\n<p>This is the second paragraph in the blockquote.\\n</p>\\n\\n<h2>This is an H2 in a blockquote</h2>\\n</blockquote>"
+>>> Template("{% load threadedcommentstags %}{% auto_transform_markup comment %}").render(c).replace('\\n', '')
+u"<h1> A First Level Header</h1><h2> A Second Level Header</h2><p>Now is the time for all good men to come to   the aid of their country. This is just a   regular paragraph.</p><p>The quick brown fox jumped over the lazy   dog's back.</p><h3> Header 3</h3><blockquote><p>This is a blockquote.</p><p>This is the second paragraph in the blockquote.</p><h2> This is an H2 in a blockquote</h2></blockquote>"
 
 >>> textile_txt = '''
 ... h2{color:green}. This is a title

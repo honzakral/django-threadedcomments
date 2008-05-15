@@ -1,6 +1,7 @@
 import re
 from django import template
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_str, force_unicode
 from django.utils.safestring import mark_safe
@@ -369,6 +370,50 @@ class LatestCommentsNode(template.Node):
         context[self.context_name] = comments
         return ''
 
+def do_get_user_comments(parser, token):
+    """
+    Gets all comments submitted by a particular user.
+    """
+    error_message = "%r tag must be of format {%% %r for OBJECT as CONTEXT_VARIABLE %%}" % (token.contents.split()[0], token.contents.split()[0])
+    try:
+        split = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError, error_message
+    if len(split) != 5:
+        raise template.TemplateSyntaxError, error_message
+    return UserCommentsNode(split[2], split[4])
+
+class UserCommentsNode(template.Node):
+    def __init__(self, user, context_name):
+        self.user = template.Variable(user)
+        self.context_name = context_name
+    def render(self, context):
+        user = self.user.resolve(context)
+        context[self.context_name] = ThreadedComment.objects.filter(user=user)
+        return ''
+
+def do_get_user_comment_count(parser, token):
+    """
+    Gets the count of all comments submitted by a particular user.
+    """
+    error_message = "%r tag must be of format {%% %r for OBJECT as CONTEXT_VARIABLE %%}" % (token.contents.split()[0], token.contents.split()[0])
+    try:
+        split = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError, error_message
+    if len(split) != 5:
+        raise template.TemplateSyntaxError, error_message
+    return UserCommentCountNode(split[2], split[4])
+
+class UserCommentCountNode(template.Node):
+    def __init__(self, user, context_name):
+        self.user = template.Variable(user)
+        self.context_name = context_name
+    def render(self, context):
+        user = self.user.resolve(context)
+        context[self.context_name] = ThreadedComment.objects.filter(user=user).count()
+        return ''
+
 register = template.Library()
 register.simple_tag(get_comment_url)
 register.simple_tag(get_comment_url_json)
@@ -388,3 +433,5 @@ register.tag('get_free_threaded_comment_form', do_get_threaded_comment_form)
 register.tag('get_threaded_comment_form', do_get_threaded_comment_form)
 register.tag('get_latest_comments', do_get_latest_comments)
 register.tag('get_latest_free_comments', do_get_latest_comments)
+register.tag('get_user_comments', do_get_user_comments)
+register.tag('get_user_comment_count', do_get_user_comment_count)
