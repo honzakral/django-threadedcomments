@@ -389,7 +389,7 @@ class UserCommentsNode(template.Node):
         self.context_name = context_name
     def render(self, context):
         user = self.user.resolve(context)
-        context[self.context_name] = ThreadedComment.objects.filter(user=user)
+        context[self.context_name] = user.threadedcomment_set.all()
         return ''
 
 def do_get_user_comment_count(parser, token):
@@ -411,7 +411,7 @@ class UserCommentCountNode(template.Node):
         self.context_name = context_name
     def render(self, context):
         user = self.user.resolve(context)
-        context[self.context_name] = ThreadedComment.objects.filter(user=user).count()
+        context[self.context_name] = user.threadedcomment_set.all().count()
         return ''
 
 register = template.Library()
