@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django import newforms as forms
+from django import forms
 from models import DEFAULT_MAX_COMMENT_LENGTH
 from models import FreeThreadedComment, ThreadedComment
 from django.contrib.contenttypes.models import ContentType

@@ -2,7 +2,7 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404, render_to_response
-from django.newforms.util import ErrorDict
+from django.forms.util import ErrorDict
 from django.utils.encoding import smart_unicode, force_unicode
 from django.utils.safestring import mark_safe
 from django.template import RequestContext, Context, Template

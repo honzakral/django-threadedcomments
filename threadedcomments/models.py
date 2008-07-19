@@ -228,19 +228,8 @@ class ThreadedComment(models.Model):
         verbose_name = _("Threaded Comment")
         verbose_name_plural = _("Threaded Comments")
         get_latest_by = "date_submitted"
-    
-    class Admin:
-        fields = (
-            (None, {'fields': ('content_type', 'object_id')}),
-            ('Parent', {'fields' : ('parent',)}),
-            ('Content', {'fields': ('user', 'comment')}),
-            ('Meta', {'fields': ('is_public', 'date_submitted', 'date_modified', 'date_approved', 'is_approved', 'ip_address')}),
-        )
-        list_display = ('user', 'date_submitted', 'content_type', 'get_content_object', 'parent', '__unicode__')
-        list_filter = ('date_submitted',)
-        date_hierarchy = 'date_submitted'
-        search_fields = ('comment', 'user__username')
 
+    
 class FreeThreadedComment(models.Model):
     """
     A threaded comment which need not be associated with an instance of 
@@ -346,18 +335,7 @@ class FreeThreadedComment(models.Model):
         verbose_name = _("Free Threaded Comment")
         verbose_name_plural = _("Free Threaded Comments")
         get_latest_by = "date_submitted"
-    
-    class Admin:
-        fields = (
-            (None, {'fields': ('content_type', 'object_id')}),
-            ('Parent', {'fields' : ('parent',)}),
-            ('Content', {'fields': ('name', 'website', 'email', 'comment')}),
-            ('Meta', {'fields': ('date_submitted', 'date_modified', 'date_approved', 'is_public', 'ip_address', 'is_approved')}),
-        )
-        list_display = ('name', 'date_submitted', 'content_type', 'get_content_object', 'parent', '__unicode__')
-        list_filter = ('date_submitted',)
-        date_hierarchy = 'date_submitted'
-        search_fields = ('comment', 'name', 'email', 'website')
+
 
 class TestModel(models.Model):
     """
