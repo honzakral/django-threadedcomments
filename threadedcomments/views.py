@@ -1,12 +1,13 @@
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404, render_to_response
 from django.forms.util import ErrorDict
 from django.utils.encoding import smart_unicode, force_unicode
 from django.utils.safestring import mark_safe
 from django.template import RequestContext, Context, Template
-from django.contrib.auth.decorators import permission_required
+from django.utils.http import urlquote
+from django.conf import settings
 from forms import FreeThreadedCommentForm, ThreadedCommentForm
 from models import ThreadedComment, FreeThreadedComment, DEFAULT_MAX_COMMENT_LENGTH
 from utils import JSONResponse, XMLResponse
@@ -138,15 +139,28 @@ def comment(*args, **kwargs):
 # Require login to be required, as request.user must exist and be valid.
 comment = login_required(comment)
 
-def comment_delete(request, object_id, model=ThreadedComment, extra_context = {}, context_processors = []):
+def can_delete_comment(comment, user):
+    """
+    Default callback function to determine wether the given user has the
+    ability to delete the given comment.
+    """
+    if user.is_staff or user.is_superuser:
+        return True
+    if hasattr(comment, 'user') and comment.user == user:
+        return True
+    return False
+
+def comment_delete(request, object_id, model=ThreadedComment, extra_context = {}, context_processors = [], permission_callback=can_delete_comment):
     """
     Deletes the specified comment, which can be either a ``FreeThreadedComment`` or a
     ``ThreadedComment``.  If it is a POST request, then the comment will be deleted
     outright, however, if it is a GET request, a confirmation page will be shown.
-
-    Requires 'threadedcomments.can_delete' permission to proceed.
     """
     tc = get_object_or_404(model, id=int(object_id))
+    if not permission_callback(tc, request.user):
+        login_url = settings.LOGIN_URL
+        current_url = urlquote(request.get_full_path())
+        return HttpResponseRedirect("%s?next=%s" % (login_url, current_url))
     if request.method == "POST":
         tc.delete()
         return HttpResponseRedirect(_get_next(request))
@@ -171,4 +185,3 @@ def comment_delete(request, object_id, model=ThreadedComment, extra_context = {}
                 context_processors
             )
         )
-comment_delete = permission_required('threadedcomments.can_delete')(comment_delete)

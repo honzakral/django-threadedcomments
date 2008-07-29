@@ -587,6 +587,10 @@ True
 >>> latest = FreeThreadedComment.objects.latest('date_submitted')
 >>> latest_id = latest.pk
 
+>>> non_used_user = User.objects.create_user('user999', 'floguy2@gmail.com', password='password2')
+>>> latest.user = non_used_user
+>>> latest.save()
+
 >>> url = reverse('tc_free_comment_delete',
 ...     kwargs={'object_id':latest_id})
 >>> response = c.post(url, {'next' : '/'})
@@ -620,6 +624,9 @@ True
   #######################
 >>> latest = ThreadedComment.objects.latest('date_submitted')
 >>> latest_id = latest.pk
+
+>>> latest.user = non_used_user
+>>> latest.save()
 
 >>> url = reverse('tc_comment_delete',
 ...     kwargs={'object_id':latest_id})
@@ -656,17 +663,17 @@ True
 >>> c = Context({'topic' : topic, 'old_topic' : old_topic, 'parent' : comment9})
 
 >>> Template('{% load threadedcommentstags %}{% get_comment_url topic %}').render(c)
-u'/comment/9/3/'
+u'/comment/10/3/'
 >>> Template('{% load threadedcommentstags %}{% get_comment_url topic parent %}').render(c)
-u'/comment/9/3/8/'
+u'/comment/10/3/8/'
 >>> Template('{% load threadedcommentstags %}{% get_comment_url_json topic %}').render(c)
-u'/comment/9/3/json/'
+u'/comment/10/3/json/'
 >>> Template('{% load threadedcommentstags %}{% get_comment_url_xml topic %}').render(c)
-u'/comment/9/3/xml/'
+u'/comment/10/3/xml/'
 >>> Template('{% load threadedcommentstags %}{% get_comment_url_json topic parent %}').render(c)
-u'/comment/9/3/8/json/'
+u'/comment/10/3/8/json/'
 >>> Template('{% load threadedcommentstags %}{% get_comment_url_xml topic parent %}').render(c)
-u'/comment/9/3/8/xml/'
+u'/comment/10/3/8/xml/'
 
 >>> Template('{% load threadedcommentstags %}{% get_comment_count for old_topic as count %}{{ count }}').render(c)
 u'6'
@@ -679,17 +686,17 @@ u'<tr><th><label for="id_comment">comment:</label></th><td><textarea id="id_comm
 
 >>> c = Context({'topic' : topic, 'old_topic' : old_topic, 'parent' : FreeThreadedComment.objects.latest('date_submitted')})
 >>> Template('{% load threadedcommentstags %}{% get_free_comment_url topic %}').render(c)
-u'/freecomment/9/3/'
+u'/freecomment/10/3/'
 >>> Template('{% load threadedcommentstags %}{% get_free_comment_url topic parent %}').render(c)
-u'/freecomment/9/3/20/'
+u'/freecomment/10/3/20/'
 >>> Template('{% load threadedcommentstags %}{% get_free_comment_url_json topic %}').render(c)
-u'/freecomment/9/3/json/'
+u'/freecomment/10/3/json/'
 >>> Template('{% load threadedcommentstags %}{% get_free_comment_url_xml topic %}').render(c)
-u'/freecomment/9/3/xml/'
+u'/freecomment/10/3/xml/'
 >>> Template('{% load threadedcommentstags %}{% get_free_comment_url_json topic parent %}').render(c)
-u'/freecomment/9/3/20/json/'
+u'/freecomment/10/3/20/json/'
 >>> Template('{% load threadedcommentstags %}{% get_free_comment_url_xml topic parent %}').render(c)
-u'/freecomment/9/3/20/xml/'
+u'/freecomment/10/3/20/xml/'
 
 >>> Template('{% load threadedcommentstags %}{% get_free_comment_count for old_topic as count %}{{ count }}').render(c)
 u'6'
@@ -749,7 +756,7 @@ u'12'
 
 >>> c = Context({'comment' : comment_markdown})
 >>> Template("{% load threadedcommentstags %}{% auto_transform_markup comment %}").render(c).replace('\\n', '')
-u"<h1> A First Level Header</h1><h2> A Second Level Header</h2><p>Now is the time for all good men to come to   the aid of their country. This is just a   regular paragraph.</p><p>The quick brown fox jumped over the lazy   dog's back.</p><h3> Header 3</h3><blockquote><p>This is a blockquote.</p><p>This is the second paragraph in the blockquote.</p><h2> This is an H2 in a blockquote</h2></blockquote>"
+u"<h1>...
 
 >>> textile_txt = '''
 ... h2{color:green}. This is a title
@@ -874,7 +881,7 @@ u'<h2 style="color:green;">This is a title</h2>\\n\\n<h3>This is a subhead</h3>\
 ... )
 >>> c = Context({'comment' : comment_rest})
 >>> Template("{% load threadedcommentstags %}{% auto_transform_markup comment %}").render(c)
-u'<p>reStructuredText is <strong>nice</strong>. It has its own <a class="reference" href="http://docutils.sourceforge.net/rst.html">webpage</a>.</p>\\n<p>A table:</p>\\n<table border="1" class="docutils">\\n<colgroup>\\n<col width="31%" />\\n<col width="31%" />\\n<col width="38%" />\\n</colgroup>\\n<thead valign="bottom">\\n<tr><th class="head" colspan="2">Inputs</th>\\n<th class="head">Output</th>\\n</tr>\\n<tr><th class="head">A</th>\\n<th class="head">B</th>\\n<th class="head">A or B</th>\\n</tr>\\n</thead>\\n<tbody valign="top">\\n<tr><td>False</td>\\n<td>False</td>\\n<td>False</td>\\n</tr>\\n<tr><td>True</td>\\n<td>False</td>\\n<td>True</td>\\n</tr>\\n<tr><td>False</td>\\n<td>True</td>\\n<td>True</td>\\n</tr>\\n<tr><td>True</td>\\n<td>True</td>\\n<td>True</td>\\n</tr>\\n</tbody>\\n</table>\\n<div class="section">\\n<h1><a id="rst-traclinks" name="rst-traclinks">RST TracLinks</a></h1>\\n<p>See also ticket <cite>#42</cite>::.</p>\\n</div>\\n'
+u'<p>reStructuredText is...
 
 >>> comment_plaintext = ThreadedComment.objects.create_for_object(
 ...     old_topic, user = user, ip_address = '127.0.0.1', markup = PLAINTEXT,
