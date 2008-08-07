@@ -1,5 +1,4 @@
 import datetime
-from django.dispatch import dispatcher
 from django.db.models import signals
 from models import ThreadedComment, FreeThreadedComment, MARKUP_CHOICES
 from models import DEFAULT_MAX_COMMENT_LENGTH, DEFAULT_MAX_COMMENT_DEPTH
@@ -38,10 +37,18 @@ class CommentModerator(moderation.CommentModerator):
 class Moderator(moderation.Moderator):
     def connect(self):
         for model in (ThreadedComment, FreeThreadedComment):
-            dispatcher.connect(self.pre_save_moderation, sender=model, signal=signals.pre_save)
-            dispatcher.connect(self.post_save_moderation, sender=model, signal=signals.post_save)
+            signals.pre_save.connect(self.pre_save_moderation, sender=model)
+            signals.post_save.connect(self.post_save_moderation, sender=model)
     
-# Instantiate the ``ThreadedModerator`` so that other modules can import and 
+    ## THE FOLLOWING ARE HACKS UNTIL django-comment-utils GETS UPDATED SIGNALS ####
+    def pre_save_moderation(self, sender=None, instance=None, **kwargs):
+        return super(Moderator, self).pre_save_moderation(sender, instance)
+
+    def post_save_moderation(self, sender=None, instance=None, **kwargs):
+        return super(Moderator, self).post_save_moderation(sender, instance)
+
+
+# Instantiate the ``Moderator`` so that other modules can import and 
 # begin to register with it.
 
 moderator = Moderator()
