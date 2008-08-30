@@ -16,8 +16,7 @@ def _adjust_max_comment_length(form, field_name='comment'):
     """
     Sets the maximum comment length to that default specified in the settings.
     """
-    attrib = getattr(form, field_name)
-    attrib.max_length = DEFAULT_MAX_COMMENT_LENGTH
+    form.base_fields['comment'].max_length = DEFAULT_MAX_COMMENT_LENGTH
 
 def _get_next(request):
     """
