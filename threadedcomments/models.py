@@ -177,13 +177,13 @@ class ThreadedComment(models.Model):
             return self.comment[:50] + "..."
         return self.comment[:50]
     
-    def save(self):
+    def save(self, **kwargs):
         if not self.markup:
             self.markup = DEFAULT_MARKUP
         self.date_modified = datetime.now()
         if not self.date_approved and self.is_approved:
             self.date_approved = datetime.now()
-        super(ThreadedComment, self).save()
+        super(ThreadedComment, self).save(**kwargs)
     
     def get_content_object(self):
         """
@@ -282,7 +282,7 @@ class FreeThreadedComment(models.Model):
             return self.comment[:50] + "..."
         return self.comment[:50]
     
-    def save(self):
+    def save(self, **kwargs):
         if not self.markup:
             self.markup = DEFAULT_MARKUP
         self.date_modified = datetime.now()
@@ -290,7 +290,7 @@ class FreeThreadedComment(models.Model):
             self.date_approved = datetime.now()
         super(FreeThreadedComment, self).save()
     
-    def get_content_object(self):
+    def get_content_object(self, **kwargs):
         """
         Wrapper around the GenericForeignKey due to compatibility reasons
         and due to ``list_display`` limitations.
