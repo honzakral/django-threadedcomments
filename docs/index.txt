@@ -12,6 +12,6 @@ Contents:
 
 .. toctree::
 
-   api.rst
-   tutorial.rst
-   pinax.rst
+   api.txt
+   tutorial.txt
+   pinax.txt
