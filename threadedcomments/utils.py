@@ -1,8 +1,7 @@
 from django.core.serializers import serialize
-from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.utils import simplejson
-from django.utils.functional import Promise 
+from django.utils.functional import Promise
 from django.utils.encoding import force_unicode 
 
 class LazyEncoder(simplejson.JSONEncoder):

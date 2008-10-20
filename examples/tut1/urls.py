@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import *
+from django.conf.urls.defaults import patterns, include
 
 urlpatterns = patterns('',
      (r'^blog/$', 'blog.views.latest_post'),

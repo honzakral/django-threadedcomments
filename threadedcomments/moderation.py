@@ -1,7 +1,6 @@
-import datetime
 from django.db.models import signals
-from models import ThreadedComment, FreeThreadedComment, MARKUP_CHOICES
-from models import DEFAULT_MAX_COMMENT_LENGTH, DEFAULT_MAX_COMMENT_DEPTH
+from threadedcomments.models import ThreadedComment, FreeThreadedComment, MARKUP_CHOICES
+from threadedcomments.models import DEFAULT_MAX_COMMENT_LENGTH, DEFAULT_MAX_COMMENT_DEPTH
 from comment_utils import moderation
 
 MARKUP_CHOICES_IDS = [c[0] for c in MARKUP_CHOICES]

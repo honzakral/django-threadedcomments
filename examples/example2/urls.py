@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import *
+from django.conf.urls.defaults import patterns, url, include
 from voting.views import xmlhttprequest_vote_on_object
 from threadedcomments.models import ThreadedComment
 from django.conf import settings

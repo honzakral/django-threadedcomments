@@ -3,11 +3,11 @@
 ### Model and Moderation Tests ###
 ##################################
 >>> import datetime
->>> from models import FreeThreadedComment, ThreadedComment, TestModel
->>> from models import MARKDOWN, TEXTILE, REST, PLAINTEXT
+>>> from threadedcomments.models import FreeThreadedComment, ThreadedComment, TestModel
+>>> from threadedcomments.models import MARKDOWN, TEXTILE, REST, PLAINTEXT
 >>> from django.contrib.auth.models import User
 >>> from django.contrib.contenttypes.models import ContentType
->>> from moderation import moderator, CommentModerator
+>>> from threadedcomments.moderation import moderator, CommentModerator
 >>> from django.core import mail
 
 >>> topic = TestModel.objects.create(name = "Test")
