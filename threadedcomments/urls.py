@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import patterns, url
 from threadedcomments.models import FreeThreadedComment
-import views
+from threadedcomments import views
 
 free = {'model' : FreeThreadedComment}
 
