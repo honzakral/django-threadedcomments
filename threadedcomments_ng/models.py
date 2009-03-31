@@ -1,4 +1,6 @@
 from django.db import models
+from django.template import Template, Context
+
 
 DIGITS = 10
 SEPARATOR = '/'
@@ -26,35 +28,44 @@ class CommentManager(models.Manager):
                 c.open = 1
 
             else: # c.level <= old.level
-                old.close = old.level - c.level
+                old.close = range(old.level - c.level)
                 if old.root != c.root:
-                    old.close += 1
+                    old.close.append(len(old.close))
                     last = []
                     c.open = 1
             yield old
             old = c
-        old.close = old.level
+        old.close = range(old.level)
         yield old
 
     def pprint(self):
-        for c in self.iter_tree():
-            if not  getattr(c, 'open', False) and not getattr(c, 'close', False):
-                print '</li>'
-
-            if getattr(c, 'open', False):
-                print '<ul>'
-
-            if getattr(c, 'last', False):
-                print '<li class="last">'
-            else:
-                print '<li>'
-
-            print '%s' % c
-
-            for x in range(getattr(c, 'close', 0)):
-                print '</li>'
-                print '</ul>'
-
+        """
+        only proof of concepts, that it can be printed in template
+        """
+        t = '''
+            {% for comment in comments.iter_tree %}
+            {% if comment.open or comment.close %}
+            </li>
+            {% endif %}
+            {% if comment.open %}
+            <ul>
+            % endif %}
+            {% if comment.last %}
+            <li class="last">
+            {% else %}
+            <li>
+            {% endif %}
+            {{ comment }}
+            {% for close in comment.close %}
+            </li>
+            </ul>
+            {% endfor %}
+            {% endfor %}
+        '''
+        # render the template
+        x = Template(t).render(Context({'comments': Comment.objects,}))
+        # and print without empty lines
+        print '\n'.join(( i.strip() for i in x.split('\n') if i.strip() != '' ))
 
 
 class Comment(models.Model):
