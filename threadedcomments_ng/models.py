@@ -59,7 +59,7 @@ class CommentManager(models.Manager):
         t = '''
             {% for comment in comments.iter_tree %}
 
-            {% if comment.open or comment.close %}
+            {% if not comment.open and not comment.close %}
             </li>
             {% endif %}
 
