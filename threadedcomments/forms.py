@@ -53,17 +53,11 @@ class ThreadedCommentForm(CommentForm):
         Generate the initial security hash from self.content_object
         and a (unix) timestamp.
         """
-
-        if self.parent:
-            parent = str(self.parent)
-        else:
-            parent = ''
-
         initial_security_dict = {
             'content_type': str(self.target_object._meta),
             'object_pk': str(self.target_object._get_pk_val()),
             'timestamp': str(timestamp),
-            'parent': parent,
+            'parent': str(self.parent or ''),
         }
         return self.generate_security_hash(**initial_security_dict)
 
