@@ -2,7 +2,7 @@ from distutils.core import setup
 
 kwargs = {
     'name' : 'django-threadedcomments',
-    'version' : '0.5.1',
+    'version' : '0.6',
     'description' : 'A simple yet flexible threaded commenting system.',
     'author' : 'Eric Florenzano',
     'author_email' : 'floguy@gmail.com',
