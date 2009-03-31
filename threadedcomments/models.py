@@ -35,3 +35,4 @@ class ThreadedComment(Comment):
     
     class Meta(object):
         ordering = ('tree_path',)
+        db_table = 'threadedcomments_comment'
