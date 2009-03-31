@@ -40,7 +40,10 @@ class SanityTests(TransactionTestCase):
         self.assertEqual(child_comment.tree_path, '0000000001/0000000002')
         self.assertEqual(comment.pk, child_comment.parent.pk)
 
-
+    def test_treepath_isvalid(self):
+        comment = self._post_comment()
+        child_comment = self._post_comment(parent=comment)
+        self.assertEqual(child_comment.tree_path, '%s/%010d' % (comment.tree_path, child_comment.pk))
 
 class HierarchyTest(TransactionTestCase):
     fixtures = ['threadedcomments/fixtures/simple_tree.json']
@@ -113,3 +116,4 @@ expected_html = sanitize_html('''
     </li>
 </ul>
 ''')
+

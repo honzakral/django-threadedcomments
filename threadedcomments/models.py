@@ -23,7 +23,7 @@ class ThreadedComment(Comment):
         super(ThreadedComment, self).save(*args, **kwargs)
         path_list = [unicode(self.pk).zfill(PATH_DIGITS)]
         if self.parent:
-            path_list.append(self.parent.tree_path)
+            path_list.insert(0, self.parent.tree_path)
             self.parent.last_child = self
             ThreadedComment.objects.filter(pk=self.parent_id).update(
                 last_child=self)
