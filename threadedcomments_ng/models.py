@@ -33,9 +33,8 @@ class CommentManager(models.Manager):
         yield old
 
     def pprint(self):
-        old = None
         for c in self.iter_tree():
-            if c.level == getattr(old, 'level', -1):
+            if not  getattr(c, 'open', False) and not getattr(c, 'close', False):
                 print '</li>'
 
             if getattr(c, 'open', False):
@@ -52,7 +51,6 @@ class CommentManager(models.Manager):
                 print '</li>'
                 print '</ul>'
 
-            old = c
 
 
 class Comment(models.Model):
