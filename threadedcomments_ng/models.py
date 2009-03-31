@@ -8,27 +8,41 @@ class CommentManager(models.Manager):
     def iter_tree(self):
         it = self.all().iterator()
 
+        # get the first item, this will fail if no items !
         old = it.next()
-        old.open = 1
-        last = []
-        for c in it:
-            if old.last_child_id:
-                last.append(old.last_child_id)
 
+        # first item starts a new thread
+        old.open = 1
+        last = set()
+        for c in it:
+            # if this comment has a parent, store it's last child for future reference
+            if old.last_child_id:
+                last.add(old.last_child_id)
+
+            # this is the last child, mark it
             if c.pk in last:
                 c.last = True
 
+            # increase the level
             if c.level > old.level:
                 c.open = 1
 
             else: # c.level <= old.level
+                # close some levels
                 old.close = old.level - c.level
+
+                # new thread
                 if old.root != c.root:
+                    # close even the top level
                     old.close += 1
-                    last = []
+                    # and start a new thread
                     c.open = 1
+                    # empty the last set
+                    last = set()
+            # iterate
             yield old
             old = c
+
         old.close = old.level
         yield old
 
