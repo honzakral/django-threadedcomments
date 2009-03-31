@@ -1,0 +1,19 @@
+{% for comment in comment_list %}
+{% ifchanged comment.parent_id %}{% else %}
+    </li>
+{% endifchanged %}
+
+{% if comment.open %}
+    <ul>
+{% endif %}
+
+<li{% if comment.last %} class="last"{% endif %}>
+
+{{ comment }}
+
+{% for close in comment.close %}
+    </li>
+    </ul>
+{% endfor %}
+
+{% endfor %}
