@@ -13,7 +13,7 @@
 
 <li{% if comment.last %} class="last"{% endif %}>
 
-{{ comment }}
+{{ comment.tree_path }}
 
 {% for close in comment.close %}
     </li>

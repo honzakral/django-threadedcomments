@@ -46,17 +46,16 @@ class SanityTests(TransactionTestCase):
         self.assertEqual(child_comment.tree_path, '%s/%010d' % (comment.tree_path, child_comment.pk))
 
 class HierarchyTest(TransactionTestCase):
-    fixtures = ['threadedcomments/fixtures/simple_tree.json']
+    fixtures = ['simple_tree']
 
     def test_open_and_close_match(self):
-        level = 0
+        depth = 0
         for x in annotate_tree_properties(comments.get_model().objects.all()):
-            print x.pk, getattr(x, 'open', 0), len(getattr(x, 'close', []))
-            level += getattr(x, 'open', 0)
-            self.assertEqual(x.level, level)
-            level -= len(getattr(x, 'close', []))
+            depth += getattr(x, 'open', 0)
+            self.assertEqual(x.depth, depth)
+            depth -= len(getattr(x, 'close', []))
 
-        self.assertEqual(0, level)
+        self.assertEqual(0, depth)
 
     def test_last_flags_set_correctly_only_on_last_sibling(self):
         # construct the tree

@@ -20,17 +20,17 @@ def annotate_tree_properties(comments):
         if c.pk in last:
             c.last = True
 
-        # increase the level
-        if c.level > old.level:
+        # increase the depth
+        if c.depth > old.depth:
             c.open = 1
 
-        else: # c.level <= old.level
-            # close some levels
-            old.close = range(old.level - c.level)
+        else: # c.depth <= old.depth
+            # close some depths
+            old.close = range(old.depth - c.depth)
 
             # new thread
-            if old.root != c.root:
-                # close even the top level
+            if old.root_id != c.root_id:
+                # close even the top depth
                 old.close.append(len(old.close))
                 # and start a new thread
                 c.open = 1
@@ -40,5 +40,5 @@ def annotate_tree_properties(comments):
         yield old
         old = c
 
-    old.close = range(old.level)
+    old.close = range(old.depth)
     yield old
