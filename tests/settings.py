@@ -20,6 +20,10 @@ INSTALLED_APPS = (
     'threadedcomments',
 )
 
+TEMPLATE_LOADERS = (
+    'django.template.loaders.app_directories.load_template_source',
+)
+
 COMMENTS_APP = 'threadedcomments'
 
 urlpatterns = patterns('',

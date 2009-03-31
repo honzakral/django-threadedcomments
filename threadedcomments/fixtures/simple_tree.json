@@ -1,7 +1,7 @@
 [
     {
         "pk": 1, 
-        "model": "threadedcomments_ng.comment", 
+        "model": "threadedcomments.threadedcomment", 
         "fields": {
             "tree_path": "0000000001", 
             "last_child": 4, 
@@ -10,7 +10,7 @@
     }, 
     {
         "pk": 2, 
-        "model": "threadedcomments_ng.comment", 
+        "model": "threadedcomments.threadedcomment", 
         "fields": {
             "tree_path": "0000000001/0000000002", 
             "last_child": 5,
@@ -19,7 +19,7 @@
     },
     {
         "pk": 3, 
-        "model": "threadedcomments_ng.comment", 
+        "model": "threadedcomments.threadedcomment", 
         "fields": {
             "tree_path": "0000000001/0000000002/0000000003", 
             "last_child": null, 
@@ -28,7 +28,7 @@
     },
     {
         "pk": 5, 
-        "model": "threadedcomments_ng.comment", 
+        "model": "threadedcomments.threadedcomment", 
         "fields": {
             "tree_path": "0000000001/0000000002/0000000005", 
             "last_child": null, 
@@ -37,7 +37,7 @@
     },
     {
         "pk": 4, 
-        "model": "threadedcomments_ng.comment", 
+        "model": "threadedcomments.threadedcomment", 
         "fields": {
             "tree_path": "0000000001/0000000004", 
             "last_child": 6, 
@@ -46,7 +46,7 @@
     },
     {
         "pk": 6, 
-        "model": "threadedcomments_ng.comment", 
+        "model": "threadedcomments.threadedcomment", 
         "fields": {
             "tree_path": "0000000001/0000000004/0000000006", 
             "last_child": null, 
@@ -55,7 +55,7 @@
     },
     {
         "pk": 7, 
-        "model": "threadedcomments_ng.comment", 
+        "model": "threadedcomments.threadedcomment", 
         "fields": {
             "tree_path": "0000000007", 
             "last_child": null, 
