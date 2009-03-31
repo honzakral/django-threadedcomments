@@ -125,3 +125,11 @@ class HierarchyTest(TransactionTestCase):
             {'comment_list': annotate_tree_properties(Comment.objects.all())}
         )
         self.assertEqual(self.EXPECTED_HTML, sanitize_html(output))
+
+    def test_last_child_properly_created(self):
+        Comment = comments.get_model()
+        new_child_comment = Comment(comment="Comment 8", site_id=1, content_type_id=7, object_pk=1, parent_id=1)
+        new_child_comment.save()
+        comment = Comment.objects.get(pk=1)
+        self.assertEqual(comment.last_child, new_child_comment)
+
