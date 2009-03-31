@@ -2,8 +2,14 @@ from django.test import TransactionTestCase, TestCase
 from django.contrib import comments
 from django.contrib.sites.models import Site
 from django.template import loader
+from django.conf import settings
 
 from threadedcomments.util import annotate_tree_properties
+
+PATH_DIGITS = getattr(settings, 'COMMENT_PATH_DIGITS', 10)
+
+def sanitize_html(html):
+    return '\n'.join(( i.strip() for i in html.split('\n') if i.strip() != '' ))
 
 class SanityTests(TransactionTestCase):
     BASE_DATA = {
@@ -30,23 +36,56 @@ class SanityTests(TransactionTestCase):
         Comment = comments.get_model()
         self.assertEqual(Comment.objects.count(), 0)
         comment = self._post_comment()
-        self.assertEqual(comment.tree_path, '0000000001')
+        self.assertEqual(comment.tree_path, str(comment.pk).zfill(PATH_DIGITS))
         self.assertEqual(Comment.objects.count(), 1)
     
     def test_post_comment_child(self):
         comment = self._post_comment()
-        self.assertEqual(comment.tree_path, '0000000001')
+        self.assertEqual(comment.tree_path, str(comment.pk).zfill(PATH_DIGITS))
         child_comment = self._post_comment(parent=comment)
-        self.assertEqual(child_comment.tree_path, '0000000001/0000000002')
+        comment_pk = str(comment.pk).zfill(PATH_DIGITS)
+        child_comment_pk = str(child_comment.pk).zfill(PATH_DIGITS)
+        self.assertEqual(child_comment.tree_path, '%s/%s' % (comment_pk,
+            child_comment_pk))
         self.assertEqual(comment.pk, child_comment.parent.pk)
 
-    def test_treepath_isvalid(self):
-        comment = self._post_comment()
-        child_comment = self._post_comment(parent=comment)
-        self.assertEqual(child_comment.tree_path, '%s/%010d' % (comment.tree_path, child_comment.pk))
 
 class HierarchyTest(TransactionTestCase):
     fixtures = ['simple_tree']
+    
+    EXPECTED_HTML = sanitize_html('''
+    <ul>
+        <li>
+            0000000001
+            <ul>
+                <li>
+                    0000000001/0000000002
+                    <ul>
+                        <li>
+                            0000000001/0000000002/0000000003
+                        </li>
+                        <li class="last">
+                            0000000001/0000000002/0000000005
+                        </li>
+                    </ul>
+                </li>
+                <li class="last">
+                    0000000001/0000000004
+                    <ul>
+                        <li class="last">
+                            0000000001/0000000004/0000000006
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    </ul>
+    <ul>
+        <li>
+            0000000007
+        </li>
+    </ul>
+    ''')
 
     def test_open_and_close_match(self):
         depth = 0
@@ -65,7 +104,7 @@ class HierarchyTest(TransactionTestCase):
             if x.parent_id:
                 nodes[x.parent_id][1].append(x.pk)
 
-        # check all the cmments
+        # check all the comments
         for x in annotate_tree_properties(comments.get_model().objects.all()):
             if getattr(x, 'last', False):
                 # last comments have a parent
@@ -78,41 +117,4 @@ class HierarchyTest(TransactionTestCase):
 
     def test_template(self):
         output = loader.render_to_string('sample_tree.html')
-        self.assertEqual(expected_html, sanitize_html(output))
-
-def sanitize_html(html):
-    return '\n'.join(( i.strip() for i in html.split('\n') if i.strip() != '' ))
-expected_html = sanitize_html('''
-<ul>
-    <li>
-        0000000001
-        <ul>
-            <li>
-                0000000001/0000000002
-                <ul>
-                    <li>
-                        0000000001/0000000002/0000000003
-                    </li>
-                    <li class="last">
-                        0000000001/0000000002/0000000005
-                    </li>
-                </ul>
-            </li>
-            <li class="last">
-                0000000001/0000000004
-                <ul>
-                    <li class="last">
-                        0000000001/0000000004/0000000006
-                    </li>
-                </ul>
-            </li>
-        </ul>
-    </li>
-</ul>
-<ul>
-    <li>
-        0000000007
-    </li>
-</ul>
-''')
-
+        self.assertEqual(self.EXPECTED_HTML, sanitize_html(output))
