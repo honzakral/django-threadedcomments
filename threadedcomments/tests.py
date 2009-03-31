@@ -6,6 +6,7 @@ from django.conf import settings
 
 from threadedcomments.util import annotate_tree_properties
 
+PATH_SEPARATOR = getattr(settings, 'COMMENT_PATH_SEPARATOR', '/')
 PATH_DIGITS = getattr(settings, 'COMMENT_PATH_DIGITS', 10)
 
 def sanitize_html(html):
@@ -38,6 +39,7 @@ class SanityTests(TransactionTestCase):
         comment = self._post_comment()
         self.assertEqual(comment.tree_path, str(comment.pk).zfill(PATH_DIGITS))
         self.assertEqual(Comment.objects.count(), 1)
+        self.assertEqual(comment.last_child, None)
     
     def test_post_comment_child(self):
         comment = self._post_comment()
@@ -45,9 +47,10 @@ class SanityTests(TransactionTestCase):
         child_comment = self._post_comment(parent=comment)
         comment_pk = str(comment.pk).zfill(PATH_DIGITS)
         child_comment_pk = str(child_comment.pk).zfill(PATH_DIGITS)
-        self.assertEqual(child_comment.tree_path, '%s/%s' % (comment_pk,
-            child_comment_pk))
+        self.assertEqual(child_comment.tree_path, PATH_SEPARATOR.join(
+            (comment.tree_path, child_comment_pk)))
         self.assertEqual(comment.pk, child_comment.parent.pk)
+        self.assertEqual(comment.last_child, child_comment)
 
 
 class HierarchyTest(TransactionTestCase):
