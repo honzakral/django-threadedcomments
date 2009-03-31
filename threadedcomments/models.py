@@ -5,6 +5,7 @@ from django.conf import settings
 PATH_SEPARATOR = getattr(settings, 'COMMENT_PATH_SEPARATOR', '/')
 PATH_DIGITS = getattr(settings, 'COMMENT_PATH_DIGITS', 10)
 
+
 class ThreadedComment(Comment):
     parent = models.ForeignKey('self', null=True, blank=True, default=None,
         related_name='children')
@@ -21,13 +22,14 @@ class ThreadedComment(Comment):
     
     def save(self, *args, **kwargs):
         super(ThreadedComment, self).save(*args, **kwargs)
-        path_list = [unicode(self.pk).zfill(PATH_DIGITS)]
+        tree_path = unicode(self.pk).zfill(PATH_DIGITS)
         if self.parent:
-            path_list.insert(0, self.parent.tree_path)
             self.parent.last_child = self
             ThreadedComment.objects.filter(pk=self.parent_id).update(
                 last_child=self)
-        self.tree_path = PATH_SEPARATOR.join(path_list)
+            tree_path = PATH_SEPARATOR.join((self.parent.tree_path, tree_path))
+
+        self.tree_path = tree_path
         ThreadedComment.objects.filter(pk=self.pk).update(
             tree_path=self.tree_path)
     
