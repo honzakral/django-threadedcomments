@@ -8,6 +8,9 @@ from threadedcomments.util import annotate_tree_properties
 
 PATH_DIGITS = getattr(settings, 'COMMENT_PATH_DIGITS', 10)
 
+def sanitize_html(html):
+    return '\n'.join(( i.strip() for i in html.split('\n') if i.strip() != '' ))
+
 class SanityTests(TransactionTestCase):
     BASE_DATA = {
         'name': u'Eric Florenzano',
@@ -49,6 +52,40 @@ class SanityTests(TransactionTestCase):
 
 class HierarchyTest(TransactionTestCase):
     fixtures = ['simple_tree']
+    
+    EXPECTED_HTML = sanitize_html('''
+    <ul>
+        <li>
+            0000000001
+            <ul>
+                <li>
+                    0000000001/0000000002
+                    <ul>
+                        <li>
+                            0000000001/0000000002/0000000003
+                        </li>
+                        <li class="last">
+                            0000000001/0000000002/0000000005
+                        </li>
+                    </ul>
+                </li>
+                <li class="last">
+                    0000000001/0000000004
+                    <ul>
+                        <li class="last">
+                            0000000001/0000000004/0000000006
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    </ul>
+    <ul>
+        <li>
+            0000000007
+        </li>
+    </ul>
+    ''')
 
     def test_open_and_close_match(self):
         depth = 0
@@ -79,42 +116,9 @@ class HierarchyTest(TransactionTestCase):
                 self.assertEqual(len(siblings)-1, siblings.index(x.pk) )
 
     def test_template(self):
-        output = loader.render_to_string('sample_tree.html', {'comment_list': annotate_tree_properties(comments.get_model().objects.all()) })
-        self.assertEqual(expected_html, sanitize_html(output))
-
-def sanitize_html(html):
-    return '\n'.join(( i.strip() for i in html.split('\n') if i.strip() != '' ))
-expected_html = sanitize_html('''
-<ul>
-    <li>
-        0000000001
-        <ul>
-            <li>
-                0000000001/0000000002
-                <ul>
-                    <li>
-                        0000000001/0000000002/0000000003
-                    </li>
-                    <li class="last">
-                        0000000001/0000000002/0000000005
-                    </li>
-                </ul>
-            </li>
-            <li class="last">
-                0000000001/0000000004
-                <ul>
-                    <li class="last">
-                        0000000001/0000000004/0000000006
-                    </li>
-                </ul>
-            </li>
-        </ul>
-    </li>
-</ul>
-<ul>
-    <li>
-        0000000007
-    </li>
-</ul>
-''')
-
+        Comment = comments.get_model()
+        output = loader.render_to_string(
+            'sample_tree.html',
+            {'comment_list': annotate_tree_properties(Comment.objects.all())}
+        )
+        self.assertEqual(self.EXPECTED_HTML, sanitize_html(output))
