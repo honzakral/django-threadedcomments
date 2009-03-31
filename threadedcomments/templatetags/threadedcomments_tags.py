@@ -2,7 +2,7 @@ from django import template
 from django.template.loader import render_to_string
 from django.contrib.comments.templatetags.comments import BaseCommentNode
 from django.contrib import comments
-
+from threadedcomments.util import annotate_tree_properties
 register = template.Library()
 
 class BaseThreadedCommentNode(BaseCommentNode):
@@ -36,7 +36,7 @@ class CommentListNode(BaseThreadedCommentNode):
     handle_token = classmethod(handle_token)
 
     def get_context_value_from_queryset(self, context, qs):
-        return list(qs)
+        return qs
 
 
 class CommentFormNode(BaseThreadedCommentNode):
@@ -205,6 +205,12 @@ def render_comment_form(parser, token):
     """
     return RenderCommentFormNode.handle_token(parser, token)
 
+
+
+def annotate_tree(comments):
+    return annotate_tree_properties(comments)
+
+register.filter(annotate_tree)
 register.tag(get_comment_list)
 register.tag(get_comment_form)
 register.tag(render_comment_form)

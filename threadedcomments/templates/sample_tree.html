@@ -1,4 +1,9 @@
-{% for comment in comment_list %}
+{% load threadedcomments_tags %}
+
+{% get_comment_list for sites.site 1 as comment_list %}
+
+{% for comment in comment_list|annotate_tree %}
+
 {% ifchanged comment.parent_id %}{% else %}
     </li>
 {% endifchanged %}
