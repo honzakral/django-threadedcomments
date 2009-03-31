@@ -11,7 +11,7 @@ class ThreadedComment(Comment):
     path = models.TextField(null=True, blank=True, db_index=True)
     
     def _get_depth(self):
-        return len(self.path.split(PATH_SEPARATOR)) - 1
+        return len(self.path.split(PATH_SEPARATOR))
     depth = property(_get_depth)
     
     def save(self, *args, **kwargs):
