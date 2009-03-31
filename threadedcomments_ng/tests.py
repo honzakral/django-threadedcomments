@@ -1,10 +1,48 @@
-"""
-really simple test for threadedcomments_ng
+from django.test import TestCase
+from django.template import loader
 
-sorry it's only a doctest
-"""
+from threadedcomments_ng.models import Comment
 
-_html = '''
+class SimpleTest(TestCase):
+    fixtures = ['simple_tree']
+
+    def test_open_and_close_match(self):
+        level = 0
+        for x in Comment.objects.iter_tree():
+            level += getattr(x, 'open', 0)
+            self.assertEqual(x.level, level)
+            level -= len(getattr(x, 'close', []))
+
+        self.assertEqual(0, level)
+
+    def test_last_flags_set_correctly_only_on_last_sibling(self):
+        # construct the tree
+        nodes = {}
+        for x in Comment.objects.all():
+            nodes[x.pk] = (x, [])
+            if x.parent_id:
+                nodes[x.parent_id][1].append(x.pk)
+
+        # check all the cmments
+        for x in Comment.objects.iter_tree():
+            if getattr(x, 'last', False):
+                # last comments have a parent
+                self.assertTrue(x.parent_id)
+                par, siblings = nodes[x.parent_id]
+
+                # and ar last in their child list
+                self.assertTrue( x.pk in siblings )
+                self.assertEqual(len(siblings)-1, siblings.index(x.pk) )
+
+    def test_template(self):
+        output = loader.render_to_string('sample_tree.html', {'comment_list': Comment.objects.iter_tree() })
+
+        
+        self.assertEqual(expected_html, sanitize_html(output))
+
+def sanitize_html(html):
+    return '\n'.join(( i.strip() for i in html.split('\n') if i.strip() != '' ))
+expected_html = sanitize_html('''
 <ul>
     <li>
     0000000001
@@ -19,7 +57,6 @@ _html = '''
             0000000001/0000000002/0000000005
             </li>
         </ul>
-        </li>
         <li class="last">
         0000000001/0000000004
         <ul>
@@ -32,32 +69,8 @@ _html = '''
     </li>
 </ul>
 <ul>
-    <li class="last">
+    <li>
     0000000007
     </li>
 </ul>
-'''
-# flat the html code
-_html = '\n'.join(( i.strip() for i in _html.split('\n') if i.strip() != '' ))
-
-test_html_output = r"""
->>> from threadedcomments_ng.models import Comment
->>> Comment.objects.pprint()
-%s
-""" % _html
-
-__test__ = {
-    "test_html_output": test_html_output,
-}
-
-
-
-from django.test import TestCase
-
-class SimpleTest(TestCase):
-    def test_basic_addition(self):
-        """
-        Tests that 1 + 1 always equals 2.
-        """
-        self.failUnlessEqual(1 + 1, 2)
-
+''')

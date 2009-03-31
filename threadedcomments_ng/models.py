@@ -52,43 +52,6 @@ class CommentManager(models.Manager):
         old.close = range(old.level)
         yield old
 
-    def pprint(self):
-        """
-        only proof of concept that iter_tree can be printed via template
-        """
-        t = '''
-            {% for comment in comments.iter_tree %}
-
-            {% if not comment.open and not comment.close %}
-            </li>
-            {% endif %}
-
-            {% if comment.open %}
-            <ul>
-            {% endif %}
-
-            {% if comment.last %}
-            <li class="last">
-            {% else %}
-            <li>
-            {% endif %}
-
-            {{ comment }}
-
-            {% for close in comment.close %}
-            </li>
-            </ul>
-
-            {% endfor %}
-
-            {% endfor %}
-        '''
-        # render the template
-        x = Template(t).render(Context({'comments': Comment.objects,}))
-        # and print without empty lines
-        print '\n'.join(( i.strip() for i in x.split('\n') if i.strip() != '' ))
-
-
 class Comment(models.Model):
     parent = models.ForeignKey('self', null=True, blank=True, related_name='child_set')
     last_child = models.ForeignKey('self', null=True, blank=True)
