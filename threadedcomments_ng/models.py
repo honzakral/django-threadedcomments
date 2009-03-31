@@ -54,26 +54,33 @@ class CommentManager(models.Manager):
 
     def pprint(self):
         """
-        only proof of concepts, that it can be printed in template
+        only proof of concept that iter_tree can be printed via template
         """
         t = '''
             {% for comment in comments.iter_tree %}
+
             {% if comment.open or comment.close %}
             </li>
             {% endif %}
+
             {% if comment.open %}
             <ul>
-            % endif %}
+            {% endif %}
+
             {% if comment.last %}
             <li class="last">
             {% else %}
             <li>
             {% endif %}
+
             {{ comment }}
+
             {% for close in comment.close %}
             </li>
             </ul>
+
             {% endfor %}
+
             {% endfor %}
         '''
         # render the template
