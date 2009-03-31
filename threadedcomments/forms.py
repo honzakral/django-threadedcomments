@@ -1,41 +1,75 @@
 from django import forms
-from threadedcomments.models import DEFAULT_MAX_COMMENT_LENGTH
-from threadedcomments.models import FreeThreadedComment, ThreadedComment
-from django.utils.translation import ugettext_lazy as _
+from django.contrib.comments.forms import CommentForm
+from threadedcomments.models import ThreadedComment
+from django.conf import settings
+from django.utils.hashcompat import sha_constructor
 
-class ThreadedCommentForm(forms.ModelForm):
-    """
-    Form which can be used to validate data for a new ThreadedComment.
-    It consists of just two fields: ``comment``, and ``markup``.
-    
-    The ``comment`` field is the only one which is required.
-    """
+class ThreadedCommentForm(CommentForm):
+    parent = forms.IntegerField(required=False, widget=forms.HiddenInput)
 
-    comment = forms.CharField(
-        label = _('comment'),
-        max_length = DEFAULT_MAX_COMMENT_LENGTH,
-        widget = forms.Textarea
-    )
+    def __init__(self, target_object, parent=None, data=None, initial=None):
+        self.parent = parent
+        if initial is None:
+            initial = {}
+        initial.update({'parent': self.parent})
+        super(ThreadedCommentForm, self).__init__(target_object, data=data,
+            initial=initial)
 
-    class Meta:
-        model = ThreadedComment
-        fields = ('comment', 'markup')
+    def get_comment_object(self):
+        new_comment = super(ThreadedCommentForm, self).get_comment_object()
+        new_threaded_comment = ThreadedComment(
+            content_type=new_comment.content_type,
+            object_pk=new_comment.object_pk,
+            user_name=new_comment.user_name,
+            user_email=new_comment.user_email,
+            user_url=new_comment.user_url,
+            comment=new_comment.comment,
+            submit_date=new_comment.submit_date,
+            site_id=new_comment.site_id,
+            is_public=new_comment.is_public,
+            is_removed=new_comment.is_removed,
+            parent_id=self.cleaned_data['parent']
+        )
+        return new_threaded_comment
 
-class FreeThreadedCommentForm(forms.ModelForm):
-    """
-    Form which can be used to validate data for a new FreeThreadedComment.
-    It consists of just a few fields: ``comment``, ``name``, ``website``,
-    ``email``, and ``markup``.
-    
-    The fields ``comment``, and ``name`` are the only ones which are required.
-    """
+    def clean_security_hash(self):
+        """
+        Check the security hash.
+        """
+        security_hash_dict = {
+            'content_type': self.data.get('content_type', ''),
+            'object_pk': self.data.get('object_pk', ''),
+            'timestamp': self.data.get('timestamp', ''),
+            'parent': self.data.get('parent', '')
+        }
+        expected_hash = self.generate_security_hash(**security_hash_dict)
+        actual_hash = self.cleaned_data['security_hash']
+        if expected_hash != actual_hash:
+            raise forms.ValidationError('Security hash check failed.')
+        return actual_hash
 
-    comment = forms.CharField(
-        label = _('comment'),
-        max_length = DEFAULT_MAX_COMMENT_LENGTH,
-        widget = forms.Textarea
-    )
+    def initial_security_hash(self, timestamp):
+        """
+        Generate the initial security hash from self.content_object
+        and a (unix) timestamp.
+        """
 
-    class Meta:
-        model = FreeThreadedComment
-        fields = ('comment', 'name', 'website', 'email', 'markup')
+        if self.parent:
+            parent = str(self.parent)
+        else:
+            parent = ''
+
+        initial_security_dict = {
+            'content_type': str(self.target_object._meta),
+            'object_pk': str(self.target_object._get_pk_val()),
+            'timestamp': str(timestamp),
+            'parent': parent,
+        }
+        return self.generate_security_hash(**initial_security_dict)
+
+    def generate_security_hash(self, content_type, object_pk, timestamp, parent):
+        """
+        Generate a (SHA1) security hash from the provided info.
+        """
+        info = (content_type, object_pk, timestamp, parent, settings.SECRET_KEY)
+        return sha_constructor(''.join(info)).hexdigest()
