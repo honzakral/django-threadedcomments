@@ -77,7 +77,7 @@ class HierarchyTest(TransactionTestCase):
                 self.assertEqual(len(siblings)-1, siblings.index(x.pk) )
 
     def test_template(self):
-        output = loader.render_to_string('sample_tree.html', {'comment_list': annotate_tree_properties(comments.get_model().objects.all()) })
+        output = loader.render_to_string('sample_tree.html')
         self.assertEqual(expected_html, sanitize_html(output))
 
 def sanitize_html(html):
