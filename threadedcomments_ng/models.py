@@ -6,6 +6,10 @@ SEPARATOR = '/'
 
 class CommentManager(models.Manager):
     def iter_tree(self):
+        """
+        iterate through nodes and adds some magic properties to each of them
+        representing opening list of children and closing it
+        """
         it = self.all().iterator()
 
         old = it.next()
@@ -83,7 +87,7 @@ class Comment(models.Model):
             self.parent.last_child = self
             self.__class__.objects.filter(pk=self.parent_id).update(last_child=self)
             
-        tree_path = tp + (DIGITS*'0'+str(self.pk))[-DIGITS:]
+        tree_path = tp + '%%0%dd' % DIGITS % self.pk
         self.tree_path = tree_path
         self.__class__.objects.filter(pk=self.pk).update(tree_path=tree_path)
 
