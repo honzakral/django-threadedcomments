@@ -16,49 +16,28 @@ class CommentListNode(BaseThreadedCommentNode):
     """
     def handle_token(cls, parser, token):
         tokens = token.contents.split()
-        if tokens[-2] != u'order_by':
-            raise template.TemplateSyntaxError("The last but one argument in"
-                " %r tag must be 'order_by'" % (tokens[0],))
-        if tokens[-1] not in [u'date', u'thread']:
-            raise template.TemplateSyntaxError("The last argument in %r "
-                "tag must be either 'date' or 'thread'" % (tokens[0],))
-        if len(tokens) == 7:
-            ordering_param = tokens[6]
+        if len(tokens) == 5:
             comment_node_instance = cls(
                 object_expr=parser.compile_filter(tokens[2]),
                 as_varname=tokens[4],
             )
-            comment_node_instance.ordering_by = ordering_param
-        elif len(tokens) == 8:
-            ordering_param = tokens[7]
+        elif len(tokens) == 6:
             comment_node_instance =  cls(
                 ctype=BaseThreadedCommentNode.lookup_content_type(tokens[2],
                     tokens[0]),
                 object_pk_expr=parser.compile_filter(tokens[3]),
                 as_varname=tokens[5]
             )
-            comment_node_instance.ordering_by = ordering_param
         else:
             raise template.TemplateSyntaxError(
-                "%r tag takes either 7 or 8 arguments" % (tokens[0],))
+                "%r tag takes either 5 or 6 arguments" % (tokens[0],))
         return comment_node_instance
 
     handle_token = classmethod(handle_token)
 
     def get_context_value_from_queryset(self, context, qs):
-        if self.ordering_by == 'thread':
-
-            def get_comment_children(comment_list, comment):
-                comment_list.append(comment)
-                for child in comment.children.all():
-                    if child:
-                        get_comment_children(comment_list, child)
-            
-            comment_list = []
-            for comment in qs.filter(parent__id=None):
-                get_comment_children(comment_list, comment)
-            return comment_list            
         return list(qs)
+
 
 class CommentFormNode(BaseThreadedCommentNode):
     """
@@ -186,12 +165,12 @@ def get_comment_list(parser, token):
 
     Syntax::
 
-        {% get_comment_list for [object] as [varname] order_by [date|thread] %}
-        {% get_comment_list for [app].[model] [object_id] as [varname] order_by [date|thread] %}
+        {% get_comment_list for [object] as [varname] %}
+        {% get_comment_list for [app].[model] [object_id] as [varname] %}
 
     Example usage::
 
-        {% get_comment_list for event as comment_list order_by date %}
+        {% get_comment_list for event as comment_list %}
         {% for comment in comment_list %}
             ...
         {% endfor %}
