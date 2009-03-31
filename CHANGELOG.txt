@@ -1,3 +1,11 @@
+Version 0.5.1, 31st March 2009
+------------------------------
+
+Released version 0.5 of the application and moved the code to GitHub. This is
+the last of this line--the next release will be a large rewrite to use the
+comment extension hooks provided in Django 1.1 and will be backwards
+incompatible.
+
 Version 0.4, 7th March 2008
 ---------------------------
 
