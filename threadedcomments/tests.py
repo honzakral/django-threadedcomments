@@ -104,7 +104,7 @@ class HierarchyTest(TransactionTestCase):
             if x.parent_id:
                 nodes[x.parent_id][1].append(x.pk)
 
-        # check all the cmments
+        # check all the comments
         for x in annotate_tree_properties(comments.get_model().objects.all()):
             if getattr(x, 'last', False):
                 # last comments have a parent
