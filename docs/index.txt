@@ -12,6 +12,4 @@ Contents:
 
 .. toctree::
 
-   api.txt
-   tutorial.txt
    pinax.txt
