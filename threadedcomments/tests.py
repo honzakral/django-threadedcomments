@@ -1,6 +1,9 @@
-from django.test import TransactionTestCase
+from django.test import TransactionTestCase, TestCase
 from django.contrib import comments
 from django.contrib.sites.models import Site
+from django.template import loader
+
+from threadedcomments.util import annotate_tree_properties
 
 class SanityTests(TransactionTestCase):
     BASE_DATA = {
@@ -34,5 +37,79 @@ class SanityTests(TransactionTestCase):
         comment = self._post_comment()
         self.assertEqual(comment.tree_path, '0000000001')
         child_comment = self._post_comment(parent=comment)
-        self.assertEqual(child_comment.tree_path, '0000000002/0000000001')
+        self.assertEqual(child_comment.tree_path, '0000000001/0000000002')
         self.assertEqual(comment.pk, child_comment.parent.pk)
+
+
+
+class HierarchyTest(TransactionTestCase):
+    fixtures = ['threadedcomments/fixtures/simple_tree.json']
+
+    def test_open_and_close_match(self):
+        level = 0
+        for x in annotate_tree_properties(comments.get_model().objects.all()):
+            print x.pk, getattr(x, 'open', 0), len(getattr(x, 'close', []))
+            level += getattr(x, 'open', 0)
+            self.assertEqual(x.level, level)
+            level -= len(getattr(x, 'close', []))
+
+        self.assertEqual(0, level)
+
+    def test_last_flags_set_correctly_only_on_last_sibling(self):
+        # construct the tree
+        nodes = {}
+        for x in comments.get_model().objects.all():
+            nodes[x.pk] = (x, [])
+            if x.parent_id:
+                nodes[x.parent_id][1].append(x.pk)
+
+        # check all the cmments
+        for x in annotate_tree_properties(comments.get_model().objects.all()):
+            if getattr(x, 'last', False):
+                # last comments have a parent
+                self.assertTrue(x.parent_id)
+                par, siblings = nodes[x.parent_id]
+
+                # and ar last in their child list
+                self.assertTrue( x.pk in siblings )
+                self.assertEqual(len(siblings)-1, siblings.index(x.pk) )
+
+    def test_template(self):
+        output = loader.render_to_string('sample_tree.html', {'comment_list': annotate_tree_properties(comments.get_model().objects.all()) })
+        self.assertEqual(expected_html, sanitize_html(output))
+
+def sanitize_html(html):
+    return '\n'.join(( i.strip() for i in html.split('\n') if i.strip() != '' ))
+expected_html = sanitize_html('''
+<ul>
+    <li>
+        0000000001
+        <ul>
+            <li>
+                0000000001/0000000002
+                <ul>
+                    <li>
+                        0000000001/0000000002/0000000003
+                    </li>
+                    <li class="last">
+                        0000000001/0000000002/0000000005
+                    </li>
+                </ul>
+            </li>
+            <li class="last">
+                0000000001/0000000004
+                <ul>
+                    <li class="last">
+                        0000000001/0000000004/0000000006
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+</ul>
+<ul>
+    <li>
+        0000000007
+    </li>
+</ul>
+''')
