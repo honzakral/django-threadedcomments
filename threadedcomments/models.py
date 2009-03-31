@@ -8,16 +8,28 @@ PATH_DIGITS = getattr(settings, 'COMMENT_PATH_DIGITS', 10)
 class ThreadedComment(Comment):
     parent = models.ForeignKey('self', null=True, blank=True, default=None,
         related_name='children')
+    last_child = models.ForeignKey('self', null=True, blank=True)
     tree_path = models.TextField(null=True, blank=True, db_index=True)
     
     def _get_depth(self):
         return len(self.tree_path.split(PATH_SEPARATOR))
     depth = property(_get_depth)
     
+    def _root_id(self):
+        return self.tree_path.split(PATH_SEPARATOR)[0]
+    root_id = property(_root_id)
+    
     def save(self, *args, **kwargs):
         super(ThreadedComment, self).save(*args, **kwargs)
         path_list = [unicode(self.pk).zfill(PATH_DIGITS)]
         if self.parent:
             path_list.append(self.parent.tree_path)
+            self.parent.last_child = self
+            ThreadedComment.objects.filter(pk=self.parent_id).update(
+                last_child=self)
         self.tree_path = PATH_SEPARATOR.join(path_list)
-        super(ThreadedComment, self).save(*args, **kwargs)
+        ThreadedComment.objects.filter(pk=self.pk).update(
+            tree_path=self.tree_path)
+    
+    class Meta(object):
+        ordering = ('tree_path',)
