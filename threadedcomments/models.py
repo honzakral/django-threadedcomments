@@ -21,8 +21,9 @@ class ThreadedComment(Comment):
     root_id = property(_root_id)
     
     def save(self, *args, **kwargs):
+        skip_tree_path = kwargs.pop('skip_tree_path', False)
         super(ThreadedComment, self).save(*args, **kwargs)
-        if kwargs.get('skip_tree_path'):
+        if skip_tree_path:
             return None
         tree_path = unicode(self.pk).zfill(PATH_DIGITS)
         if self.parent:

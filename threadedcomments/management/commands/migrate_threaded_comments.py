@@ -1,7 +1,10 @@
 from django.core.management.base import NoArgsCommand
 from django.contrib import comments
+from django.contrib.sites.models import Site
 from django.db import transaction, connection
 from django.conf import settings
+
+from threadedcomments.models import ThreadedComment
 
 USER_SQL = """
 SELECT
@@ -50,7 +53,7 @@ class Command(NoArgsCommand):
         transaction.enter_transaction_management()
         transaction.managed(True)
         
-        ThreadedComment = comments.get_model()
+        site = Site.objects.all()[0]
         
         cursor = connection.cursor()
         cursor.execute(FREE_SQL)
@@ -59,7 +62,7 @@ class Command(NoArgsCommand):
                 date_submitted, date_modified, date_approved, comment, markup,
                 is_public, is_approved, ip_address) = row
             tc = ThreadedComment(
-                content_type_id=content_type,
+                content_type_id=content_type_id,
                 object_pk=object_id,
                 user_name=name,
                 user_email=email,
@@ -67,8 +70,10 @@ class Command(NoArgsCommand):
                 comment=comment,
                 submit_date=date_submitted,
                 ip_address=ip_address,
-                is_approved=is_approved,
-                parent_id=parent_id
+                is_public=is_public,
+                is_removed=not is_approved,
+                parent_id=parent_id,
+                site=site,
             )
             tc.save(skip_tree_path=True)
         
@@ -79,14 +84,16 @@ class Command(NoArgsCommand):
                 date_modified, date_approved, comment, markup, is_public,
                 is_approved, ip_address) = row
             tc = ThreadedComment(
-                content_type_id=content_type,
+                content_type_id=content_type_id,
                 object_pk=object_id,
                 user_id=user_id,
                 comment=comment,
                 submit_date=date_submitted,
                 ip_address=ip_address,
-                is_approved=is_approved,
-                parent_id=parent_id
+                is_public=is_public,
+                is_removed=not is_approved,
+                parent_id=parent_id,
+                site=site,
             )
             tc.save(skip_tree_path=True)
         
@@ -96,10 +103,11 @@ class Command(NoArgsCommand):
             while current.parent:
                 current = current.parent
                 path.append(str(current.id).zfill(PATH_DIGITS))
-            tree_path = PATH_SEPARATOR.join(reversed(path))
+            comment.tree_path = PATH_SEPARATOR.join(reversed(path))
             comment.save(skip_tree_path=True)
-            ThreadedComment.objects.filter(pk=comment.parent.pk).update(
-                last_child=comment)
+            if comment.parent:
+                ThreadedComment.objects.filter(pk=comment.parent.pk).update(
+                    last_child=comment)
         
         transaction.commit()
         transaction.leave_transaction_management()
