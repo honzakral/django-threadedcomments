@@ -3,6 +3,9 @@ def annotate_tree_properties(comments):
     iterate through nodes and adds some magic properties to each of them
     representing opening list of children and closing it
     """
+    if not comments:
+        return []
+
     it = comments.iterator()
 
     # get the first item, this will fail if no items !
