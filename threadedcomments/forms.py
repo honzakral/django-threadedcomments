@@ -1,8 +1,9 @@
 from django import forms
 from django.contrib.comments.forms import CommentForm
-from threadedcomments.models import ThreadedComment
 from django.conf import settings
 from django.utils.hashcompat import sha_constructor
+
+from threadedcomments.models import ThreadedComment
 
 class ThreadedCommentForm(CommentForm):
     parent = forms.IntegerField(required=False, widget=forms.HiddenInput)
