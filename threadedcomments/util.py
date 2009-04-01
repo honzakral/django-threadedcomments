@@ -4,7 +4,7 @@ def annotate_tree_properties(comments):
     representing opening list of children and closing it
     """
     if not comments:
-        return []
+        return
 
     it = comments.iterator()
 
