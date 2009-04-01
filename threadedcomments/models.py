@@ -22,6 +22,8 @@ class ThreadedComment(Comment):
     
     def save(self, *args, **kwargs):
         super(ThreadedComment, self).save(*args, **kwargs)
+        if kwargs.get('skip_tree_path'):
+            return None
         tree_path = unicode(self.pk).zfill(PATH_DIGITS)
         if self.parent:
             self.parent.last_child = self
