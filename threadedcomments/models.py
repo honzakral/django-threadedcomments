@@ -10,7 +10,7 @@ class ThreadedComment(Comment):
     parent = models.ForeignKey('self', null=True, blank=True, default=None,
         related_name='children')
     last_child = models.ForeignKey('self', null=True, blank=True)
-    tree_path = models.CharField(max_length=2000, editable=False, blank=True, db_index=True)
+    tree_path = models.CharField(max_length=255, editable=False, db_index=True)
     
     def _get_depth(self):
         return len(self.tree_path.split(PATH_SEPARATOR))
