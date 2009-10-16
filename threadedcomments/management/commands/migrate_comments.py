@@ -1,5 +1,4 @@
 from django.core.management.base import NoArgsCommand
-from django.contrib import comments
 from django.db import transaction, connection
 from django.conf import settings
 
@@ -7,7 +6,17 @@ PATH_SEPARATOR = getattr(settings, 'COMMENT_PATH_SEPARATOR', '/')
 PATH_DIGITS = getattr(settings, 'COMMENT_PATH_DIGITS', 10)
 
 SQL = """
-INSERT INTO threadedcomments_comment(comment_ptr_id, tree_path) VALUES(%s, %s)
+INSERT INTO threadedcomments_comment (
+    comment_ptr_id, 
+    parent_id, 
+    last_child_id, 
+    tree_path
+) 
+SELECT id as comment_ptr_id, 
+       null as parent_id, 
+       null as last_child_id, 
+       (SELECT TO_CHAR(id, '0000000000')) AS tree_path 
+FROM django_comments;
 """
 
 class Command(NoArgsCommand):
@@ -20,8 +29,7 @@ class Command(NoArgsCommand):
         
         cursor = connection.cursor()
         
-        for comment in comments.models.Comment.objects.all():
-            cursor.execute(SQL, [comment.id, ''])
+        cursor.execute(SQL)
         
         transaction.commit()
         transaction.leave_transaction_management()
