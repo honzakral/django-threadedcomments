@@ -2,7 +2,6 @@ from django.core.management.base import NoArgsCommand
 from django.db import transaction, connection
 from django.conf import settings
 
-PATH_SEPARATOR = getattr(settings, 'COMMENT_PATH_SEPARATOR', '/')
 PATH_DIGITS = getattr(settings, 'COMMENT_PATH_DIGITS', 10)
 
 SQL = """
@@ -15,9 +14,9 @@ INSERT INTO threadedcomments_comment (
 SELECT id as comment_ptr_id, 
        null as parent_id, 
        null as last_child_id, 
-       (SELECT TO_CHAR(id, '0000000000')) AS tree_path 
+       (SELECT TO_CHAR(id, '%s')) AS tree_path 
 FROM django_comments;
-"""
+""" % ''.zfill(PATH_DIGITS)
 
 class Command(NoArgsCommand):
     help = "Migrates from django.contrib.comments to django-threadedcomments"
