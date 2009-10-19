@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 
 PATH_SEPARATOR = getattr(settings, 'COMMENT_PATH_SEPARATOR', '/')
 PATH_DIGITS = getattr(settings, 'COMMENT_PATH_DIGITS', 10)
-
+MAX_PATH_LENGTH = 255
 
 class ThreadedComment(Comment):
     title = models.TextField(_('Title'), blank=True)
@@ -13,7 +13,7 @@ class ThreadedComment(Comment):
         related_name='children', verbose_name=_('Parent'))
     last_child = models.ForeignKey('self', null=True, blank=True,
         verbose_name=_('Last child'))
-    tree_path = models.CharField(_('Tree path'), max_length=255, editable=False,
+    tree_path = models.CharField(_('Tree path'), max_length=MAX_PATH_LENGTH, editable=False,
         db_index=True)
     
     def _get_depth(self):
@@ -31,10 +31,17 @@ class ThreadedComment(Comment):
             return None
         tree_path = unicode(self.pk).zfill(PATH_DIGITS)
         if self.parent:
+            tree_path = PATH_SEPARATOR.join((self.parent.tree_path, tree_path))
+
+            # XXX if tree_path is longer than fits into the DB field, make it reply
+            # to it's grandparent. A hack for improbable situation
+            if len(tree_path) > MAX_PATH_LENGTH:
+                self.parent = self.parent.parent
+                tree_path = PATH_SEPARATOR.join((self.parent.tree_path, tree_path))
+
             self.parent.last_child = self
             ThreadedComment.objects.filter(pk=self.parent_id).update(
                 last_child=self)
-            tree_path = PATH_SEPARATOR.join((self.parent.tree_path, tree_path))
 
         self.tree_path = tree_path
         ThreadedComment.objects.filter(pk=self.pk).update(
