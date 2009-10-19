@@ -29,19 +29,21 @@ class ThreadedComment(Comment):
         super(ThreadedComment, self).save(*args, **kwargs)
         if skip_tree_path:
             return None
-        tree_path = unicode(self.pk).zfill(PATH_DIGITS)
+        path_leaf = unicode(self.pk).zfill(PATH_DIGITS)
         if self.parent:
-            tree_path = PATH_SEPARATOR.join((self.parent.tree_path, tree_path))
+            tree_path = PATH_SEPARATOR.join((self.parent.tree_path, path_leaf))
 
             # XXX if tree_path is longer than fits into the DB field, make it reply
             # to it's grandparent. A hack for improbable situation
-            if len(tree_path) > MAX_PATH_LENGTH:
+            while len(tree_path) > MAX_PATH_LENGTH:
                 self.parent = self.parent.parent
-                tree_path = PATH_SEPARATOR.join((self.parent.tree_path, tree_path))
+                tree_path = PATH_SEPARATOR.join((self.parent.tree_path, path_leaf))
 
             self.parent.last_child = self
             ThreadedComment.objects.filter(pk=self.parent_id).update(
                 last_child=self)
+        else:
+            tree_path = path_leaf
 
         self.tree_path = tree_path
         ThreadedComment.objects.filter(pk=self.pk).update(
