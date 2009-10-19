@@ -9,12 +9,14 @@ INSERT INTO threadedcomments_comment (
     comment_ptr_id, 
     parent_id, 
     last_child_id, 
-    tree_path
+    tree_path,
+    title
 ) 
 SELECT id as comment_ptr_id, 
        null as parent_id, 
        null as last_child_id, 
-       (SELECT TO_CHAR(id, '%s')) AS tree_path 
+       (SELECT TO_CHAR(id, '%s')) AS tree_path,
+       ''
 FROM django_comments;
 """ % ''.zfill(PATH_DIGITS)
 
