@@ -1,17 +1,18 @@
 from django.db import models
 from django.contrib.comments.models import Comment
 from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
 
 PATH_SEPARATOR = getattr(settings, 'COMMENT_PATH_SEPARATOR', '/')
 PATH_DIGITS = getattr(settings, 'COMMENT_PATH_DIGITS', 10)
 
 
 class ThreadedComment(Comment):
-    title = models.TextField(blank=True)
+    title = models.TextField(_('Title'), blank=True)
     parent = models.ForeignKey('self', null=True, blank=True, default=None,
-        related_name='children')
-    last_child = models.ForeignKey('self', null=True, blank=True)
-    tree_path = models.CharField(max_length=255, editable=False, db_index=True)
+        related_name='children', verbose_name=_('Parent'))
+    last_child = models.ForeignKey('self', null=True, blank=True, verbose_name=_('Last child'))
+    tree_path = models.CharField(_('Tree path'), max_length=255, editable=False, db_index=True)
     
     def _get_depth(self):
         return len(self.tree_path.split(PATH_SEPARATOR))
@@ -40,3 +41,5 @@ class ThreadedComment(Comment):
     class Meta(object):
         ordering = ('tree_path',)
         db_table = 'threadedcomments_comment'
+        verbose_name = _('Threaded comment')
+        verbose_name_plural = _('Threaded comments')
