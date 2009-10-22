@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.comments.models import Comment
+from django.contrib.comments.managers import CommentManager
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
@@ -15,6 +16,8 @@ class ThreadedComment(Comment):
         verbose_name=_('Last child'))
     tree_path = models.CharField(_('Tree path'), max_length=MAX_PATH_LENGTH, editable=False,
         db_index=True)
+
+    objects = CommentManager()
     
     def _get_depth(self):
         return len(self.tree_path.split(PATH_SEPARATOR))
