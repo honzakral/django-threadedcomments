@@ -1,4 +1,4 @@
-from django.test import TransactionTestCase, TestCase
+from django.test import TransactionTestCase
 from django.contrib import comments
 from django.contrib.sites.models import Site
 from django.template import loader
