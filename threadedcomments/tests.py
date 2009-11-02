@@ -97,6 +97,15 @@ class HierarchyTest(TransactionTestCase):
     </ul>
     ''')
 
+
+    def test_root_id_returns_self_for_root_comments(self):
+        c = comments.get_model().objects.get(pk=7)
+        self.assertEqual(c.pk, c.root_id)
+
+    def test_root_id_returns_root_for_replies(self):
+        c = comments.get_model().objects.get(pk=6)
+        self.assertEqual(1, c.root_id)
+
     def test_open_and_close_match(self):
         depth = 0
         for x in annotate_tree_properties(comments.get_model().objects.all()):

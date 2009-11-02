@@ -23,7 +23,7 @@ class ThreadedComment(Comment):
     depth = property(_get_depth)
     
     def _root_id(self):
-        return self.tree_path.split(PATH_SEPARATOR)[0]
+        return int(self.tree_path.split(PATH_SEPARATOR)[0])
     root_id = property(_root_id)
     
     def save(self, *args, **kwargs):
