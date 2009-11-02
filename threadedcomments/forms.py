@@ -16,22 +16,8 @@ class ThreadedCommentForm(CommentForm):
         super(ThreadedCommentForm, self).__init__(target_object, data=data,
             initial=initial)
 
-    def get_comment_object(self):
-        new_comment = super(ThreadedCommentForm, self).get_comment_object()
-        new_threaded_comment = ThreadedComment(
-            content_type=new_comment.content_type,
-            object_pk=new_comment.object_pk,
-            user_name=new_comment.user_name,
-            user_email=new_comment.user_email,
-            user_url=new_comment.user_url,
-            comment=new_comment.comment,
-            submit_date=new_comment.submit_date,
-            site_id=new_comment.site_id,
-            is_public=new_comment.is_public,
-            is_removed=new_comment.is_removed,
-            parent_id=self.cleaned_data['parent']
-        )
-        return new_threaded_comment
+    def get_comment_model(self):
+        return ThreadedComment
 
     def clean_security_hash(self):
         """
@@ -48,6 +34,10 @@ class ThreadedCommentForm(CommentForm):
         if expected_hash != actual_hash:
             raise forms.ValidationError('Security hash check failed.')
         return actual_hash
+    def get_comment_create_data(self):
+        d = super(ThreadedCommentForm, self).get_comment_create_data()
+        d['parent_id'] = self.cleaned_data['parent']
+        return d
 
     def initial_security_hash(self, timestamp):
         """

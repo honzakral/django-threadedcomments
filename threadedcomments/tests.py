@@ -21,7 +21,9 @@ class SanityTests(TransactionTestCase):
     
     def _post_comment(self, data=None, parent=None):
         Comment = comments.get_model()
-        body = (data or self.BASE_DATA).copy()
+        body = self.BASE_DATA.copy()
+        if data:
+            body.update(data)
         url = comments.get_form_target()
         args = [Site.objects.all()[0]]
         kwargs = {}
@@ -42,9 +44,10 @@ class SanityTests(TransactionTestCase):
         self.assertEqual(comment.last_child, None)
     
     def test_post_comment_child(self):
+        Comment = comments.get_model()
         comment = self._post_comment()
         self.assertEqual(comment.tree_path, str(comment.pk).zfill(PATH_DIGITS))
-        child_comment = self._post_comment(parent=comment)
+        child_comment = self._post_comment(data={'name': 'ericflo'}, parent=comment)
         comment_pk = str(comment.pk).zfill(PATH_DIGITS)
         child_comment_pk = str(child_comment.pk).zfill(PATH_DIGITS)
         self.assertEqual(child_comment.tree_path, PATH_SEPARATOR.join(
