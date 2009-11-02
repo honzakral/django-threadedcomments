@@ -63,7 +63,29 @@ class SanityTests(TransactionTestCase):
 class HierarchyTest(TransactionTestCase):
     fixtures = ['simple_tree']
     
-    EXPECTED_HTML = sanitize_html('''
+    EXPECTED_HTML_PARTIAL = sanitize_html('''
+    <ul>
+        <li>
+            0000000001 ADDED
+            <ul>
+                <li class="last">
+                    0000000001/0000000004 ADDED
+                    <ul>
+                        <li class="last">
+                            0000000001/0000000004/0000000006
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    </ul>
+    <ul>
+        <li>
+            0000000007
+        </li>
+    </ul>
+    ''')
+    EXPECTED_HTML_FULL = sanitize_html('''
     <ul>
         <li>
             0000000001
@@ -145,9 +167,13 @@ class HierarchyTest(TransactionTestCase):
                 self.assertTrue( x.pk in siblings )
                 self.assertEqual(len(siblings)-1, siblings.index(x.pk) )
 
-    def test_template(self):
+    def test_rendering_of_partial_tree(self):
+        output = loader.render_to_string('sample_tree.html', {'comment_list': comments.get_model().objects.all()[5:]})
+        self.assertEqual(self.EXPECTED_HTML_PARTIAL, sanitize_html(output))
+
+    def test_rendering_of_full_tree(self):
         output = loader.render_to_string('sample_tree.html', {'comment_list': comments.get_model().objects.all()})
-        self.assertEqual(self.EXPECTED_HTML, sanitize_html(output))
+        self.assertEqual(self.EXPECTED_HTML_FULL, sanitize_html(output))
 
     def test_last_child_properly_created(self):
         Comment = comments.get_model()

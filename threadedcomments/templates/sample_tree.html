@@ -1,6 +1,6 @@
 {% load threadedcomments_tags %}
 
-{% for comment in comment_list|annotate_tree %}
+{% for comment in comment_list|fill_tree|annotate_tree %}
 
 {% ifchanged comment.parent_id %}{% else %}
     </li>
@@ -16,7 +16,7 @@
 
 <li{% if comment.last %} class="last"{% endif %}>
 
-{{ comment.tree_path }}
+{{ comment.tree_path }}{% if comment.added_path %} ADDED {% endif %}
 
 {% for close in comment.close %}
     </li>

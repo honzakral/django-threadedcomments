@@ -2,7 +2,7 @@ from django import template
 from django.template.loader import render_to_string
 from django.contrib.comments.templatetags.comments import BaseCommentNode
 from django.contrib import comments
-from threadedcomments.util import annotate_tree_properties
+from threadedcomments.util import annotate_tree_properties, fill_tree
 register = template.Library()
 
 class BaseThreadedCommentNode(BaseCommentNode):
@@ -229,6 +229,7 @@ def annotate_tree(comments):
     return annotate_tree_properties(comments)
 
 register.filter(annotate_tree)
+register.filter(fill_tree)
 register.tag(get_comment_list)
 register.tag(get_comment_form)
 register.tag(render_comment_form)

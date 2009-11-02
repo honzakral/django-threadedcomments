@@ -1,3 +1,24 @@
+from itertools import chain, imap
+
+__all__ = ['fill_tree', 'annotate_tree_properties',]
+
+def _mark_as_root_path(comment):
+    " Mark on comment as Being added to fill the tree. "
+    setattr(comment, 'added_path', True)
+    return comment
+
+def fill_tree(comments):
+    """
+    Prefix the comment_list with the root_path of the first comment. Use this
+    in comments' pagination to fill in the tree information.
+    """
+    if not comments:
+        return
+
+    it = iter(comments)
+    first = it.next()
+    return chain(imap(_mark_as_root_path, first.root_path), [first], it)
+    
 def annotate_tree_properties(comments):
     """
     iterate through nodes and adds some magic properties to each of them
