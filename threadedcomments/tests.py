@@ -97,6 +97,13 @@ class HierarchyTest(TransactionTestCase):
     </ul>
     ''')
 
+    def test_root_path_returns_empty_for_root_comments(self):
+        c = comments.get_model().objects.get(pk=7)
+        self.assertEqual([], [x.pk for x in c.root_path])
+
+    def test_root_path_returns_only_correct_nodes(self):
+        c = comments.get_model().objects.get(pk=6)
+        self.assertEqual([1, 4], [x.pk for x in c.root_path])
 
     def test_root_id_returns_self_for_root_comments(self):
         c = comments.get_model().objects.get(pk=7)

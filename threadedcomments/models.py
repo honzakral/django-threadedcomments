@@ -25,6 +25,10 @@ class ThreadedComment(Comment):
     def _root_id(self):
         return int(self.tree_path.split(PATH_SEPARATOR)[0])
     root_id = property(_root_id)
+
+    def _root_path(self):
+        return ThreadedComment.objects.filter(pk__in=self.tree_path.split(PATH_SEPARATOR)[:-1])
+    root_path = property(_root_path)
     
     def save(self, *args, **kwargs):
         skip_tree_path = kwargs.pop('skip_tree_path', False)
