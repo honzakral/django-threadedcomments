@@ -6,7 +6,7 @@ def annotate_tree_properties(comments):
     if not comments:
         return
 
-    it = comments.iterator()
+    it = iter(comments)
 
     # get the first item, this will fail if no items !
     old = it.next()
