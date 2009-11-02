@@ -106,6 +106,10 @@ class HierarchyTest(TransactionTestCase):
         c = comments.get_model().objects.get(pk=6)
         self.assertEqual(1, c.root_id)
 
+    def test_root_has_depth_1(self):
+        c = comments.get_model().objects.get(pk=7)
+        self.assertEqual(1, c.depth)
+
     def test_open_and_close_match(self):
         depth = 0
         for x in annotate_tree_properties(comments.get_model().objects.all()):
