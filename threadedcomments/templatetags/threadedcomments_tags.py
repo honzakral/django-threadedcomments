@@ -14,15 +14,28 @@ class CommentListNode(BaseThreadedCommentNode):
     """
     Insert a list of comments into the context.
     """
+
+    def __init__(self, flat=False, **kwargs):
+        self.flat = flat
+        super(CommentListNode, self).__init__(**kwargs)
+
     def handle_token(cls, parser, token):
         tokens = token.contents.split()
+
+        flat = False
+        if tokens[-1] == 'flat':
+            flat = True
+            tokens = tokens[:-1]
+
         if len(tokens) == 5:
             comment_node_instance = cls(
+                flat=flat,
                 object_expr=parser.compile_filter(tokens[2]),
-                as_varname=tokens[4],
+                as_varname=tokens[4]
             )
         elif len(tokens) == 6:
             comment_node_instance =  cls(
+                flat=flat,
                 ctype=BaseThreadedCommentNode.lookup_content_type(tokens[2],
                     tokens[0]),
                 object_pk_expr=parser.compile_filter(tokens[3]),
@@ -36,6 +49,8 @@ class CommentListNode(BaseThreadedCommentNode):
     handle_token = classmethod(handle_token)
 
     def get_context_value_from_queryset(self, context, qs):
+        if self.flat:
+            return qs.order_by('-submit_date')
         return qs
 
 
@@ -166,7 +181,9 @@ def get_comment_list(parser, token):
     Syntax::
 
         {% get_comment_list for [object] as [varname] %}
+        {% get_comment_list for [object] as [varname] [flat] %}
         {% get_comment_list for [app].[model] [object_id] as [varname] %}
+        {% get_comment_list for [app].[model] [object_id] as [varname] [flat] %}
 
     Example usage::
 
@@ -174,6 +191,7 @@ def get_comment_list(parser, token):
         {% for comment in comment_list %}
             ...
         {% endfor %}
+        {% get_comment_list for event as comment_list flat %}
 
     """
     return CommentListNode.handle_token(parser, token)

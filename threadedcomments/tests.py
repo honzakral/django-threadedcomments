@@ -1,10 +1,13 @@
+from unittest import TestCase
+
 from django.test import TransactionTestCase
 from django.contrib import comments
 from django.contrib.sites.models import Site
-from django.template import loader
+from django.template import loader, TemplateSyntaxError
 from django.conf import settings
 
 from threadedcomments.util import annotate_tree_properties
+from threadedcomments.templatetags import threadedcomments_tags as tags
 
 PATH_SEPARATOR = getattr(settings, 'COMMENT_PATH_SEPARATOR', '/')
 PATH_DIGITS = getattr(settings, 'COMMENT_PATH_DIGITS', 10)
@@ -132,4 +135,65 @@ class HierarchyTest(TransactionTestCase):
         new_child_comment.save()
         comment = Comment.objects.get(pk=1)
         self.assertEqual(comment.last_child, new_child_comment)
+
+# Templatetags tests
+##############################################################################
+
+class MockParser(object):
+    "Mock parser object for handle_token()"
+    def compile_filter(self, var):
+        return var
+mock_parser = MockParser()
+
+class MockToken(object):
+    "Mock token object for handle_token()"
+    def __init__(self, bits):
+        self.contents = self
+        self.bits = bits
+
+    def split(self):
+        return self.bits
+
+class TestCommentListNode(TestCase):
+     
+    """
+    {% get_comment_list for [object] as [varname] %}
+    {% get_comment_list for [app].[model] [object_id] as [varname] %}
+    """
+    correct_ct_pk_params = ['get_comment_list', 'for', 'sites.site', '1', 'as', 'var']
+    correct_var_params = ['get_comment_list', 'for', 'var', 'as', 'var']
+    def test_parsing_fails_for_empty_token(self):
+        self.assertRaises(TemplateSyntaxError, tags.get_comment_list, mock_parser, MockToken(['get_comment_list']))
+
+    def test_parsing_fails_if_model_not_exists(self):
+        params = self.correct_ct_pk_params[:]
+        params[2] = 'not_app.not_model'
+        self.assertRaises(TemplateSyntaxError, tags.get_comment_list, mock_parser, MockToken(params))
+
+    def test_parsing_fails_if_object_not_exists(self):
+        params = self.correct_ct_pk_params[:]
+        params[2] = '1000'
+        self.assertRaises(TemplateSyntaxError, tags.get_comment_list, mock_parser, MockToken(params))
+
+    def test_parsing_works_for_ct_pk_pair(self):
+        node = tags.get_comment_list(mock_parser, MockToken(self.correct_ct_pk_params))
+        self.assertTrue(isinstance(node, tags.CommentListNode))
+
+    def test_parsing_works_for_var(self):
+        node = tags.get_comment_list(mock_parser, MockToken(self.correct_var_params))
+        self.assertTrue(isinstance(node, tags.CommentListNode))
+
+    def test_flat_parameter_is_passed_into_the_node_for_ct_pk_pair(self):
+        params = self.correct_ct_pk_params[:]
+        params.append('flat')
+        node = tags.get_comment_list(mock_parser, MockToken(params))
+        self.assertTrue(isinstance(node, tags.CommentListNode))
+        self.assertTrue(node.flat)
+
+    def test_flat_parameter_is_passed_into_the_node_for_var(self):
+        params = self.correct_var_params[:]
+        params.append('flat')
+        node = tags.get_comment_list(mock_parser, MockToken(params))
+        self.assertTrue(isinstance(node, tags.CommentListNode))
+        self.assertTrue(node.flat)
 
