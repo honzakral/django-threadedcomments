@@ -15,31 +15,31 @@ class CommentListNode(BaseThreadedCommentNode):
     Insert a list of comments into the context.
     """
 
-    def __init__(self, flat=False, **kwargs):
+    def __init__(self, flat=False, root_only=False, **kwargs):
         self.flat = flat
+        self.root_only = root_only
         super(CommentListNode, self).__init__(**kwargs)
 
     def handle_token(cls, parser, token):
         tokens = token.contents.split()
 
-        flat = False
-        if tokens[-1] == 'flat':
-            flat = True
-            tokens = tokens[:-1]
+        extra_kw = {}
+        if tokens[-1] in ('flat', 'root_only'):
+            extra_kw[tokens.pop()] = True
 
         if len(tokens) == 5:
             comment_node_instance = cls(
-                flat=flat,
                 object_expr=parser.compile_filter(tokens[2]),
-                as_varname=tokens[4]
+                as_varname=tokens[4],
+                **extra_kw
             )
         elif len(tokens) == 6:
             comment_node_instance =  cls(
-                flat=flat,
                 ctype=BaseThreadedCommentNode.lookup_content_type(tokens[2],
                     tokens[0]),
                 object_pk_expr=parser.compile_filter(tokens[3]),
-                as_varname=tokens[5]
+                as_varname=tokens[5],
+                **extra_kw
             )
         else:
             raise template.TemplateSyntaxError(
@@ -50,7 +50,9 @@ class CommentListNode(BaseThreadedCommentNode):
 
     def get_context_value_from_queryset(self, context, qs):
         if self.flat:
-            return qs.order_by('-submit_date')
+            qs = qs.order_by('-submit_date')
+        elif self.root_only:
+            qs = qs.exclude(parent__isnull=False).order_by('-submit_date')
         return qs
 
 
@@ -181,9 +183,9 @@ def get_comment_list(parser, token):
     Syntax::
 
         {% get_comment_list for [object] as [varname] %}
-        {% get_comment_list for [object] as [varname] [flat] %}
+        {% get_comment_list for [object] as [varname] [flat|root_only] %}
         {% get_comment_list for [app].[model] [object_id] as [varname] %}
-        {% get_comment_list for [app].[model] [object_id] as [varname] [flat] %}
+        {% get_comment_list for [app].[model] [object_id] as [varname] [flat|root_only] %}
 
     Example usage::
 

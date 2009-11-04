@@ -243,3 +243,17 @@ class TestCommentListNode(TestCase):
         self.assertTrue(isinstance(node, tags.CommentListNode))
         self.assertTrue(node.flat)
 
+    def test_root_only_parameter_is_passed_into_the_node_for_var(self):
+        params = self.correct_var_params[:]
+        params.append('root_only')
+        node = tags.get_comment_list(mock_parser, MockToken(params))
+        self.assertTrue(isinstance(node, tags.CommentListNode))
+        self.assertTrue(node.root_only)
+
+    def test_root_only_parameter_is_passed_into_the_node_for_ct_pk_pair(self):
+        params = self.correct_ct_pk_params[:]
+        params.append('root_only')
+        node = tags.get_comment_list(mock_parser, MockToken(params))
+        self.assertTrue(isinstance(node, tags.CommentListNode))
+        self.assertTrue(node.root_only)
+
