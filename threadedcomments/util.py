@@ -33,7 +33,7 @@ def annotate_tree_properties(comments):
     old = it.next()
 
     # first item starts a new thread
-    old.open = 1
+    old.open = True
     last = set()
     for c in it:
         # if this comment has a parent, store it's last child for future reference
@@ -46,7 +46,7 @@ def annotate_tree_properties(comments):
 
         # increase the depth
         if c.depth > old.depth:
-            c.open = 1
+            c.open = True
 
         else: # c.depth <= old.depth
             # close some depths
@@ -57,7 +57,7 @@ def annotate_tree_properties(comments):
                 # close even the top depth
                 old.close.append(len(old.close))
                 # and start a new thread
-                c.open = 1
+                c.open = True
                 # empty the last set
                 last = set()
         # iterate
