@@ -31,7 +31,17 @@ specify ``threadedcomments`` as your ``COMMENTS_APP``::
     COMMENTS_APP = 'threadedcomments'
 
 Also you will need to include the url definitions of ``django.contrib.comments``
-somewhere in your url mapping.
+somewhere in your url mapping::
+
+    urlpatterns += patterns('',
+        ...
+        (r'^comments/', include('django.contrib.comments.urls')),
+        ...
+    )
+
+See `official docummentation
+<http://docs.djangoproject.com/en/dev/ref/contrib/comments/>`_ for more
+details.
 
 Templates
 ---------
