@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>django-threadedcomments &mdash; Django threaded comments v documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Django threaded comments v documentation" href="" />
+    <link rel="next" title="Using django-threadedcomments in Pinax" href="pinax.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="pinax.html" title="Using django-threadedcomments in Pinax"
+             accesskey="N">next</a> |</li>
+        <li><a href="">Django threaded comments v documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="django-threadedcomments">
+<h1>django-threadedcomments<a class="headerlink" href="#django-threadedcomments" title="Permalink to this headline">¶</a></h1>
+<p>Django-threadedcomments is a simple yet flexible threaded commenting system for
+Django. What it means to say that they are <em>threaded</em> is that commenters can
+reply not only to the original item, but to other comments as well. It becomes
+near-trivial to create a system similar to what Reddit or Digg have in their
+comments sections.</p>
+<p>Django-threadedcomments is an extension to django&#8217;s biult-in comments
+application (<tt class="docutils literal"><span class="pre">django.contrib.comments</span></tt>).</p>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="setup">
+<h3>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h3>
+<p>If you want to use threadedcomments, you will need to add
+<tt class="docutils literal"><span class="pre">django.contrib.comments</span></tt> and <tt class="docutils literal"><span class="pre">threadedcomments</span></tt> to your <tt class="docutils literal"><span class="pre">INSTALLED_APPS</span></tt> and
+specify <tt class="docutils literal"><span class="pre">threadedcomments</span></tt> as your <tt class="docutils literal"><span class="pre">COMMENTS_APP</span></tt>:</p>
+<div class="highlight-python"><pre>INSTALLED_APPS = [
+    ...
+    'django.contrib.comments',
+    'threadedcomments',
+    ...
+]
+
+COMMENTS_APP = 'threadedcomments'</pre>
+</div>
+<p>Also you will need to include the url definitions of <tt class="docutils literal"><span class="pre">django.contrib.comments</span></tt>
+somewhere in your url mapping:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">urlpatterns</span> <span class="o">+=</span> <span class="n">patterns</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span>
+    <span class="o">...</span>
+    <span class="p">(</span><span class="s">r&#39;^comments/&#39;</span><span class="p">,</span> <span class="n">include</span><span class="p">(</span><span class="s">&#39;django.contrib.comments.urls&#39;</span><span class="p">)),</span>
+    <span class="o">...</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>See <a class="reference external" href="http://docs.djangoproject.com/en/dev/ref/contrib/comments/">official docummentation</a> for more
+details.</p>
+</div>
+<div class="section" id="templates">
+<h3>Templates<a class="headerlink" href="#templates" title="Permalink to this headline">¶</a></h3>
+<p>To use <tt class="docutils literal"><span class="pre">threadedcomments</span></tt> in templates first initialize the tag library:</p>
+<div class="highlight-python"><pre>{% load threadedcomments_tags %}</pre>
+</div>
+<p>Then you can use the template tags supplied by the application. The
+templatetags have the same syntax and semantics as the built-in comments
+application with a few exceptions:</p>
+<blockquote>
+<ul>
+<li><p class="first"><tt class="docutils literal"><span class="pre">get_comment_form</span></tt> and <tt class="docutils literal"><span class="pre">render_comment_form</span></tt> take extra optional
+arguments specifying the parent comment (the comment we wish to respond
+to):</p>
+<div class="highlight-python"><pre>{% get_comment_form for [object] as [varname] with [parent_id] %}
+{% get_comment_form for [app].[model] [object_id] as [varname] with [parent_id] %}
+{% render_comment_form for [object] with [parent_id] %}
+{% render_comment_form for [app].[model] [object_id] with [parent_id] %}</pre>
+</div>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">get_comment_list</span></tt> takes extra optional argument which can be one of:</p>
+<blockquote>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">flat</span></tt> specifies that we want the comments returned sorted from
+newest to oldest ignoring the threading information</li>
+<li><tt class="docutils literal"><span class="pre">root_only</span></tt> also results in the resulting queryset being ordered
+from newest to oldest but will also omit comments that reply to
+other comments, thus giving you only the <em>root</em> comments.</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+<p>Two additional template filters are provided to help with rendering the comments in proper tree form:</p>
+<blockquote>
+<ul>
+<li><p class="first"><tt class="docutils literal"><span class="pre">annotate_tree</span></tt> will define set of additional attributes on comments:</p>
+<blockquote>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">open</span></tt> is set to <tt class="xref docutils literal"><span class="pre">True</span></tt> if the comment starts new level of depth.</li>
+<li><tt class="docutils literal"><span class="pre">close</span></tt> is set to a list of depth levels that should be closed after this comment.</li>
+<li><tt class="docutils literal"><span class="pre">last</span></tt> is set to <tt class="xref docutils literal"><span class="pre">True</span></tt> if the comment is last on it&#8217;s level of depth.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">fill_tree</span></tt> prefixes a comment list with a path from root comment to the
+first comment in the list. This was designed to help with paginating
+threaded comments since it basically adds context to the first comment
+both in terms of user experience (users see what the first comment on
+page replies to) and HTML designers (the tree doesn&#8217;t start half way
+down and <tt class="docutils literal"><span class="pre">annotate_tree</span></tt> supplies correct information). The comments that
+were added by this filter has <tt class="docutils literal"><span class="pre">added_path</span></tt> property set to <tt class="xref docutils literal"><span class="pre">True</span></tt>.</p>
+</li>
+</ul>
+</blockquote>
+<p>The common use case for rendering comments as a tree would look something like:</p>
+<div class="highlight-python"><pre>{% for comment in comment_list|fill_tree|annotate_tree %}
+    ...
+{% endfor %}</pre>
+</div>
+<p>See the tests and included <tt class="docutils literal"><span class="pre">sample_tree.html</span></tt> template for more detailed
+working example of rendering list of threaded comments as tree with all the
+information needed for pretty CSS formatting.</p>
+<p>Contents:</p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="pinax.html">Using django-threadedcomments in Pinax</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h3><a href="">Table Of Contents</a></h3>
+            <ul>
+<li><a class="reference external" href="">django-threadedcomments</a><ul>
+<li><a class="reference external" href="#usage">Usage</a><ul>
+<li><a class="reference external" href="#setup">Setup</a></li>
+<li><a class="reference external" href="#templates">Templates</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            <h4>Next topic</h4>
+            <p class="topless"><a href="pinax.html"
+                                  title="next chapter">Using django-threadedcomments in Pinax</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/index.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="pinax.html" title="Using django-threadedcomments in Pinax"
+             >next</a> |</li>
+        <li><a href="">Django threaded comments v documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright .
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.3.
+    </div>
+  </body>
+</html>

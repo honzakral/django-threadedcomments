@@ -1,0 +1,108 @@
+#######################
+django-threadedcomments
+#######################
+
+Django-threadedcomments is a simple yet flexible threaded commenting system for 
+Django. What it means to say that they are *threaded* is that commenters can 
+reply not only to the original item, but to other comments as well. It becomes
+near-trivial to create a system similar to what Reddit or Digg have in their 
+comments sections.
+
+Django-threadedcomments is an extension to django's biult-in comments
+application (``django.contrib.comments``).
+
+Usage
+=====
+
+Setup
+-----
+
+If you want to use threadedcomments, you will need to add
+``django.contrib.comments`` and ``threadedcomments`` to your ``INSTALLED_APPS`` and
+specify ``threadedcomments`` as your ``COMMENTS_APP``::
+
+    INSTALLED_APPS = [
+        ...
+        'django.contrib.comments',
+        'threadedcomments',
+        ...
+    ]
+
+    COMMENTS_APP = 'threadedcomments'
+
+Also you will need to include the url definitions of ``django.contrib.comments``
+somewhere in your url mapping::
+
+    urlpatterns += patterns('',
+        ...
+        (r'^comments/', include('django.contrib.comments.urls')),
+        ...
+    )
+
+See `official docummentation
+<http://docs.djangoproject.com/en/dev/ref/contrib/comments/>`_ for more
+details.
+
+Templates
+---------
+
+To use ``threadedcomments`` in templates first initialize the tag library::
+    
+    {% load threadedcomments_tags %}
+
+Then you can use the template tags supplied by the application. The
+templatetags have the same syntax and semantics as the built-in comments
+application with a few exceptions:
+
+    * ``get_comment_form`` and ``render_comment_form`` take extra optional
+      arguments specifying the parent comment (the comment we wish to respond
+      to)::
+        
+        {% get_comment_form for [object] as [varname] with [parent_id] %}
+        {% get_comment_form for [app].[model] [object_id] as [varname] with [parent_id] %}
+        {% render_comment_form for [object] with [parent_id] %}
+        {% render_comment_form for [app].[model] [object_id] with [parent_id] %}
+
+    * ``get_comment_list`` takes extra optional argument which can be one of:
+        
+            * ``flat`` specifies that we want the comments returned sorted from
+              newest to oldest ignoring the threading information
+
+            * ``root_only`` also results in the resulting queryset being ordered
+              from newest to oldest but will also omit comments that reply to
+              other comments, thus giving you only the *root* comments.
+
+Two additional template filters are provided to help with rendering the comments in proper tree form:
+
+    * ``annotate_tree`` will define set of additional attributes on comments:
+        
+        * ``open`` is set to ``True`` if the comment starts new level of depth.
+        
+        * ``close`` is set to a list of depth levels that should be closed after this comment.
+
+        * ``last`` is set to ``True`` if the comment is last on it's level of depth.
+      
+
+    * ``fill_tree`` prefixes a comment list with a path from root comment to the
+      first comment in the list. This was designed to help with paginating
+      threaded comments since it basically adds context to the first comment
+      both in terms of user experience (users see what the first comment on
+      page replies to) and HTML designers (the tree doesn't start half way
+      down and ``annotate_tree`` supplies correct information). The comments that
+      were added by this filter has ``added_path`` property set to ``True``.
+
+The common use case for rendering comments as a tree would look something like::
+
+    {% for comment in comment_list|fill_tree|annotate_tree %}
+        ...
+    {% endfor %}
+
+See the tests and included ``sample_tree.html`` template for more detailed
+working example of rendering list of threaded comments as tree with all the
+information needed for pretty CSS formatting.
+
+Contents:
+
+.. toctree::
+
+   pinax.txt

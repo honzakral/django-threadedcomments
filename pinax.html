@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Using django-threadedcomments in Pinax &mdash; Django threaded comments v documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Django threaded comments v documentation" href="index.html" />
+    <link rel="prev" title="django-threadedcomments" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="index.html" title="django-threadedcomments"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Django threaded comments v documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="using-django-threadedcomments-in-pinax">
+<h1>Using django-threadedcomments in Pinax<a class="headerlink" href="#using-django-threadedcomments-in-pinax" title="Permalink to this headline">¶</a></h1>
+<p>While it&#8217;s perfectly feasible to use the standard threadedcomments templatetags
+and views, if you&#8217;re using django-threadedcomments from within Pinax, it&#8217;s even
+easier.  We&#8217;ve built a small abstraction on top of threadedcomments to build
+a standard comment form that integrates with the existing CSS and template
+layout.</p>
+<p>To use this abstraction layer, in your templates, first make sure to load our
+abstraction layer:</p>
+<div class="highlight-python"><pre>{% load comments_tag %}</pre>
+</div>
+<p>Then determine the object on which you would like to comment.  In our example,
+it will be a context variable called <tt class="docutils literal"><span class="pre">post</span></tt>.  Now, just include this tag:</p>
+<div class="highlight-python"><pre>{% comments post %}</pre>
+</div>
+<p>And that&#8217;s it!  Behind the scenes, the <tt class="docutils literal"><span class="pre">threadedcomments/comments.html</span></tt>
+template is being loaded and rendered with the following context variables:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">object</span></tt>:</dt>
+<dd>The object on which to comment.</dd>
+<dt><tt class="docutils literal"><span class="pre">request</span></tt>:</dt>
+<dd>Django&#8217;s standard <tt class="docutils literal"><span class="pre">request</span></tt> object.</dd>
+<dt><tt class="docutils literal"><span class="pre">user</span></tt>:</dt>
+<dd>The currently logged-in user&#8217;s <tt class="docutils literal"><span class="pre">User</span></tt> instance.</dd>
+</dl>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="index.html"
+                                  title="previous chapter">django-threadedcomments</a></p>
+            <h3>This Page</h3>
+            <ul class="this-page-menu">
+              <li><a href="_sources/pinax.txt"
+                     rel="nofollow">Show Source</a></li>
+            </ul>
+          <div id="searchbox" style="display: none">
+            <h3>Quick search</h3>
+              <form class="search" action="search.html" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              Enter search terms or a module, class or function name.
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="index.html" title="django-threadedcomments"
+             >previous</a> |</li>
+        <li><a href="index.html">Django threaded comments v documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright .
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.6.3.
+    </div>
+  </body>
+</html>
