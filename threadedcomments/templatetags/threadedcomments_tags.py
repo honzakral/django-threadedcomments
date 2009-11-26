@@ -25,7 +25,7 @@ class CommentListNode(BaseThreadedCommentNode):
 
         extra_kw = {}
         if tokens[-1] in ('flat', 'root_only'):
-            extra_kw[tokens.pop()] = True
+            extra_kw[str(tokens.pop())] = True
 
         if len(tokens) == 5:
             comment_node_instance = cls(
