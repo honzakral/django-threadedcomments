@@ -3,7 +3,7 @@ from django.conf import settings
 from django.template.defaultfilters import stringfilter
 from django.utils.encoding import smart_str
 from django.utils.safestring import mark_safe
-import md5
+from django.utils.hashcompat import md5_constructor
 import urllib
 
 GRAVATAR_MAX_RATING = getattr(settings, 'GRAVATAR_MAX_RATING', 'R')
@@ -87,7 +87,7 @@ class GravatarUrlNode(template.Node):
             default = self.default.var
         
         gravatargs = {
-            'hash': md5.new(email).hexdigest(),
+            'hash': md5_constructor(email).hexdigest(),
             'rating': rating,
             'size': size,
             'default': urllib.quote_plus(default),
@@ -103,7 +103,7 @@ def gravatar(email):
     Takes an e-mail address and returns a gravatar image URL, using properties
     from the django settings file.
     """
-    hashed_email = md5.new(email).hexdigest()
+    hashed_email = md5_constructor(email).hexdigest()
     return mark_safe(GRAVATAR_URL % {
         'hash': hashed_email,
         'rating': GRAVATAR_MAX_RATING, 
