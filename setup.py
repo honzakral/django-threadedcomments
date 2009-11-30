@@ -14,6 +14,7 @@ setup(
         'threadedcomments.templatetags',
         'threadedcomments.management',
         'threadedcomments.management.commands',
+        'threadedcomments.tests',
     ],
     package_data={
         'threadedcomments' : [
