@@ -1,3 +1,10 @@
+Version 0.5.2, 30th November 2009
+---------------------------------
+
+ * Fixes to setup.py
+ * Refacted tests from doctests to unittests
+ * A passing test suite! (moderation tests untested)
+
 Version 0.5.1, 31st March 2009
 ------------------------------
 
