@@ -7,9 +7,12 @@ from threadedcomments.models import ThreadedComment
 
 class ThreadedCommentForm(CommentForm):
     parent = forms.IntegerField(required=False, widget=forms.HiddenInput)
-    title = forms.CharField(required=False)
 
     def __init__(self, target_object, parent=None, data=None, initial=None):
+        self.base_fields.insert(
+                self.base_fields.keyOrder.index('comment'),
+                'title', forms.CharField(required=False)
+            )
         self.parent = parent
         if initial is None:
             initial = {}
