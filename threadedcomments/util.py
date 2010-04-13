@@ -36,7 +36,7 @@ def annotate_tree_properties(comments):
     old.open = True
     last = set()
     for c in it:
-        # if this comment has a parent, store it's last child for future reference
+        # if this comment has a parent, store its last child for future reference
         if old.last_child_id:
             last.add(old.last_child_id)
 
