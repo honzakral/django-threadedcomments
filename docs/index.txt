@@ -8,7 +8,7 @@ reply not only to the original item, but to other comments as well. It becomes
 near-trivial to create a system similar to what Reddit or Digg have in their 
 comments sections.
 
-Django-threadedcomments is an extension to django's biult-in comments
+Django-threadedcomments is an extension to django's built-in comments
 application (``django.contrib.comments``).
 
 Usage
