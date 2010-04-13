@@ -17,19 +17,20 @@ class ThreadedComment(Comment):
         db_index=True)
 
     objects = CommentManager()
-    
+
     def _get_depth(self):
         return len(self.tree_path.split(PATH_SEPARATOR))
     depth = property(_get_depth)
-    
+
     def _root_id(self):
         return int(self.tree_path.split(PATH_SEPARATOR)[0])
     root_id = property(_root_id)
 
     def _root_path(self):
-        return ThreadedComment.objects.filter(pk__in=self.tree_path.split(PATH_SEPARATOR)[:-1])
+        return ThreadedComment.objects.filter(pk__in=self.tree_path.
+                                              split(PATH_SEPARATOR)[:-1])
     root_path = property(_root_path)
-    
+
     def save(self, *args, **kwargs):
         skip_tree_path = kwargs.pop('skip_tree_path', False)
         super(ThreadedComment, self).save(*args, **kwargs)
@@ -47,7 +48,7 @@ class ThreadedComment(Comment):
         self.tree_path = tree_path
         ThreadedComment.objects.filter(pk=self.pk).update(
             tree_path=self.tree_path)
-    
+
     class Meta(object):
         ordering = ('tree_path',)
         db_table = 'threadedcomments_comment'
