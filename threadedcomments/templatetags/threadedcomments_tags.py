@@ -9,7 +9,7 @@ class BaseThreadedCommentNode(BaseCommentNode):
     def __init__(self, parent=None, **kwargs):
         self.parent = parent
         super(BaseThreadedCommentNode, self).__init__(**kwargs)
-        
+
 class CommentListNode(BaseThreadedCommentNode):
     """
     Insert a list of comments into the context.
@@ -34,7 +34,7 @@ class CommentListNode(BaseThreadedCommentNode):
                 **extra_kw
             )
         elif len(tokens) == 6:
-            comment_node_instance =  cls(
+            comment_node_instance = cls(
                 ctype=BaseThreadedCommentNode.lookup_content_type(tokens[2],
                     tokens[0]),
                 object_pk_expr=parser.compile_filter(tokens[3]),
@@ -95,7 +95,7 @@ class CommentFormNode(BaseThreadedCommentNode):
 
     def get_form(self, context):
         ctype, object_pk = self.get_target_ctype_pk(context)
-        parent_id=None
+        parent_id = None
         if self.parent:
             parent_id = self.parent.resolve(context, ignore_failures=True)
         if object_pk:
@@ -124,7 +124,7 @@ class RenderCommentFormNode(CommentFormNode):
         # {% render_comment_form for app.model object_pk %}
         elif len(tokens) == 4:
             return cls(
-                ctype = BaseCommentNode.lookup_content_type(tokens[2],
+                ctype=BaseCommentNode.lookup_content_type(tokens[2],
                     tokens[0]),
                 object_pk_expr=parser.compile_filter(tokens[3])
             )
@@ -141,7 +141,7 @@ class RenderCommentFormNode(CommentFormNode):
         elif len(tokens) == 6:
             if tokens[-2] != u'with':
                 raise template.TemplateSyntaxError("%r tag must have 'with' as "
-                    "the last but one argument" % (tokens[0],))                
+                    "the last but one argument" % (tokens[0],))
             return cls(
                 ctype=BaseThreadedCommentNode.lookup_content_type(tokens[2],
                     tokens[0]),
@@ -213,8 +213,8 @@ def get_comment_form(parser, token):
 
 def render_comment_form(parser, token):
     """
-    Render the comment form (as returned by ``{% render_comment_form %}``) through
-    the ``comments/form.html`` template.
+    Render the comment form (as returned by ``{% render_comment_form %}``) 
+    through the ``comments/form.html`` template.
 
     Syntax::
 
