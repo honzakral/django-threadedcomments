@@ -46,14 +46,14 @@ PATH_DIGITS = getattr(settings, 'COMMENT_PATH_DIGITS', 10)
 
 class Command(NoArgsCommand):
     help = "Migrates django-threadedcomments <= 0.5 to the new model structure"
-        
+
     def handle(self, *args, **options):
         transaction.commit_unless_managed()
         transaction.enter_transaction_management()
         transaction.managed(True)
-        
+
         site = Site.objects.all()[0]
-        
+
         cursor = connection.cursor()
         cursor.execute(FREE_SQL)
         for row in cursor:
@@ -75,7 +75,7 @@ class Command(NoArgsCommand):
                 site=site,
             )
             tc.save(skip_tree_path=True)
-        
+
         cursor = connection.cursor()
         cursor.execute(USER_SQL)
         for row in cursor:
@@ -95,7 +95,7 @@ class Command(NoArgsCommand):
                 site=site,
             )
             tc.save(skip_tree_path=True)
-        
+
         for comment in ThreadedComment.objects.all():
             path = [str(comment.id).zfill(PATH_DIGITS)]
             current = comment
@@ -107,6 +107,6 @@ class Command(NoArgsCommand):
             if comment.parent:
                 ThreadedComment.objects.filter(pk=comment.parent.pk).update(
                     last_child=comment)
-        
+
         transaction.commit()
         transaction.leave_transaction_management()

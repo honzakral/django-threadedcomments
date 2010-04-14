@@ -30,5 +30,8 @@ kwargs = {
 }
 from sys import version_info
 if version_info[1] >= 4:
-    kwargs['package_data'] = {'threadedcomments' : ['templates/comment_utils/*.txt','templates/threadedcomments/*.html','templates/threadedcomments_base.html']}
+    kwargs['package_data'] = {'threadedcomments' :
+                              ['templates/comment_utils/*.txt',
+                               'templates/threadedcomments/*.html',
+                               'templates/threadedcomments_base.html']}
 setup(**kwargs)

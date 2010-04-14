@@ -13,7 +13,7 @@ PATH_SEPARATOR = getattr(settings, 'COMMENT_PATH_SEPARATOR', '/')
 PATH_DIGITS = getattr(settings, 'COMMENT_PATH_DIGITS', 10)
 
 def sanitize_html(html):
-    return '\n'.join(( i.strip() for i in html.split('\n') if i.strip() != '' ))
+    return '\n'.join((i.strip() for i in html.split('\n') if i.strip() != ''))
 
 class SanityTests(TransactionTestCase):
     BASE_DATA = {
@@ -21,7 +21,7 @@ class SanityTests(TransactionTestCase):
         'email': u'floguy@gmail.com',
         'comment': u'This is my favorite Django app ever!',
     }
-    
+
     def _post_comment(self, data=None, parent=None):
         Comment = comments.get_model()
         body = self.BASE_DATA.copy()
@@ -37,7 +37,7 @@ class SanityTests(TransactionTestCase):
         body.update(form.generate_security_data())
         self.client.post(url, body, follow=True)
         return Comment.objects.order_by('-id')[0]
-    
+
     def test_post_comment(self):
         Comment = comments.get_model()
         self.assertEqual(Comment.objects.count(), 0)
@@ -45,7 +45,7 @@ class SanityTests(TransactionTestCase):
         self.assertEqual(comment.tree_path, str(comment.pk).zfill(PATH_DIGITS))
         self.assertEqual(Comment.objects.count(), 1)
         self.assertEqual(comment.last_child, None)
-    
+
     def test_post_comment_child(self):
         Comment = comments.get_model()
         comment = self._post_comment()
@@ -62,7 +62,7 @@ class SanityTests(TransactionTestCase):
 
 class HierarchyTest(TransactionTestCase):
     fixtures = ['simple_tree']
-    
+
     EXPECTED_HTML_PARTIAL = sanitize_html('''
     <ul>
         <li>
@@ -164,8 +164,8 @@ class HierarchyTest(TransactionTestCase):
                 par, siblings = nodes[x.parent_id]
 
                 # and ar last in their child list
-                self.assertTrue( x.pk in siblings )
-                self.assertEqual(len(siblings)-1, siblings.index(x.pk) )
+                self.assertTrue(x.pk in siblings)
+                self.assertEqual(len(siblings) - 1, siblings.index(x.pk))
 
     def test_rendering_of_partial_tree(self):
         output = loader.render_to_string('sample_tree.html', {'comment_list': comments.get_model().objects.all()[5:]})
@@ -201,7 +201,7 @@ class MockToken(object):
         return self.bits
 
 class TestCommentListNode(TestCase):
-     
+
     """
     {% get_comment_list for [object] as [varname] %}
     {% get_comment_list for [app].[model] [object_id] as [varname] %}

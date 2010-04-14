@@ -10,7 +10,8 @@ class ThreadedCommentsAdmin(CommentsAdmin):
            {'fields': ('content_type', 'object_pk', 'site')}
         ),
         (_('Content'),
-           {'fields': ('user', 'user_name', 'user_email', 'user_url', 'title', 'comment')}
+           {'fields': ('user', 'user_name', 'user_email', 'user_url', 'title',
+                       'comment')}
         ),
         (_('Hierarchy'),
            {'fields': ('parent',)}
@@ -20,8 +21,10 @@ class ThreadedCommentsAdmin(CommentsAdmin):
         ),
     )
 
-    list_display = ('name', 'title', 'content_type', 'object_pk', 'parent', 'ip_address', 'submit_date', 'is_public', 'is_removed')
-    search_fields = ('title', 'comment', 'user__username', 'user_name', 'user_email', 'user_url', 'ip_address')
+    list_display = ('name', 'title', 'content_type', 'object_pk', 'parent',
+                    'ip_address', 'submit_date', 'is_public', 'is_removed')
+    search_fields = ('title', 'comment', 'user__username', 'user_name',
+                     'user_email', 'user_url', 'ip_address')
     raw_id_fields = ("parent",)
 
 admin.site.register(ThreadedComment, ThreadedCommentsAdmin)

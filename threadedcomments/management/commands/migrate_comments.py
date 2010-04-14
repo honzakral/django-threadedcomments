@@ -22,15 +22,15 @@ FROM django_comments;
 
 class Command(NoArgsCommand):
     help = "Migrates from django.contrib.comments to django-threadedcomments"
-        
+
     def handle(self, *args, **options):
         transaction.commit_unless_managed()
         transaction.enter_transaction_management()
         transaction.managed(True)
-        
+
         cursor = connection.cursor()
-        
+
         cursor.execute(SQL)
-        
+
         transaction.commit()
         transaction.leave_transaction_management()
