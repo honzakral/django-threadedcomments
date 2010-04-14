@@ -100,7 +100,7 @@ The common use case for rendering comments as a tree would look something like::
     {% endfor %}
 
 See the tests and included ``sample_tree.html`` template for more detailed
-working example of rendering list of threaded comments as tree with all the
+working examples of rendering lists of threaded comments as trees with all the
 information needed for pretty CSS formatting.
 
 Contents:
