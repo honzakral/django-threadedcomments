@@ -81,7 +81,7 @@ in proper tree form:
         
         * ``close`` is set to a list of depth levels that should be closed after this comment.
 
-        * ``last`` is set to ``True`` if the comment is last on it's level of depth.
+        * ``last`` is set to ``True`` if the comment is last on its level of depth.
       
 
     * ``fill_tree`` prefixes a comment list with a path from root comment to the
