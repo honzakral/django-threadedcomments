@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404, render_to_response
@@ -77,6 +77,14 @@ def free_comment(request, content_type=None, object_id=None, edit_id=None, paren
         return _preview(request, context_processors, extra_context, form_class=form_class)
     if edit_id:
         instance = get_object_or_404(model, id=edit_id)
+        if issubclass(model, FreeThreadedComment):
+            # editing on a free comment has no real solid way of confirming the
+            # user who is changing it is who they say they are; we might want
+            # to find a better way here. perhaps use a cookie?
+            return HttpResponseForbidden()
+        else:
+            if request.user != instance.user:
+                return HttpResponseForbidden()
     else:
         instance = None
     _adjust_max_comment_length(form_class)

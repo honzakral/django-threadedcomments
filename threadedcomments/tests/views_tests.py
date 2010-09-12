@@ -92,56 +92,7 @@ class ViewsTestCase(TestCase):
             'email' : 'floguy@gmail.com',
             'next' : '/'
         })
-        o = FreeThreadedComment.objects.latest('date_submitted').get_base_data(show_dates=False)
-        self.assertEquals(o, {
-            'website': u'http://www.eflorenzano.com/',
-            'comment': u'test1_edited',
-            'name': u'eric',
-            'parent': None,
-            'markup': u'plaintext',
-            'content_object': topic,
-            'is_public': True,
-            'ip_address': u'127.0.0.1',
-            'email': u'floguy@gmail.com',
-            'is_approved': False
-        })
-    
-    def test_freecomment_edit_with_preview(self):
-        
-        topic = TestModel.objects.create(name="Test2")
-        
-        comment = FreeThreadedComment.objects.create_for_object(topic,
-            website = "http://oebfare.com/",
-            comment = "My test free comment!",
-            ip_address = '127.0.0.1',
-        )
-        
-        url = reverse('tc_free_comment_edit', kwargs={
-            'edit_id': comment.pk
-        })
-        
-        response = self.client.post(url, {
-            'comment': 'test1_edited',
-            'name': 'eric',
-            'website': 'http://www.eflorenzano.com/',
-            'email': 'floguy@gmail.com',
-            'next': '/',
-            'preview': 'True'
-        })
-        o = FreeThreadedComment.objects.latest('date_submitted').get_base_data(show_dates=False)
-        self.assertEquals(o, {
-            'website': u'http://oebfare.com/',
-            'comment': u'My test free comment!',
-            'name': u'',
-            'parent': None,
-            'markup': u'plaintext',
-            'content_object': topic,
-            'is_public': True,
-            'ip_address': u'127.0.0.1',
-            'email': u'',
-            'is_approved': False
-        })
-        self.assertEquals(len(response.content) > 0, True)
+        self.assertEquals(response.status_code, 403)
     
     def test_freecomment_json_create(self):
         
@@ -195,20 +146,7 @@ class ViewsTestCase(TestCase):
             'website': 'http://www.eflorenzano.com/',
             'email': 'floguy@gmail.com'
         })
-        tmp = loads(response.content)
-        o = FreeThreadedComment.objects.latest('date_submitted').get_base_data(show_dates=False)
-        self.assertEquals(o, {
-            'website': u'http://www.eflorenzano.com/',
-            'comment': u'test2_edited',
-            'name': u'eric',
-            'parent': None,
-            'markup': u'plaintext',
-            'content_object': topic,
-            'is_public': True,
-            'ip_address': u'127.0.0.1',
-            'email': u'floguy@gmail.com',
-            'is_approved': False
-        })
+        self.assertEquals(response.status_code, 403)
     
     def test_freecomment_xml_create(self):
         
@@ -257,20 +195,7 @@ class ViewsTestCase(TestCase):
             'website': 'http://www.eflorenzano.com/',
             'email': 'floguy@gmail.com'
         })
-        tmp = parseString(response.content)
-        o = FreeThreadedComment.objects.latest('date_submitted').get_base_data(show_dates=False)
-        self.assertEquals(o, {
-            'website': u'http://www.eflorenzano.com/',
-            'comment': u'test2_edited',
-            'name': u'eric',
-            'parent': None,
-            'markup': u'plaintext',
-            'content_object': topic,
-            'is_public': True,
-            'ip_address': u'127.0.0.1',
-            'email': u'floguy@gmail.com',
-            'is_approved': False
-        })
+        self.assertEquals(response.status_code, 403)
     
     def test_freecomment_child_create(self):
         
@@ -472,6 +397,34 @@ class ViewsTestCase(TestCase):
             'ip_address': u'127.0.0.1',
         })
     
+    def test_comment_edit_not_authorized(self):
+        
+        comment_creator = User.objects.create_user(
+            'testuser2',
+            'testuser2@gmail.com',
+            'password',
+        )
+        comment_creator.is_active = True
+        comment_creator.save()
+        user = self.create_user_and_login()
+        
+        topic = TestModel.objects.create(name="Test2")
+        comment = ThreadedComment.objects.create_for_object(topic,
+            user = comment_creator,
+            ip_address = u'127.0.0.1',
+            comment = "My test comment!",
+        )
+        
+        url = reverse('tc_comment_edit', kwargs={
+            'edit_id': comment.pk,
+        })
+        
+        response = self.client.post(url, {
+            'comment': 'test7_edited',
+            'next' : '/',
+        })
+        self.assertEquals(response.status_code, 403)
+    
     def test_comment_edit_with_preview(self):
         
         user = self.create_user_and_login()
@@ -567,6 +520,34 @@ class ViewsTestCase(TestCase):
             'ip_address': u'127.0.0.1',
         })
     
+    def test_comment_json_edit_not_authorized(self):
+        
+        user = self.create_user_and_login()
+        comment_creator = User.objects.create_user(
+            'testuser2',
+            'testuser2@gmail.com',
+            'password',
+        )
+        comment_creator.is_active = True
+        comment_creator.save()
+        
+        topic = TestModel.objects.create(name="Test2")
+        comment = ThreadedComment.objects.create_for_object(topic,
+            user = comment_creator,
+            ip_address = u'127.0.0.1',
+            comment = "My test comment!",
+        )
+        
+        url = reverse('tc_comment_edit_ajax', kwargs={
+            'edit_id': comment.pk,
+            'ajax': 'json',
+        })
+        
+        response = self.client.post(url, {
+            'comment': 'test8_edited'
+        })
+        self.assertEquals(response.status_code, 403)
+    
     def test_comment_xml_create(self):
         
         user = self.create_user_and_login()
@@ -627,6 +608,34 @@ class ViewsTestCase(TestCase):
             'is_public': True,
             'ip_address': u'127.0.0.1',
         })
+    
+    def test_comment_xml_edit_not_authorized(self):
+        
+        user = self.create_user_and_login()
+        comment_creator = User.objects.create_user(
+            'testuser2',
+            'testuser2@gmail.com',
+            'password',
+        )
+        comment_creator.is_active = True
+        comment_creator.save()
+        
+        topic = TestModel.objects.create(name="Test2")
+        comment = ThreadedComment.objects.create_for_object(topic,
+            user = comment_creator,
+            ip_address = u'127.0.0.1',
+            comment = "My test comment!",
+        )
+        
+        url = reverse('tc_comment_edit_ajax', kwargs={
+            'edit_id': comment.pk,
+            'ajax': 'xml',
+        })
+        
+        response = self.client.post(url, {
+            'comment': 'test8_edited'
+        })
+        self.assertEquals(response.status_code, 403)
     
     def test_comment_child_create(self):
         
