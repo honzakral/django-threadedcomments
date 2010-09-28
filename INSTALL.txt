@@ -11,3 +11,7 @@ Python path; this is useful if you're working from a Subversion checkout.
 Note that this application requires Python 2.3 or later, and Django later than
 0.96. You can obtain Python from http://www.python.org/ and Django from 
 http://www.djangoproject.com/.
+
+In case you want to use markup for your comments, you will also need the
+corresponding markup packages, see
+http://docs.djangoproject.com/en/dev/ref/contrib/markup/
