@@ -22,6 +22,9 @@ class CommentListNode(BaseThreadedCommentNode):
 
     def handle_token(cls, parser, token):
         tokens = token.contents.split()
+        if len(tokens) > 2:
+            if tokens[1] != 'for':
+                raise template.TemplateSyntaxError("Second argument in %r tag must be 'for'" % tokens[0])
 
         extra_kw = {}
         if tokens[-1] in ('flat', 'root_only'):
