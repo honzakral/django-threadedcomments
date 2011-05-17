@@ -6,3 +6,4 @@ Juan Pablo Puerta <ewsews@gmail.com>
 Christos Trochalakis <yatiohi@ideopolis.gr>
 Thejaswi Puthraya <http://thejaswi.info/>
 Honza Kral <honza.kral@gmail.com>
+Jannis Leidel <jannis@leidel.info>

@@ -1,3 +1,4 @@
+from sys import version_info
 from setuptools import setup, find_packages
 
 kwargs = {
@@ -17,7 +18,6 @@ kwargs = {
     ],
     'include_package_data': True,
     'zip_safe': False,
-    'install_requires': ['setuptools'],
     'classifiers': [
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
@@ -28,10 +28,11 @@ kwargs = {
         'Topic :: Utilities',
     ],
 }
-from sys import version_info
 if version_info[1] >= 4:
-    kwargs['package_data'] = {'threadedcomments' :
-                              ['templates/comment_utils/*.txt',
-                               'templates/threadedcomments/*.html',
-                               'templates/threadedcomments_base.html']}
+    kwargs['package_data'] = {
+        'threadedcomments' : [
+            'sql/threadedcomment.mysql.sql',
+            'fixtures/simple_tree.json',
+        ]
+    }
 setup(**kwargs)
