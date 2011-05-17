@@ -11,8 +11,9 @@ class ThreadedCommentForm(CommentForm):
 
     def __init__(self, target_object, parent=None, data=None, initial=None):
         self.base_fields.insert(
-                self.base_fields.keyOrder.index('comment'), _('title'),
+                self.base_fields.keyOrder.index('comment'), 'title',
                 forms.CharField(
+                    label=_('title'),
                     required=False,
                     max_length=getattr(settings, 'COMMENTS_TITLE_MAX_LENGTH', 255)
                 )
