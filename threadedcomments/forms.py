@@ -15,7 +15,8 @@ class ThreadedCommentForm(CommentForm):
                 forms.CharField(
                     label=_('title'),
                     required=False,
-                    max_length=getattr(settings, 'COMMENTS_TITLE_MAX_LENGTH', 255)
+                    max_length=getattr(settings, 'COMMENTS_TITLE_MAX_LENGTH', 255),
+                    label=_('title')
                 )
             )
         self.parent = parent
