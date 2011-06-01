@@ -4,3 +4,4 @@
 .pydevproject
 .settings
 *.swp
+.idea/
