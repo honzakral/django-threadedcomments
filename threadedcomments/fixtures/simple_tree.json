@@ -1,67 +1,4 @@
-[
-  {
-    "pk": 1, 
-    "model": "threadedcomments.threadedcomment", 
-    "fields": {
-      "tree_path": "0000000001", 
-      "last_child": 4, 
-      "parent": null
-    }
-  }, 
-  {
-    "pk": 2, 
-    "model": "threadedcomments.threadedcomment", 
-    "fields": {
-      "tree_path": "0000000001/0000000002", 
-      "last_child": 5, 
-      "parent": 1
-    }
-  }, 
-  {
-    "pk": 3, 
-    "model": "threadedcomments.threadedcomment", 
-    "fields": {
-      "tree_path": "0000000001/0000000002/0000000003", 
-      "last_child": null, 
-      "parent": 2
-    }
-  }, 
-  {
-    "pk": 5, 
-    "model": "threadedcomments.threadedcomment", 
-    "fields": {
-      "tree_path": "0000000001/0000000002/0000000005", 
-      "last_child": null, 
-      "parent": 2
-    }
-  }, 
-  {
-    "pk": 4, 
-    "model": "threadedcomments.threadedcomment", 
-    "fields": {
-      "tree_path": "0000000001/0000000004", 
-      "last_child": 6, 
-      "parent": 1
-    }
-  }, 
-  {
-    "pk": 6, 
-    "model": "threadedcomments.threadedcomment", 
-    "fields": {
-      "tree_path": "0000000001/0000000004/0000000006", 
-      "last_child": null, 
-      "parent": 4
-    }
-  }, 
-  {
-    "pk": 7, 
-    "model": "threadedcomments.threadedcomment", 
-    "fields": {
-      "tree_path": "0000000007", 
-      "last_child": null, 
-      "parent": null
-    }
-  }, 
+[ 
   {
     "pk": 1, 
     "model": "comments.comment", 
@@ -186,6 +123,69 @@
       "is_public": true, 
       "user_name": "", 
       "user_email": ""
+    }
+  },
+  {
+    "pk": 1, 
+    "model": "threadedcomments.threadedcomment", 
+    "fields": {
+      "tree_path": "0000000001", 
+      "last_child": null, 
+      "parent": null
+    }
+  }, 
+  {
+    "pk": 2, 
+    "model": "threadedcomments.threadedcomment", 
+    "fields": {
+      "tree_path": "0000000001/0000000002", 
+      "last_child": null, 
+      "parent": 1
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "threadedcomments.threadedcomment", 
+    "fields": {
+      "tree_path": "0000000001/0000000002/0000000003", 
+      "last_child": null, 
+      "parent": 2
+    }
+  }, 
+  {
+    "pk": 5, 
+    "model": "threadedcomments.threadedcomment", 
+    "fields": {
+      "tree_path": "0000000001/0000000002/0000000005", 
+      "last_child": null, 
+      "parent": 2
+    }
+  }, 
+  {
+    "pk": 4, 
+    "model": "threadedcomments.threadedcomment", 
+    "fields": {
+      "tree_path": "0000000001/0000000004", 
+      "last_child": null, 
+      "parent": 1
+    }
+  }, 
+  {
+    "pk": 6, 
+    "model": "threadedcomments.threadedcomment", 
+    "fields": {
+      "tree_path": "0000000001/0000000004/0000000006", 
+      "last_child": null, 
+      "parent": 4
+    }
+  }, 
+  {
+    "pk": 7, 
+    "model": "threadedcomments.threadedcomment", 
+    "fields": {
+      "tree_path": "0000000007", 
+      "last_child": null, 
+      "parent": null
     }
   }
 ]
