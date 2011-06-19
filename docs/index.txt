@@ -48,7 +48,7 @@ Templates
 
 To use ``threadedcomments`` in templates first initialize the tag library::
     
-    {% load threadedcommentstags %}
+    {% load threadedcomments_tags %}
 
 Then you can use the template tags supplied by the application. The
 templatetags have the same syntax and semantics as the built-in comments
