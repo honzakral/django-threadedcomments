@@ -1,13 +1,13 @@
 from sys import version_info
-from setuptools import setup, find_packages
+from setuptools import setup
 
 kwargs = {
     'name': 'django-threadedcomments',
-    'version': '0.9',
+    'version': '0.5.4',
     'description': 'A simple yet flexible threaded commenting system.',
     'author': 'Eric Florenzano',
     'author_email': 'floguy@gmail.com',
-    'url': 'http://code.google.com/p/django-threadedcomments/',
+    'url': 'https://github.com/HonzaKral/django-threadedcomments/',
     'keywords': 'django,pinax,comments',
     'license': 'BSD',
     'packages': [
