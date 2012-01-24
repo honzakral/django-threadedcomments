@@ -182,6 +182,14 @@ class HierarchyTest(TransactionTestCase):
         comment = Comment.objects.get(pk=1)
         self.assertEqual(comment.last_child, new_child_comment)
 
+    def test_last_child_doesnt_delete_parent(self):
+        Comment = comments.get_model()
+        comment = Comment.objects.get(pk=1)
+        new_child_comment = Comment(comment="Comment 9", site_id=1, content_type_id=7, object_pk=1, parent_id=comment.id)
+        new_child_comment.save()
+        new_child_comment.delete()
+        comment = Comment.objects.get(pk=1)
+
 # Templatetags tests
 ##############################################################################
 
