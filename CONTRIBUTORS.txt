@@ -1,3 +1,4 @@
+Pavel Blinov <pahaz.blinov@gmail.com>
 Max Battcher <me@worldmaker.net>
 Eric Florenzano <floguy@gmail.com>
 Kevin Fricovsky <kevin@howiworkdaily.com>
