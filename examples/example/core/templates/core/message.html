@@ -1,0 +1,69 @@
+{% extends "core/home.html" %}
+{% load threadedcomments_tags %}
+
+{% block javascript %}
+    <script type="text/javascript">
+        var test = {};
+        test.comments = {};
+        test.comments.forms = {
+            'show_reply_form': function() {
+                comment_id = $(this).attr('comment_id');
+                $('#id_parent').attr('value', comment_id);
+                $('#form-comment').insertAfter($(this).parent().parent().parent());
+            }
+        };
+        $(function() {
+            $('.comment_reply_link').bind('click', test.comments.forms.show_reply_form);
+            $('#write_comment').bind('click', test.comments.forms.write_a_comment);
+            $('#make_anonymous').bind('click', test.comments.forms.make_anonymous);
+        })
+    </script>
+{% endblock %}
+
+{% block content %}
+    <h2><a href="/">Back</a></h2>
+    {% get_comment_list for message as comment_list %}
+    <div class="message">
+        <p class="title">{{ message.title }}</p>
+
+        <p class="text">{{ message.text }}</p>
+    </div>
+    <div class="comments_wrapper" id="comments">
+        <div class="comments_length">
+            <p>{{ comment_list|length }} Comments</p>
+        </div>
+        <div class="comments">
+            {% for comment in comment_list|fill_tree|annotate_tree %}{% ifchanged comment.parent_id %}{% else %}</li>{% endifchanged %}{% if not comment.open and not comment.close %}</li>{% endif %}{% if comment.open %}
+                <ul>{% endif %}
+            <li class="comment_li" id="comment_{{ comment.id }}">
+                <div class="comment">
+                    <div class="comment_info">
+                        <div class="comment_user">{{ comment.user_name }}</div>
+                        <div class="comment_data">
+                            {{ comment.submit_date|date:"d M Y, H:i" }} | <a href="#comment_{{ comment.id }}"
+                                                                             comment_id="{{ comment.id }}"
+                                                                             class="comment_reply_link">Reply</a>
+                        </div>
+                    </div>
+                    <div class="comment_text">
+                        {{ comment.comment }}
+                    </div>
+                </div>
+                {% for close in comment.close %}</li></ul>{% endfor %}
+
+            {% endfor %}
+        </div>
+
+
+        <div class="wrap_write_comment">
+            <div id="form-comment">
+                {% get_comment_form for message as form %}
+                <form action="/comments/post/" method="post">{% csrf_token %}
+                    {{ form.as_ul }}
+                    <li><input type="submit" value="Submit Comment"/></li>
+                </form>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
