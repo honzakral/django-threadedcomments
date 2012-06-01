@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-import sys
-sys.path.insert(0, "../../threadedcomments")
+import sys, os
+sys.path.insert(0, os.path.realpath("../../"))
 from django.core.management import execute_manager
 try:
     import settings # Assumed to be in the same directory.
