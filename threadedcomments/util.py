@@ -3,21 +3,26 @@ from itertools import chain, imap
 __all__ = ['fill_tree', 'annotate_tree_properties', ]
 
 def _mark_as_root_path(comment):
-    " Mark on comment as Being added to fill the tree. "
+    """
+    Mark on comment as Being added to fill the tree.
+    """
     setattr(comment, 'added_path', True)
     return comment
 
 def fill_tree(comments):
     """
-    Prefix the comment_list with the root_path of the first comment. Use this
-    in comments' pagination to fill in the tree information.
+    Insert extra comments in the comments list, so that the root path of the first comment is always visible.
+    Use this in comments' pagination to fill in the tree information.
+
+    The inserted comments have an ``added_path`` attribute.
     """
     if not comments:
         return
 
     it = iter(comments)
     first = it.next()
-    return chain(imap(_mark_as_root_path, first.root_path), [first], it)
+    extra_path_items = imap(_mark_as_root_path, first.root_path)
+    return chain(extra_path_items, [first], it)
 
 def annotate_tree_properties(comments):
     """
