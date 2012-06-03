@@ -48,6 +48,7 @@ class ThreadedComment(Comment):
         if self.parent_id:
             prev_child_id = ThreadedComment.objects.filter(parent=self.parent_id).order_by('-submit_date').values_list('pk', flat=True)[0]
             ThreadedComment.objects.filter(pk=self.parent_id).update(last_child=prev_child_id)
+        super(ThreadedComment, self).delete(*args, **kwargs)
 
     class Meta(object):
         ordering = ('tree_path',)
