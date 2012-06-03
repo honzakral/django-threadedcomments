@@ -53,8 +53,7 @@ class SanityTests(TransactionTestCase):
         child_comment = self._post_comment(data={'name': 'ericflo'}, parent=comment)
         comment_pk = str(comment.pk).zfill(PATH_DIGITS)
         child_comment_pk = str(child_comment.pk).zfill(PATH_DIGITS)
-        self.assertEqual(child_comment.tree_path, PATH_SEPARATOR.join(
-            (comment.tree_path, child_comment_pk)))
+        self.assertEqual(child_comment.tree_path, PATH_SEPARATOR.join((comment.tree_path, child_comment_pk)))
         self.assertEqual(comment.pk, child_comment.parent.pk)
         comment = comments.get_model().objects.get(pk=comment.pk)
         self.assertEqual(comment.last_child, child_comment)
