@@ -13,7 +13,7 @@ class ThreadedCommentForm(CommentForm):
         self.base_fields.insert(
                 self.base_fields.keyOrder.index('comment'), 'title',
                 forms.CharField(
-                    label=_('title'),
+                    label=_('Title'),
                     required=False,
                     max_length=getattr(settings, 'COMMENTS_TITLE_MAX_LENGTH', 255)
                 )
