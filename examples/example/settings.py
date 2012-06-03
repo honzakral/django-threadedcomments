@@ -114,8 +114,8 @@ INSTALLED_APPS = (
 
     # Messages setup:
     'core',
-    'django.contrib.comments',
     'threadedcomments',
+    'django.contrib.comments',
 )
 
 
