@@ -1,0 +1,19 @@
+{% extends "core/base.html" %}{% load i18n %}
+{% comment %}
+
+  To implement django.contrib.comments in your web site,
+  it is recommended to override the following templates in your app:
+
+     comments/base.html    - map the blocks 'title' and 'contents' to your base template.
+     comments/posted.html  - provide a decent redirect back to the article.
+
+  Other templates could also be overwritten off course, but these two are the basic ones.
+  Features such as editing posts, spam protection, recaptcha, twitter/facebook/openid login etc..
+  are all subject to different applications which can add those features.
+  They don't belong in django-threadedcomments, and hence are not demonstrated here.
+
+{% endcomment %}
+
+{% block head_title %}{% block title %}{% trans "Responses for page" %}{% endblock %}{% endblock %}
+
+{# 'content' block is already defined in the base class, no need to redefine it here. #}
