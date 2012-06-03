@@ -1,0 +1,42 @@
+[
+    {
+        "pk": 1, 
+        "model": "core.message", 
+        "fields": {
+            "text": "Knight Rider, a shadowy flight into the dangerous world of a man who does not exist. Michael Knight, a young loner on a crusade to champion the cause of the innocent, the helpless in a world of criminals who operate above the law.", 
+            "title": "Knight Rider"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "core.message", 
+        "fields": {
+            "text": "Hong Kong Phooey, number one super guy. Hong Kong Phooey, quicker than the human eye. He's got style, a groovy style, and a car that just won't stop. When the going gets tough, he's really rough, with a Hong Kong Phooey chop (Hi-Ya!). Hong Kong Phooey, number one super guy. Hong Kong Phooey, quicker than the human eye. Hong Kong Phooey, he's fan-riffic!", 
+            "title": "Hong Kong Phooey"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "core.message", 
+        "fields": {
+            "text": "80 days around the world, we'll find a pot of gold just sitting where the rainbow's ending. Time - we'll fight against the time, and we'll fly on the white wings of the wind. 80 days around the world, no we won't say a word before the ship is really back. Round, round, all around the world. Round, all around the world. Round, all around the world. Round, all around the world.", 
+            "title": "80 days around the world"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "core.message", 
+        "fields": {
+            "text": "Top Cat! The most effectual Top Cat! Who's intellectual close friends get to call him T.C., providing it's with dignity. Top Cat! The indisputable leader of the gang. He's the boss, he's a pip, he's the championship. He's the most tip top, Top Cat.", 
+            "title": "Top Cat"
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "core.message", 
+        "fields": {
+            "text": "This is my boss, Jonathan Hart, a self-made millionaire, he's quite a guy. This is Mrs H., she's gorgeous, she's one lady who knows how to take care of herself. By the way, my name is Max. I take care of both of them, which ain't easy, 'cause when they met it was MURDER!", 
+            "title": "This is my boss"
+        }
+    }
+]
