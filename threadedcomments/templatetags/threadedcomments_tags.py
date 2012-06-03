@@ -107,15 +107,25 @@ class CommentFormNode(BaseThreadedCommentNode):
             )
 
     def get_form(self, context):
-        ctype, object_pk = self.get_target_ctype_pk(context)
         parent_id = None
         if self.parent:
             parent_id = self.parent.resolve(context, ignore_failures=True)
-        if object_pk:
-            object = ctype.get_object_for_this_type(pk=object_pk)
-            return comments.get_form()(object, parent=parent_id)
+
+        obj = self.get_object(context)
+        if obj:
+            return comments.get_form()(obj, parent=parent_id)
         else:
             return None
+
+    def get_object(self, context):
+        if self.object_expr:
+            try:
+                return self.object_expr.resolve(context)
+            except template.VariableDoesNotExist:
+                return None
+        else:
+            object_pk = self.object_pk_expr.resolve(context, ignore_failures=True)
+            return self.ctype.get_object_for_this_type(pk=object_pk)
 
     def render(self, context):
         context[self.as_varname] = self.get_form(context)
