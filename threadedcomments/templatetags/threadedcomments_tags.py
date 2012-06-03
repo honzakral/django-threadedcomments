@@ -7,19 +7,11 @@ from threadedcomments.util import annotate_tree_properties, fill_tree as real_fi
 register = template.Library()
 
 class BaseThreadedCommentNode(BaseCommentNode):
-    def __init__(self, parent=None, **kwargs):
+    def __init__(self, parent=None, flat=False, root_only=False, **kwargs):
         self.parent = parent
-        super(BaseThreadedCommentNode, self).__init__(**kwargs)
-
-class CommentListNode(BaseThreadedCommentNode):
-    """
-    Insert a list of comments into the context.
-    """
-
-    def __init__(self, flat=False, root_only=False, **kwargs):
         self.flat = flat
         self.root_only = root_only
-        super(CommentListNode, self).__init__(**kwargs)
+        super(BaseThreadedCommentNode, self).__init__(**kwargs)
 
     @classmethod
     def handle_token(cls, parser, token):
@@ -56,12 +48,21 @@ class CommentListNode(BaseThreadedCommentNode):
         else:
             raise template.TemplateSyntaxError("%r tag takes either 5 or 6 arguments" % (tokens[0],))
 
-    def get_context_value_from_queryset(self, context, qs):
+    def get_query_set(self, context):
+        qs = super(BaseThreadedCommentNode, self).get_query_set(context)
         if self.flat:
             qs = qs.order_by('-submit_date')
         elif self.root_only:
             qs = qs.exclude(parent__isnull=False).order_by('-submit_date')
         return qs
+
+
+class CommentListNode(BaseThreadedCommentNode):
+    """
+    Insert a list of comments into the context.
+    """
+    def get_context_value_from_queryset(self, context, qs):
+        return list(qs)
 
 
 class CommentCountNode(CommentListNode):
