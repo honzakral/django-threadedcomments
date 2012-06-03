@@ -346,7 +346,7 @@ def render_comment_form(parser, token):
 @register.filter
 def annotate_tree(comments):
     """
-    Add ``open``, ``close`` and ``depth`` properties to the comments, to render the tree.
+    Add ``open``, ``close`` properties to the comments, to render the tree.
 
     Syntax::
 

@@ -1,3 +1,9 @@
+Version 0.9, dev.
+-----------------
+
+Rewrote application to use django.contrib.comments
+Included example app
+
 Version 0.5.1, 31st March 2009
 ------------------------------
 
