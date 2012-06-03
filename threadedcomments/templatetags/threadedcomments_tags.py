@@ -20,6 +20,7 @@ class CommentListNode(BaseThreadedCommentNode):
         self.root_only = root_only
         super(CommentListNode, self).__init__(**kwargs)
 
+    @classmethod
     def handle_token(cls, parser, token):
         tokens = token.contents.split()
         if len(tokens) > 2:
@@ -49,8 +50,6 @@ class CommentListNode(BaseThreadedCommentNode):
                 "%r tag takes either 5 or 6 arguments" % (tokens[0],))
         return comment_node_instance
 
-    handle_token = classmethod(handle_token)
-
     def get_context_value_from_queryset(self, context, qs):
         if self.flat:
             qs = qs.order_by('-submit_date')
@@ -63,6 +62,7 @@ class CommentFormNode(BaseThreadedCommentNode):
     """
     Insert a form for the comment model into the context.
     """
+    @classmethod
     def handle_token(cls, parser, token):
         tokens = token.contents.split()
         if tokens[1] != 'for':
@@ -94,8 +94,6 @@ class CommentFormNode(BaseThreadedCommentNode):
                 parent=parser.compile_filter(tokens[7]),
             )
 
-    handle_token = classmethod(handle_token)
-
     def get_form(self, context):
         ctype, object_pk = self.get_target_ctype_pk(context)
         parent_id = None
@@ -112,6 +110,7 @@ class CommentFormNode(BaseThreadedCommentNode):
         return ''
 
 class RenderCommentFormNode(CommentFormNode):
+    @classmethod
     def handle_token(cls, parser, token):
         """
         Class method to parse render_comment_form and return a Node.
@@ -149,8 +148,6 @@ class RenderCommentFormNode(CommentFormNode):
         else:
             raise template.TemplateSyntaxError("%r tag takes 3 to 5 arguments" % (tokens[0],))
 
-    handle_token = classmethod(handle_token)
-
     def render(self, context):
         ctype, object_pk = self.get_target_ctype_pk(context)
         if object_pk:
@@ -171,6 +168,7 @@ class RenderCommentFormNode(CommentFormNode):
             return ''
 
 
+@register.tag
 def get_comment_list(parser, token):
     """
     Gets the list of comments for the given params and populates the template
@@ -195,6 +193,7 @@ def get_comment_list(parser, token):
     """
     return CommentListNode.handle_token(parser, token)
 
+@register.tag
 def get_comment_form(parser, token):
     """
     Get a (new) form object to post a new comment.
@@ -208,6 +207,7 @@ def get_comment_form(parser, token):
     """
     return CommentFormNode.handle_token(parser, token)
 
+@register.tag
 def render_comment_form(parser, token):
     """
     Render the comment form (as returned by ``{% render_comment_form %}``) 
@@ -224,11 +224,8 @@ def render_comment_form(parser, token):
 
 
 
+@register.filter
 def annotate_tree(comments):
     return annotate_tree_properties(comments)
 
-register.filter(annotate_tree)
 register.filter(fill_tree)
-register.tag(get_comment_list)
-register.tag(get_comment_form)
-register.tag(render_comment_form)
