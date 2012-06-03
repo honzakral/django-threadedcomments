@@ -2,7 +2,8 @@ from django import template
 from django.template.loader import render_to_string
 from django.contrib.comments.templatetags.comments import BaseCommentNode
 from django.contrib import comments
-from threadedcomments.util import annotate_tree_properties, fill_tree
+from threadedcomments.util import annotate_tree_properties, fill_tree as real_fill_tree
+
 register = template.Library()
 
 class BaseThreadedCommentNode(BaseCommentNode):
@@ -32,23 +33,28 @@ class CommentListNode(BaseThreadedCommentNode):
             extra_kw[str(tokens.pop())] = True
 
         if len(tokens) == 5:
-            comment_node_instance = cls(
+            # {% get_whatever for obj as varname %}
+            if tokens[3] != 'as':
+                raise template.TemplateSyntaxError("Fourth argument in %r must be 'as'" % tokens[0])
+
+            return cls(
                 object_expr=parser.compile_filter(tokens[2]),
                 as_varname=tokens[4],
                 **extra_kw
             )
         elif len(tokens) == 6:
-            comment_node_instance = cls(
-                ctype=BaseThreadedCommentNode.lookup_content_type(tokens[2],
-                    tokens[0]),
+            # {% get_whatever for app.model pk as varname %}
+            if tokens[4] != 'as':
+                raise template.TemplateSyntaxError("Fourth argument in %r must be 'as'" % tokens[0])
+
+            return cls(
+                ctype=BaseThreadedCommentNode.lookup_content_type(tokens[2], tokens[0]),
                 object_pk_expr=parser.compile_filter(tokens[3]),
                 as_varname=tokens[5],
                 **extra_kw
             )
         else:
-            raise template.TemplateSyntaxError(
-                "%r tag takes either 5 or 6 arguments" % (tokens[0],))
-        return comment_node_instance
+            raise template.TemplateSyntaxError("%r tag takes either 5 or 6 arguments" % (tokens[0],))
 
     def get_context_value_from_queryset(self, context, qs):
         if self.flat:
@@ -66,29 +72,26 @@ class CommentFormNode(BaseThreadedCommentNode):
     def handle_token(cls, parser, token):
         tokens = token.contents.split()
         if tokens[1] != 'for':
-            raise template.TemplateSyntaxError("Second argument in %r tag "
-                "must be 'for'" % (tokens[0],))
+            raise template.TemplateSyntaxError("Second argument in %r tag must be 'for'" % (tokens[0],))
 
         if len(tokens) < 7:
+            # Default get_comment_form code
             return super(CommentFormNode, cls).handle_token(parser, token)
-        # {% get_comment_form for [object] as [varname] with [parent_id] %}
-        if len(tokens) == 7:
+        elif len(tokens) == 7:
+            # {% get_comment_form for [object] as [varname] with [parent_id] %}
             if tokens[-2] != u'with':
-                raise template.TemplateSyntaxError("%r tag must have a 'with' "
-                    "as the last but one argument." % (tokens[0],))
+                raise template.TemplateSyntaxError("%r tag must have a 'with' as the last but one argument." % (tokens[0],))
             return cls(
                 object_expr=parser.compile_filter(tokens[2]),
                 as_varname=tokens[4],
                 parent=parser.compile_filter(tokens[6]),
             )
-        # {% get_comment_form for [app].[model] [object_id] as [varname] with [parent_id] %}
         elif len(tokens) == 8:
+            # {% get_comment_form for [app].[model] [object_id] as [varname] with [parent_id] %}
             if tokens[-2] != u'with':
-                raise template.TemplateSyntaxError("%r tag must have a 'with' "
-                    "as the last but one argument." % (tokens[0],))
+                raise template.TemplateSyntaxError("%r tag must have a 'with' as the last but one argument." % (tokens[0],))
             return cls(
-                ctype=BaseThreadedCommentNode.lookup_content_type(tokens[2],
-                    tokens[0]),
+                ctype=BaseThreadedCommentNode.lookup_content_type(tokens[2], tokens[0]),
                 object_pk_expr=parser.compile_filter(tokens[3]),
                 as_varname=tokens[5],
                 parent=parser.compile_filter(tokens[7]),
@@ -109,6 +112,7 @@ class CommentFormNode(BaseThreadedCommentNode):
         context[self.as_varname] = self.get_form(context)
         return ''
 
+
 class RenderCommentFormNode(CommentFormNode):
     @classmethod
     def handle_token(cls, parser, token):
@@ -119,25 +123,25 @@ class RenderCommentFormNode(CommentFormNode):
         if tokens[1] != 'for':
             raise template.TemplateSyntaxError("Second argument in %r tag must be 'for'" % tokens[0])
 
-        # {% render_comment_form for obj %}
         if len(tokens) == 3:
+            # {% render_comment_form for obj %}
             return cls(object_expr=parser.compile_filter(tokens[2]))
-        # {% render_comment_form for app.model object_pk %}
         elif len(tokens) == 4:
+            # {% render_comment_form for app.model object_pk %}
             return cls(
                 ctype=BaseCommentNode.lookup_content_type(tokens[2], tokens[0]),
                 object_pk_expr=parser.compile_filter(tokens[3])
             )
-        # {% render_comment_form for obj with parent_id %}
         elif len(tokens) == 5:
+            # {% render_comment_form for obj with parent_id %}
             if tokens[-2] != u'with':
                 raise template.TemplateSyntaxError("%r tag must have 'with' as the last but one argument" % (tokens[0],))
             return cls(
                 object_expr=parser.compile_filter(tokens[2]),
                 parent=parser.compile_filter(tokens[4])
             )
-        # {% render_comment_form for app.model object_pk with parent_id %}
         elif len(tokens) == 6:
+            # {% render_comment_form for app.model object_pk with parent_id %}
             if tokens[-2] != u'with':
                 raise template.TemplateSyntaxError("%r tag must have 'with' as the last but one argument" % (tokens[0],))
             return cls(
@@ -146,7 +150,7 @@ class RenderCommentFormNode(CommentFormNode):
                 parent=parser.compile_filter(tokens[5])
             )
         else:
-            raise template.TemplateSyntaxError("%r tag takes 3 to 5 arguments" % (tokens[0],))
+            raise template.TemplateSyntaxError("%r tag takes 2 to 5 arguments" % (tokens[0],))
 
     def render(self, context):
         ctype, object_pk = self.get_target_ctype_pk(context)
@@ -207,6 +211,7 @@ def get_comment_form(parser, token):
     """
     return CommentFormNode.handle_token(parser, token)
 
+
 @register.tag
 def render_comment_form(parser, token):
     """
@@ -223,9 +228,41 @@ def render_comment_form(parser, token):
     return RenderCommentFormNode.handle_token(parser, token)
 
 
-
 @register.filter
 def annotate_tree(comments):
+    """
+    Add ``open``, ``close`` and ``depth`` properties to the comments, to render the tree.
+
+    Syntax::
+
+        {% for comment in comment_list|annotate_tree %}
+            {% ifchanged comment.parent_id %}{% else %}</li>{% endifchanged %}
+            {% if not comment.open and not comment.close %}</li>{% endif %}
+            {% if comment.open %}<ul>{% endif %}
+
+            <li id="c{{ comment.id }}">
+                ...
+            {% for close in comment.close %}</li></ul>{% endfor %}
+        {% endfor %}
+
+    When the :func:`fill_tree` filter, place the ``annotate_tree`` code after it::
+
+        {% for comment in comment_list|fill_tree|annotate_tree %}
+            ...
+        {% endfor %}
+    """
     return annotate_tree_properties(comments)
 
-register.filter(fill_tree)
+
+@register.filter
+def fill_tree(comments):
+    """
+    When paginating the comments, insert the parent nodes of the first comment.
+
+    Syntax::
+
+        {% for comment in comment_list|annotate_tree %}
+            ...
+        {% endfor %}
+    """
+    return real_fill_tree(comments)
