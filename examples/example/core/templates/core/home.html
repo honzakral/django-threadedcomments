@@ -1,110 +1,7 @@
+{% extends "core/base.html" %}
 {% load threadedcomments_tags %}
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-        "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-<head>
-    <title>Home</title>
-    <script src="http://yandex.st/jquery/1.6.1/jquery.min.js" type="text/javascript" charset="utf-8"></script>
-    {% block javascript %}
-    {% endblock %}
-    <style type="text/css">
-        BODY {
 
-        }
-
-        .message {
-            width: 300px;
-            background-color: #faf0e6;
-            border-radius: 10px;
-        }
-
-        .message * {
-            padding: 10px;
-        }
-
-        .title {
-            font-weight: bold;
-        }
-
-        /* BEGIN COMMENTS */
-
-        .comment {
-            padding: 10px;
-            margin: 10px;
-            position: relative;
-        }
-
-        .comment_li {
-            list-style: none;
-
-        }
-
-        .comment_last {
-            padding: 10px;
-            margin: 10px;
-        }
-
-        .comment_info {
-            line-height: 24px;
-            position: relative;
-        }
-
-        .comment_user {
-            text-decoration: underline;
-            margin-right: 10px;
-            font-weight: bold;
-            color: #666;
-            font-size: .99em;
-            cursor: pointer;
-            float: left;
-        }
-
-        .comment_data {
-            font-size: 11px;
-            color: #666;
-            margin-top: 10px;
-        }
-
-        .comment_text {
-            margin-top: 10px;
-            float: inherit;
-            font-size: 1.08em;
-            color: black;
-        }
-
-        .comment_reply_link {
-            color: #004276;
-            outline: none;
-            text-decoration: none;
-            vertical-align: baseline;
-        }
-
-        .comments_length {
-            padding-left: 15px;
-            font-weight: bold;
-        }
-
-        #form-comment {
-            margin: 5px;
-            padding: 5px;
-        }
-
-        .wrap_write_comment {
-            margin: 15px;
-            background-color: #faf0e6;
-            width: 650px;
-        }
-
-        #write_comment {
-            color: #8b0000;
-            font-size: 15px;
-        }
-
-        /* END COMMENTS */
-
-    </style>
-</head>
-<body>
+{% block head_title %}Home{% endblock %}
 {% block content %}
     <h1>Messages:</h1>
     <ul>
@@ -121,5 +18,3 @@
         {% endfor %}
     </ul>
 {% endblock %}
-</body>
-</html>
