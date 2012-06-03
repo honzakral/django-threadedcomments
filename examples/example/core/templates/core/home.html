@@ -6,13 +6,13 @@
     <h1>Messages:</h1>
     <ul>
         {% for message in messages %}
-            {% get_comment_list for message as comment_list %}
+            {% get_comment_count for message as comment_count %}
             <li>
                 <div class="message">
                     <p class="title">{{ message.title }}</p>
 
                     <p class="text">{{ message.text }}</p>
-                    <a href="{% url core.views.message id=message.id %}">{{ comment_list|length }} Comments</a>
+                    <a href="{% url core.views.message id=message.id %}">{{ comment_count }} Comments</a>
                 </div>
             </li>
         {% endfor %}

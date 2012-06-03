@@ -64,6 +64,14 @@ class CommentListNode(BaseThreadedCommentNode):
         return qs
 
 
+class CommentCountNode(CommentListNode):
+    """
+    Insert a count of comments into the context.
+    """
+    def get_context_value_from_queryset(self, context, qs):
+        return qs.count()
+
+
 class CommentFormNode(BaseThreadedCommentNode):
     """
     Insert a form for the comment model into the context.
@@ -172,6 +180,79 @@ class RenderCommentFormNode(CommentFormNode):
             return ''
 
 
+class RenderCommentListNode(CommentListNode):
+    """
+    Render the comments list.
+    """
+    # By having this class added, this module is a drop-in replacement for ``{% load comments %}``.
+
+    @classmethod
+    def handle_token(cls, parser, token):
+        tokens = token.contents.split()
+        if tokens[1] != 'for':
+            raise template.TemplateSyntaxError("Second argument in %r tag must be 'for'" % tokens[0])
+
+        extra_kw = {}
+        if tokens[-1] in ('flat', 'root_only'):
+            extra_kw[str(tokens.pop())] = True
+
+        if len(tokens) == 3:
+            # {% render_comment_list for obj %}
+            return cls(
+                object_expr=parser.compile_filter(tokens[2]),
+                **extra_kw
+            )
+        elif len(tokens) == 4:
+            # {% render_comment_list for app.models pk %}
+            return cls(
+                ctype = BaseCommentNode.lookup_content_type(tokens[2], tokens[0]),
+                object_pk_expr = parser.compile_filter(tokens[3]),
+                **extra_kw
+            )
+        else:
+            raise template.TemplateSyntaxError("%r tag takes either 2 or 3 arguments" % (tokens[0],))
+
+    def render(self, context):
+        ctype, object_pk = self.get_target_ctype_pk(context)
+        if object_pk:
+            template_search_list = [
+                "comments/%s/%s/list.html" % (ctype.app_label, ctype.model),
+                "comments/%s/list.html" % ctype.app_label,
+                "comments/list.html"
+            ]
+            qs = self.get_query_set(context)
+            context.push()
+            liststr = render_to_string(template_search_list, {
+                "comment_list" : self.get_context_value_from_queryset(context, qs)
+            }, context)
+            context.pop()
+            return liststr
+        else:
+            return ''
+
+
+@register.tag
+def get_comment_count(parser, token):
+    """
+    Gets the comment count for the given params and populates the template
+    context with a variable containing that value, whose name is defined by the
+    'as' clause.
+
+    Syntax::
+
+        {% get_comment_count for [object] as [varname]  %}
+        {% get_comment_count for [app].[model] [object_id] as [varname]  %}
+
+    Example usage::
+
+        {% get_comment_count for event as comment_count %}
+        {% get_comment_count for calendar.event event.id as comment_count %}
+        {% get_comment_count for calendar.event 17 as comment_count %}
+
+    """
+    return CommentCountNode.handle_token(parser, token)
+
+
 @register.tag
 def get_comment_list(parser, token):
     """
@@ -196,6 +277,29 @@ def get_comment_list(parser, token):
 
     """
     return CommentListNode.handle_token(parser, token)
+
+
+@register.tag
+def render_comment_list(parser, token):
+    """
+    Render the comment list (as returned by ``{% get_comment_list %}``)
+    through the ``comments/list.html`` template
+
+    Syntax::
+
+        {% render_comment_list for [object] %}
+        {% render_comment_list for [app].[model] [object_id] %}
+
+        {% render_comment_list for [object] [flat|root_only] %}
+        {% render_comment_list for [app].[model] [object_id] [flat|root_only] %}
+
+    Example usage::
+
+        {% render_comment_list for event %}
+
+    """
+    return RenderCommentListNode.handle_token(parser, token)
+
 
 @register.tag
 def get_comment_form(parser, token):
