@@ -1,0 +1,20 @@
+{% extends "comments/base.html" %}{% load i18n %}
+
+{% block title %}{% trans "Thanks for commenting" %}{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+    <meta http-equiv="Refresh" content="5; url={{ comment.content_object.get_absolute_url }}#c{{ comment.id }}" />
+{% endblock %}
+
+{% block content %}
+    <h2>{% trans "Thanks for posting your comment" %}</h2>
+    <p>
+      {% blocktrans %}
+      We have received your comment, and posted it on the web site.<br/>
+      You will be sent back to the article...
+      {% endblocktrans %}
+    </p>
+
+    <p><a href="{{ comment.content_object.get_absolute_url }}#c{{ comment.id }}">{% trans "Back to the article" %}</a></p>
+{% endblock %}

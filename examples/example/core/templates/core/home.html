@@ -1,0 +1,20 @@
+{% extends "core/base.html" %}
+{% load threadedcomments_tags %}
+
+{% block head_title %}Home{% endblock %}
+{% block content %}
+    <h1>Messages:</h1>
+    <ul>
+        {% for message in messages %}
+            {% get_comment_count for message as comment_count %}
+            <li>
+                <div class="message">
+                    <p class="title">{{ message.title }}</p>
+
+                    <p class="text">{{ message.text }}</p>
+                    <a href="{% url core.views.message id=message.id %}">{{ comment_count }} Comments</a>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

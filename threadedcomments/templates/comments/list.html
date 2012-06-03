@@ -1,0 +1,20 @@
+{% comment %}
+  This template replaces the default "comments/list.html" of "django.contrib.comments",
+  to allow rendering the comments as tree.
+{% endcomment %}
+{% load threadedcomments_tags %}
+<div id="comments">
+    {% for comment in comment_list|fill_tree|annotate_tree %}{% ifchanged comment.parent_id %}{% else %}</li>{% endifchanged %}{% if not comment.open and not comment.close %}</li>{% endif %}{% if comment.open %}
+    <ul>{% endif %}
+        <li id="c{{ comment.id }}">{# c## is used by the absolute URL of the Comment model, so keep that as it is. #}
+            <dl class="comment">
+                <dt>
+                    {{ comment.submit_date }} - {{ comment.name }}
+                </dt>
+                <dd>
+                    {{ comment.comment|linebreaks }}
+                </dd>
+            </dl>
+            {% for close in comment.close %}</li></ul>{% endfor %}
+    {% endfor %}
+</div>

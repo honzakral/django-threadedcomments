@@ -10,8 +10,7 @@ class ThreadedCommentsAdmin(CommentsAdmin):
            {'fields': ('content_type', 'object_pk', 'site')}
         ),
         (_('Content'),
-           {'fields': ('user', 'user_name', 'user_email', 'user_url', 'title',
-                       'comment')}
+           {'fields': ('user', 'user_name', 'user_email', 'user_url', 'title', 'comment')}
         ),
         (_('Hierarchy'),
            {'fields': ('parent',)}

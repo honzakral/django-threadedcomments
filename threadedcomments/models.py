@@ -9,27 +9,23 @@ PATH_DIGITS = getattr(settings, 'COMMENT_PATH_DIGITS', 10)
 
 class ThreadedComment(Comment):
     title = models.TextField(_('Title'), blank=True)
-    parent = models.ForeignKey('self', null=True, blank=True, default=None,
-        related_name='children', verbose_name=_('Parent'))
-    last_child = models.ForeignKey('self', null=True, blank=True,
-        verbose_name=_('Last child'))
-    tree_path = models.TextField(_('Tree path'), editable=False,
-        db_index=True)
+    parent = models.ForeignKey('self', null=True, blank=True, default=None, related_name='children', verbose_name=_('Parent'))
+    last_child = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, verbose_name=_('Last child'))
+    tree_path = models.TextField(_('Tree path'), editable=False, db_index=True)
 
     objects = CommentManager()
 
-    def _get_depth(self):
+    @property
+    def depth(self):
         return len(self.tree_path.split(PATH_SEPARATOR))
-    depth = property(_get_depth)
 
-    def _root_id(self):
+    @property
+    def root_id(self):
         return int(self.tree_path.split(PATH_SEPARATOR)[0])
-    root_id = property(_root_id)
 
-    def _root_path(self):
-        return ThreadedComment.objects.filter(pk__in=self.tree_path.
-                                              split(PATH_SEPARATOR)[:-1])
-    root_path = property(_root_path)
+    @property
+    def root_path(self):
+        return ThreadedComment.objects.filter(pk__in=self.tree_path.split(PATH_SEPARATOR)[:-1])
 
     def save(self, *args, **kwargs):
         skip_tree_path = kwargs.pop('skip_tree_path', False)
@@ -42,12 +38,17 @@ class ThreadedComment(Comment):
             tree_path = PATH_SEPARATOR.join((self.parent.tree_path, tree_path))
 
             self.parent.last_child = self
-            ThreadedComment.objects.filter(pk=self.parent_id).update(
-                last_child=self)
+            ThreadedComment.objects.filter(pk=self.parent_id).update(last_child=self)
 
         self.tree_path = tree_path
-        ThreadedComment.objects.filter(pk=self.pk).update(
-            tree_path=self.tree_path)
+        ThreadedComment.objects.filter(pk=self.pk).update(tree_path=self.tree_path)
+
+    def delete(self, *args, **kwargs):
+        # Fix last child on deletion.
+        if self.parent_id:
+            prev_child_id = ThreadedComment.objects.filter(parent=self.parent_id).order_by('-submit_date').values_list('pk', flat=True)[0]
+            ThreadedComment.objects.filter(pk=self.parent_id).update(last_child=prev_child_id)
+        super(ThreadedComment, self).delete(*args, **kwargs)
 
     class Meta(object):
         ordering = ('tree_path',)

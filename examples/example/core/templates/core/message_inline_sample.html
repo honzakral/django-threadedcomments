@@ -1,0 +1,80 @@
+{% extends "core/base.html" %}
+{% load threadedcomments_tags %}
+
+{% block head_title %}{{ message.title }}{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript">
+
+        function show_reply_form(event) {
+            var $this = $(this);
+            var comment_id = $this.data('comment-id');
+
+            $('#id_parent').val(comment_id);
+            $('#form-comment').insertAfter($this.closest('.comment'));
+        };
+
+        function cancel_reply_form(event) {
+            $('#id_comment').val('');
+            $('#id_parent').val('');
+            $('#form-comment').appendTo($('#wrap_write_comment'));
+        }
+
+        $.fn.ready(function() {
+            $('.comment_reply_link').click(show_reply_form);
+            $('#cancel_reply').click(cancel_reply_form);
+        })
+
+    </script>
+{% endblock %}
+
+{% block content %}
+    {% get_comment_list for message as comment_list %}
+    <h2><a href="/">Back</a></h2>
+
+    <div class="message">
+        <p class="title">{{ message.title }}</p>
+        <p class="text">{{ message.text }}</p>
+    </div>
+
+    <div class="comments_wrapper" id="comments">
+        <div class="comments_length">
+            <p>{{ comment_list|length }} Comments</p>
+        </div>
+
+        <div class="comments">
+            {% for comment in comment_list|fill_tree|annotate_tree %}{% ifchanged comment.parent_id %}{% else %}</li>{% endifchanged %}{% if not comment.open and not comment.close %}</li>{% endif %}{% if comment.open %}
+                <ul>{% endif %}
+            <li class="comment_li" id="c{{ comment.id }}">{# c## is used by the absolute URL of the Comment model, so keep that as it is. #}
+                <div class="comment">
+                    <div class="comment_info">
+                        <div class="comment_user">{{ comment.user_name }}</div>
+                        <div class="comment_data">
+                            {{ comment.submit_date|date:"d M Y, H:i" }}
+                          | <a href="#c{{ comment.id }}" data-comment-id="{{ comment.id }}" class="comment_reply_link">Reply</a>
+                        </div>
+                    </div>
+                    <div class="comment_text">
+                        {{ comment.comment }}
+                    </div>
+                </div>
+                {% for close in comment.close %}</li></ul>{% endfor %}
+
+            {% endfor %}
+        </div>
+
+        <div id="wrap_write_comment">
+            <div id="form-comment">
+                {% get_comment_form for message as form %}
+                <form action="/comments/post/" method="post">{% csrf_token %}
+                    {{ form.as_p }}{# just to keep the example simple. Consider using django-crispy-forms in real life #}
+
+                    <p>
+                      <input type="submit" value="Submit Comment"/>
+                      <a href="#c0" id="cancel_reply">cancel reply</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

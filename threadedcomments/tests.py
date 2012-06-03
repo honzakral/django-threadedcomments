@@ -53,8 +53,7 @@ class SanityTests(TransactionTestCase):
         child_comment = self._post_comment(data={'name': 'ericflo'}, parent=comment)
         comment_pk = str(comment.pk).zfill(PATH_DIGITS)
         child_comment_pk = str(child_comment.pk).zfill(PATH_DIGITS)
-        self.assertEqual(child_comment.tree_path, PATH_SEPARATOR.join(
-            (comment.tree_path, child_comment_pk)))
+        self.assertEqual(child_comment.tree_path, PATH_SEPARATOR.join((comment.tree_path, child_comment_pk)))
         self.assertEqual(comment.pk, child_comment.parent.pk)
         comment = comments.get_model().objects.get(pk=comment.pk)
         self.assertEqual(comment.last_child, child_comment)
@@ -181,6 +180,14 @@ class HierarchyTest(TransactionTestCase):
         new_child_comment.save()
         comment = Comment.objects.get(pk=1)
         self.assertEqual(comment.last_child, new_child_comment)
+
+    def test_last_child_doesnt_delete_parent(self):
+        Comment = comments.get_model()
+        comment = Comment.objects.get(pk=1)
+        new_child_comment = Comment(comment="Comment 9", site_id=1, content_type_id=7, object_pk=1, parent_id=comment.id)
+        new_child_comment.save()
+        new_child_comment.delete()
+        comment = Comment.objects.get(pk=1)
 
 # Templatetags tests
 ##############################################################################

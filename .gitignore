@@ -1,8 +1,11 @@
 /django_threadedcomments.egg-info/
 
+.idea
 *.pyc
 *~
 .project
 .pydevproject
 .settings
 *.swp
+.idea/
+sampledb.db

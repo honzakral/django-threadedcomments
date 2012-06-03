@@ -1,0 +1,10 @@
+<div id="form-comment">
+    <form action="/comments/post/" method="post">{% csrf_token %}
+        {{ form.as_p }}{# just to keep the example simple. Consider using django-crispy-forms in real life #}
+
+        <p>
+            <input type="submit" value="Submit Comment"/>
+            <a href="#c0" id="cancel_reply">cancel reply</a>
+        </p>
+    </form>
+</div>
