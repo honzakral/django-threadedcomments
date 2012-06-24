@@ -499,11 +499,11 @@ See also ticket `#42`::.
         })
         self.assertEquals(
             Template('{% load gravatar %}{% get_gravatar_url for email %}').render(c),
-            u'http://www.gravatar.com/avatar.php?gravatar_id=04d6b8e8d3c68899ac88eb8623392150&rating=R&size=80&default=img%3Ablank'
+            u'http://www.gravatar.com/avatar.php?gravatar_id=04d6b8e8d3c68899ac88eb8623392150&rating=R&size=80&default=http%3A%2F%2Fsite.gravatar.com%2Fimages%2Fcommon%2Ftop%2Flogo.gif'
         )
         self.assertEquals(
             Template('{% load gravatar %}{% get_gravatar_url for email as var %}Var: {{ var }}').render(c),
-            u'Var: http://www.gravatar.com/avatar.php?gravatar_id=04d6b8e8d3c68899ac88eb8623392150&rating=R&size=80&default=img%3Ablank'
+            u'Var: http://www.gravatar.com/avatar.php?gravatar_id=04d6b8e8d3c68899ac88eb8623392150&rating=R&size=80&default=http%3A%2F%2Fsite.gravatar.com%2Fimages%2Fcommon%2Ftop%2Flogo.gif'
         )
         self.assertEquals(
             Template('{% load gravatar %}{% get_gravatar_url for email size 30 rating "G" default override as var %}Var: {{ var }}').render(c),
@@ -515,5 +515,5 @@ See also ticket `#42`::.
         )
         self.assertEquals(
             Template('{% load gravatar %}{{ email|gravatar }}').render(c),
-            u'http://www.gravatar.com/avatar.php?gravatar_id=04d6b8e8d3c68899ac88eb8623392150&rating=R&size=80&default=img%3Ablank'
+            u'http://www.gravatar.com/avatar.php?gravatar_id=04d6b8e8d3c68899ac88eb8623392150&rating=R&size=80&default=http%3A%2F%2Fsite.gravatar.com%2Fimages%2Fcommon%2Ftop%2Flogo.gif'
         )
