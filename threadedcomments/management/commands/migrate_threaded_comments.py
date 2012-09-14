@@ -100,7 +100,7 @@ class Command(NoArgsCommand):
                 site=site,
             )
 
-            tc.save(skip_rtee_path=True)
+            tc.save(skip_tree_path=True)
 
         for comment in ThreadedComment.objects.all():
             path = [str(comment.id).zfill(PATH_DIGITS)]
