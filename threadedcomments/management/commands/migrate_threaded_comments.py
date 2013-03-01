@@ -7,6 +7,7 @@ from threadedcomments.models import ThreadedComment
 
 USER_SQL = """
 SELECT
+    id,
     content_type_id,
     object_id,
     parent_id,
@@ -19,11 +20,12 @@ SELECT
     is_public,
     is_approved,
     ip_address
-FROM threadedcomments_threadedcomment
+FROM threadedcomments_threadedcomment ORDER BY id ASC
 """
 
 FREE_SQL = """
 SELECT
+    id,
     content_type_id,
     object_id,
     parent_id,
@@ -38,7 +40,7 @@ SELECT
     is_public,
     is_approved,
     ip_address
-FROM threadedcomments_freethreadedcomment
+FROM threadedcomments_freethreadedcomment ORDER BY id ASC
 """
 
 PATH_SEPARATOR = getattr(settings, 'COMMENT_PATH_SEPARATOR', '/')
@@ -57,10 +59,11 @@ class Command(NoArgsCommand):
         cursor = connection.cursor()
         cursor.execute(FREE_SQL)
         for row in cursor:
-            (content_type_id, object_id, parent_id, name, website, email,
+            (id, content_type_id, object_id, parent_id, name, website, email,
                 date_submitted, date_modified, date_approved, comment, markup,
                 is_public, is_approved, ip_address) = row
             tc = ThreadedComment(
+                pk=id,
                 content_type_id=content_type_id,
                 object_pk=object_id,
                 user_name=name,
@@ -74,15 +77,17 @@ class Command(NoArgsCommand):
                 parent_id=parent_id,
                 site=site,
             )
+
             tc.save(skip_tree_path=True)
 
         cursor = connection.cursor()
         cursor.execute(USER_SQL)
         for row in cursor:
-            (content_type_id, object_id, parent_id, user_id, date_submitted,
+            (id, content_type_id, object_id, parent_id, user_id, date_submitted,
                 date_modified, date_approved, comment, markup, is_public,
                 is_approved, ip_address) = row
             tc = ThreadedComment(
+                pk=id,
                 content_type_id=content_type_id,
                 object_pk=object_id,
                 user_id=user_id,
@@ -94,6 +99,7 @@ class Command(NoArgsCommand):
                 parent_id=parent_id,
                 site=site,
             )
+
             tc.save(skip_tree_path=True)
 
         for comment in ThreadedComment.objects.all():
