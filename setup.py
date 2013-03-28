@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 kwargs = {
     'name': 'django-threadedcomments',
-    'version': '0.9',
+    'version': '1.0',
     'description': 'A simple yet flexible threaded commenting system.',
     'author': 'Eric Florenzano',
     'author_email': 'floguy@gmail.com',

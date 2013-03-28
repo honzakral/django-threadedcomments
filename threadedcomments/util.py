@@ -1,4 +1,9 @@
-from itertools import chain, imap
+from __future__ import unicode_literals
+
+try: # 2to3 compatibility.
+    from itertools import chain
+except:
+    from itertools import chain, imap
 
 __all__ = ['fill_tree', 'annotate_tree_properties', ]
 
@@ -19,9 +24,14 @@ def fill_tree(comments):
     if not comments:
         return
 
-    it = iter(comments)
-    first = it.next()
-    extra_path_items = imap(_mark_as_root_path, first.root_path)
+    try: #2to3 compatability.
+        it = iter(comments)
+        first = next(it)
+        extra_path_items = map(_mark_as_root_path, first.root_path)
+    except:
+        it = iter(comments)
+        first = it.next()
+        extra_path_items = imap(_mark_as_root_path, first.root_path)
     return chain(extra_path_items, [first], it)
 
 def annotate_tree_properties(comments):
@@ -35,7 +45,10 @@ def annotate_tree_properties(comments):
     it = iter(comments)
 
     # get the first item, this will fail if no items !
-    old = it.next()
+    try: # 2to3 compatability:
+        old = next(it)
+    except:
+        old = it.next()
 
     # first item starts a new thread
     old.open = True
@@ -55,7 +68,10 @@ def annotate_tree_properties(comments):
 
         else: # c.depth <= old.depth
             # close some depths
-            old.close = range(old.depth - c.depth)
+            try: #2to3 compatability
+                old.close = list(range(old.depth - c.depth))
+            except:
+                old.close = range(old.depth - c.depth)
 
             # new thread
             if old.root_id != c.root_id:
@@ -69,5 +85,8 @@ def annotate_tree_properties(comments):
         yield old
         old = c
 
-    old.close = range(old.depth)
+    try:
+        old.close = list(range(old.depth))
+    except:
+        old.close = range(old.depth)
     yield old

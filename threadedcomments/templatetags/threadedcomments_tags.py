@@ -1,3 +1,4 @@
+from __future__ import unicode_literals 
 from django import template
 from django.template.loader import render_to_string
 from django.contrib.comments.templatetags.comments import BaseCommentNode
@@ -88,8 +89,12 @@ class CommentFormNode(BaseThreadedCommentNode):
             return super(CommentFormNode, cls).handle_token(parser, token)
         elif len(tokens) == 7:
             # {% get_comment_form for [object] as [varname] with [parent_id] %}
-            if tokens[-2] != u'with':
-                raise template.TemplateSyntaxError("%r tag must have a 'with' as the last but one argument." % (tokens[0],))
+            try: #2to3 compatability.
+                if tokens[-2] != 'with':
+                    raise template.TemplateSyntaxError("%r tag must have a 'with' as the last but one argument." % (tokens[0],))
+            except:
+                if tokens[-2] != u'with':
+                    raise template.TemplateSyntaxError("%r tag must have a 'with' as the last but one argument." % (tokens[0],))
             return cls(
                 object_expr=parser.compile_filter(tokens[2]),
                 as_varname=tokens[4],
@@ -153,16 +158,24 @@ class RenderCommentFormNode(CommentFormNode):
             )
         elif len(tokens) == 5:
             # {% render_comment_form for obj with parent_id %}
-            if tokens[-2] != u'with':
-                raise template.TemplateSyntaxError("%r tag must have 'with' as the last but one argument" % (tokens[0],))
+            try: # 2to3 compatability.
+                if tokens[-2] != 'with':
+                    raise template.TemplateSyntaxError("%r tag must have 'with' as the last but one argument" % (tokens[0],)) 
+            except:
+                if tokens[-2] != u'with':
+                    raise template.TemplateSyntaxError("%r tag must have 'with' as the last but one argument" % (tokens[0],))
             return cls(
                 object_expr=parser.compile_filter(tokens[2]),
                 parent=parser.compile_filter(tokens[4])
             )
         elif len(tokens) == 6:
             # {% render_comment_form for app.model object_pk with parent_id %}
-            if tokens[-2] != u'with':
-                raise template.TemplateSyntaxError("%r tag must have 'with' as the last but one argument" % (tokens[0],))
+            try: # 2to3 compatability.
+                if tokens[-2] != 'with':
+                    raise template.TemplateSyntaxError("%r tag must have 'with' as the last but one argument" % (tokens[0],)) 
+            except:
+                if tokens[-2] != u'with':
+                    raise template.TemplateSyntaxError("%r tag must have 'with' as the last but one argument" % (tokens[0],))
             return cls(
                 ctype=BaseThreadedCommentNode.lookup_content_type(tokens[2], tokens[0]),
                 object_pk_expr=parser.compile_filter(tokens[3]),

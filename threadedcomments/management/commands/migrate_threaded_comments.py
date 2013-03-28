@@ -1,3 +1,4 @@
+from __future__ import unicode_literals 
 from django.core.management.base import NoArgsCommand
 from django.contrib.sites.models import Site
 from django.db import transaction, connection

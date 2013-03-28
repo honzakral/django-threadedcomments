@@ -1,3 +1,4 @@
+from __future__ import unicode_literals 
 from django.db import models
 from django.contrib.comments.models import Comment
 from django.contrib.comments.managers import CommentManager
@@ -33,7 +34,10 @@ class ThreadedComment(Comment):
         if skip_tree_path:
             return None
 
-        tree_path = unicode(self.pk).zfill(PATH_DIGITS)
+        try:
+            tree_path = str(self.pk).zfill(PATH_DIGITS)# 2to3 compatability.
+        except:
+            tree_path = unicode(self.pk).zfill(PATH_DIGITS)
         if self.parent:
             tree_path = PATH_SEPARATOR.join((self.parent.tree_path, tree_path))
 

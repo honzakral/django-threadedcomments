@@ -17,9 +17,14 @@ def sanitize_html(html):
 
 class SanityTests(TransactionTestCase):
     BASE_DATA = {
-        'name': u'Eric Florenzano',
-        'email': u'floguy@gmail.com',
-        'comment': u'This is my favorite Django app ever!',
+        try: # 2to3 compatability.
+            'name': 'Eric Florenzano',
+            'email': 'floguy@gmail.com',
+            'comment': 'This is my favorite Django app ever!',
+        except:
+            'name': u'Eric Florenzano',
+            'email': u'floguy@gmail.com',
+            'comment': u'This is my favorite Django app ever!',
     }
 
     def _post_comment(self, data=None, parent=None):
@@ -31,8 +36,12 @@ class SanityTests(TransactionTestCase):
         args = [Site.objects.all()[0]]
         kwargs = {}
         if parent is not None:
-            kwargs['parent'] = unicode(parent.pk)
-            body['parent'] = unicode(parent.pk)
+            try: # 2to3 compatability.
+                kwargs['parent'] = str(parent.pk)
+                body['parent'] = str(parent.pk)
+            except:
+                kwargs['parent'] = unicode(parent.pk)
+                body['parent'] = unicode(parent.pk)
         form = comments.get_form()(*args, **kwargs)
         body.update(form.generate_security_data())
         self.client.post(url, body, follow=True)
@@ -253,28 +262,40 @@ class TestCommentListNode(TestCase):
 
     def test_flat_parameter_is_passed_into_the_node_for_ct_pk_pair(self):
         params = self.correct_ct_pk_params[:]
-        params.append(u'flat')
+        try: # 2to3 compatibility.
+            params.append('flat')
+        except:
+            params.append(u'flat')
         node = tags.get_comment_list(mock_parser, MockToken(params))
         self.assertTrue(isinstance(node, tags.CommentListNode))
         self.assertTrue(node.flat)
 
     def test_flat_parameter_is_passed_into_the_node_for_var(self):
         params = self.correct_var_params[:]
-        params.append(u'flat')
+        try: # 2to3 compatibility.
+            params.append('flat')
+        except:
+            params.append(u'flat')
         node = tags.get_comment_list(mock_parser, MockToken(params))
         self.assertTrue(isinstance(node, tags.CommentListNode))
         self.assertTrue(node.flat)
 
     def test_root_only_parameter_is_passed_into_the_node_for_var(self):
         params = self.correct_var_params[:]
-        params.append(u'root_only')
+        try: # 2to3 compatibility.
+            params.append('root_only')
+        except:
+            params.append(u'root_only')
         node = tags.get_comment_list(mock_parser, MockToken(params))
         self.assertTrue(isinstance(node, tags.CommentListNode))
         self.assertTrue(node.root_only)
 
     def test_root_only_parameter_is_passed_into_the_node_for_ct_pk_pair(self):
         params = self.correct_ct_pk_params[:]
-        params.append(u'root_only')
+        try: # 2to3 compatabality.
+            params.append('root_only')
+        except:
+            params.append(u'root_only')
         node = tags.get_comment_list(mock_parser, MockToken(params))
         self.assertTrue(isinstance(node, tags.CommentListNode))
         self.assertTrue(node.root_only)
