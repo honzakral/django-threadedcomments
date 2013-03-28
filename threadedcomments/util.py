@@ -1,4 +1,6 @@
-try: # 2to3
+from __future__ import unicode_literals
+
+try: # 2to3 compatibility.
     from itertools import chain
 except:
     from itertools import chain, imap

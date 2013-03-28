@@ -1,3 +1,4 @@
+from __future__ import unicode_literals 
 from django import forms
 from django.contrib.comments.forms import CommentForm
 from django.conf import settings
