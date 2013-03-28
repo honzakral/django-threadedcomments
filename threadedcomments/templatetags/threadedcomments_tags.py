@@ -89,7 +89,7 @@ class CommentFormNode(BaseThreadedCommentNode):
             return super(CommentFormNode, cls).handle_token(parser, token)
         elif len(tokens) == 7:
             # {% get_comment_form for [object] as [varname] with [parent_id] %}
-            try:i #2to3 compatability.
+            try: #2to3 compatability.
                 if tokens[-2] != 'with':
                     raise template.TemplateSyntaxError("%r tag must have a 'with' as the last but one argument." % (tokens[0],))
             except:
