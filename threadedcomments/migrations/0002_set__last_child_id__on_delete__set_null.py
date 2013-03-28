@@ -13,7 +13,10 @@ class Migration(SchemaMigration):
         # Changing field 'ThreadedComment.last_child'
         db.alter_column('threadedcomments_comment', 'last_child_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['threadedcomments.ThreadedComment'], null=True, on_delete=models.SET_NULL))
         if south.__version__ <= "0.7.4" and not db.dry_run:
-            print " * WARNING: Your South version is not able to add ON DELETE SET NULL. Please fix this manually."
+            try: #2to3 configuration
+                print(" * WARNING: Your South version is not able to add ON DELETE SET NULL. Please fix this manually.")
+            except:
+                print " * WARNING: Your South version is not able to add ON DELETE SET NULL. Please fix this manually."
 
     def backwards(self, orm):
 
