@@ -13,6 +13,9 @@ setup(
     author='Eric Florenzano',
     author_email='floguy@gmail.com',
 
+    maintainer='Honza Kral',
+    maintainer_email='honza.kral@gmail.com',
+
     url='https://github.com/HonzaKral/django-threadedcomments',
     download_url='https://github.com/HonzaKral/django-threadedcomments/zipball/master',
 
