@@ -1,0 +1,7 @@
+include CHANGELOG.rst
+include CONTRIBUTORS.txt
+include README.rst
+include LICENSE.txt
+recursive-include threadedcomments/fixtures *.json
+recursive-include threadedcomments/templates *.html
+recursive-include threadedcomments/sql *.sql
