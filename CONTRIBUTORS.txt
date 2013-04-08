@@ -8,3 +8,11 @@ Christos Trochalakis <yatiohi@ideopolis.gr>
 Thejaswi Puthraya <http://thejaswi.info/>
 Honza Kral <honza.kral@gmail.com>
 Jannis Leidel <jannis@leidel.info>
+Adam Fast
+Charles Leifer
+Diederik van der Boor
+Egor Yurtaev
+Flavio Curella
+Jakub Vysoky
+Joshua Bonnett
+Michael Blume
