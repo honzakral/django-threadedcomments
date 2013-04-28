@@ -29,7 +29,7 @@ The application is (as of 0.9) built on top of django.contrib.comments,
 which allows it to be easily extended by other modules.
 
 %prep
-%setup -n %{name}
+%setup -n %{name}-%{version}
 
 %build
 %{__python} setup.py build
@@ -37,18 +37,18 @@ which allows it to be easily extended by other modules.
 %install
 rm -rf $RPM_BUILD_ROOT
 %{__python} setup.py install --single-version-externally-managed -O1 --root=$RPM_BUILD_ROOT
-mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{name}
-mkdir -p ${RPM_BUILD_ROOT}%{_docdir}/%{name}
+mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{shortname}
+mkdir -p ${RPM_BUILD_ROOT}%{_docdir}/%{shortname}
 
-data_dirs="docs %{name}/fixtures %{name}/sql"
+data_dirs="%{shortname}/fixtures %{shortname}/sql"
 for d in ${data_dirs}; do
-    cp -R ${d} ${RPM_BUILD_ROOT}%{_datadir}/%{name}
+    cp -R ${d} ${RPM_BUILD_ROOT}%{_datadir}/%{shortname}
 done
 
 dir_to_remove="fixtures sql"
 for dir in ${dir_to_remove}
 do
-    rm -rf ${RPM_BUILD_ROOT}%{python_sitelib}/%{name}/${dir}
+    rm -rf ${RPM_BUILD_ROOT}%{python_sitelib}/%{shortname}/${dir}
 done
 
 %clean
@@ -56,7 +56,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%{_datadir}/%{name}/
+%{_datadir}/%{shortname}/
 %doc README.rst CHANGELOG.txt LICENSE.txt CONTRIBUTORS.txt
 %{python_sitelib}/%{shortname}/
 %{python_sitelib}/django_%{shortname}*.egg-info
