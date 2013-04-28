@@ -40,9 +40,15 @@ rm -rf $RPM_BUILD_ROOT
 mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/%{name}
 mkdir -p ${RPM_BUILD_ROOT}%{_docdir}/%{name}
 
-data_dirs="docs"
+data_dirs="docs %{name}/fixtures %{name}/sql"
 for d in ${data_dirs}; do
     cp -R ${d} ${RPM_BUILD_ROOT}%{_datadir}/%{name}
+done
+
+dir_to_remove="fixtures sql"
+for dir in ${dir_to_remove}
+do
+    rm -rf ${RPM_BUILD_ROOT}%{python_sitelib}/%{name}/${dir}
 done
 
 %clean
