@@ -11,10 +11,9 @@ which allows it to be easily extended by other modules.
 Installation
 ============
 
-Download this Git repository, and install it::
+Install the package via pip::
 
-    cd django-threadedcomments
-    pip install .
+    pip install django-threadedcomments
 
 It's preferred to install the module in a virtual environment.
 
