@@ -12,7 +12,7 @@
                     <p class="title">{{ message.title }}</p>
 
                     <p class="text">{{ message.text }}</p>
-                    <a href="{% url core.views.message id=message.id %}">{{ comment_count }} Comments</a>
+                    <a href="{% url message_detail id=message.id %}">{{ comment_count }} Comments</a>
                 </div>
             </li>
         {% endfor %}

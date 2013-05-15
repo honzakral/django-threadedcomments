@@ -8,6 +8,6 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^comments/', include('django.contrib.comments.urls')),
 
-    url(r'^$', 'core.views.home'),
+    url(r'^$', 'core.views.home', name='homepage'),
     url(r'^message/(?P<id>.+)$', 'core.views.message', name='message_detail'),
 )

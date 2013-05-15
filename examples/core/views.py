@@ -1,7 +1,7 @@
-from core.models import Message
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from django.views.decorators.csrf import csrf_protect
+from .models import Message
 
 
 def home(request):
