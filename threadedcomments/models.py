@@ -46,8 +46,17 @@ class ThreadedComment(Comment):
     def delete(self, *args, **kwargs):
         # Fix last child on deletion.
         if self.parent_id:
-            prev_child_id = ThreadedComment.objects.filter(parent=self.parent_id).exclude(pk=self.pk).order_by('-submit_date').values_list('pk', flat=True)[0]
-            ThreadedComment.objects.filter(pk=self.parent_id).update(last_child=prev_child_id)
+            siblings = ThreadedComment.objects\
+                            .filter(parent=self.parent_id)\
+                            .exclude(pk=self.pk)\
+                            .order_by('-submit_date')\
+                            .values_list('pk', flat=True)
+            parent = ThreadedComment.objects.filter(pk=self.parent_id)
+            if len(siblings) > 0:
+                prev_child_id = siblings[0]
+                parent.update(last_child=prev_child_id)
+            else:
+                parent.update(last_child=None)
         super(ThreadedComment, self).delete(*args, **kwargs)
 
     class Meta(object):
