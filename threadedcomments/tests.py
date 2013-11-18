@@ -189,6 +189,13 @@ class HierarchyTest(TransactionTestCase):
         new_child_comment.delete()
         comment = Comment.objects.get(pk=1)
 
+    def test_deletion_of_last_child_marks_parent_as_childless(self):
+        Comment = comments.get_model()
+        c = Comment.objects.get(pk=6)
+        c.delete()
+        c = Comment.objects.get(pk=4)
+        self.assertEqual(None, c.last_child)
+
     def test_last_child_repointed_correctly_on_delete(self):
         Comment = comments.get_model()
         comment = Comment.objects.get(pk=1)
