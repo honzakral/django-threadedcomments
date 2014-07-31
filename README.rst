@@ -73,7 +73,7 @@ that is required for the plain comments. The tags are forwards compatible;
 they support the same syntax as django.contrib.comments_ provides,
 and they add a few extra parameters.
 
-Fething comment counts::
+Fetching comment counts::
 
     {% get_comment_count for [object] as [varname] %}
     {% get_comment_count for [object] as [varname] root_only %}
