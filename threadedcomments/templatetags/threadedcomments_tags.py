@@ -1,5 +1,6 @@
 import django
 from django import template
+from django.db.models import Q
 from django.template.loader import render_to_string
 from threadedcomments.compat import BASE_APP, django_comments as comments
 from threadedcomments.util import annotate_tree_properties, fill_tree as real_fill_tree
@@ -15,10 +16,11 @@ else:
 register = template.Library()
 
 class BaseThreadedCommentNode(BaseCommentNode):
-    def __init__(self, parent=None, flat=False, root_only=False, **kwargs):
+    def __init__(self, parent=None, flat=False, root_only=False, newest=False, **kwargs):
         self.parent = parent
         self.flat = flat
         self.root_only = root_only
+        self.newest = newest
         super(BaseThreadedCommentNode, self).__init__(**kwargs)
 
     @classmethod
@@ -29,7 +31,7 @@ class BaseThreadedCommentNode(BaseCommentNode):
                 raise template.TemplateSyntaxError("Second argument in %r tag must be 'for'" % tokens[0])
 
         extra_kw = {}
-        if tokens[-1] in ('flat', 'root_only'):
+        if tokens[-1] in ('flat', 'root_only', 'newest'):
             extra_kw[str(tokens.pop())] = True
 
         if len(tokens) == 5:
@@ -62,6 +64,8 @@ class BaseThreadedCommentNode(BaseCommentNode):
             qs = qs.order_by('-submit_date')
         elif self.root_only:
             qs = qs.exclude(parent__isnull=False).order_by('-submit_date')
+        elif self.newest:
+            qs = qs.order_by('-newest_activity', 'tree_path')
         return qs
 
     # For older Django (1.5) versions:
@@ -71,8 +75,10 @@ class BaseThreadedCommentNode(BaseCommentNode):
             qs = qs.order_by('-submit_date')
         elif self.root_only:
             qs = qs.exclude(parent__isnull=False).order_by('-submit_date')
-        return qs
+        elif self.newest:
+            qs = qs.order_by('-newest_activity', 'tree_path')
 
+        return qs
 
 
 class CommentListNode(BaseThreadedCommentNode):
@@ -222,7 +228,7 @@ class RenderCommentListNode(CommentListNode):
             raise template.TemplateSyntaxError("Second argument in %r tag must be 'for'" % tokens[0])
 
         extra_kw = {}
-        if tokens[-1] in ('flat', 'root_only'):
+        if tokens[-1] in ('flat', 'root_only', 'newest'):
             extra_kw[str(tokens.pop())] = True
 
         if len(tokens) == 3:
