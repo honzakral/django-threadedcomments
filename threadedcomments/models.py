@@ -29,19 +29,35 @@ class ThreadedComment(Comment):
 
     def save(self, *args, **kwargs):
         skip_tree_path = kwargs.pop('skip_tree_path', False)
-        super(ThreadedComment, self).save(*args, **kwargs)
         if skip_tree_path:
+            super(ThreadedComment, self).save(*args, **kwargs)
             return None
+
+        # Get pk
+        c = Comment()
+        d = {}
+        for attr in c.__dict__.keys():
+            d[attr] = self.__dict__[attr]
+
+        del(d["_state"])
+        c, created = Comment.objects.get_or_create(**d)	# save without sending signal
+        self.id = self.pk = c.pk
+
 
         tree_path = unicode(self.pk).zfill(PATH_DIGITS)
         if self.parent:
             tree_path = PATH_SEPARATOR.join((self.parent.tree_path, tree_path))
 
+            d["id"] = c.id
+            d["content_type_id"] = c.content_type_id
+            ThreadedComment.objects.get_or_create(**d) # have to create, coz last_child_id cant be refere to anexist record
             self.parent.last_child = self
             ThreadedComment.objects.filter(pk=self.parent_id).update(last_child=self)
 
+
         self.tree_path = tree_path
-        ThreadedComment.objects.filter(pk=self.pk).update(tree_path=self.tree_path)
+        super(ThreadedComment, self).save(*args, **kwargs)
+
 
     def delete(self, *args, **kwargs):
         # Fix last child on deletion.
