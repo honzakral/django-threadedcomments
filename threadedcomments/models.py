@@ -3,9 +3,11 @@ from django.contrib.comments.models import Comment
 from django.contrib.comments.managers import CommentManager
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+from django.db import transaction
 
 PATH_SEPARATOR = getattr(settings, 'COMMENT_PATH_SEPARATOR', '/')
 PATH_DIGITS = getattr(settings, 'COMMENT_PATH_DIGITS', 10)
+
 
 class ThreadedComment(Comment):
     title = models.TextField(_('Title'), blank=True)
@@ -27,6 +29,8 @@ class ThreadedComment(Comment):
     def root_path(self):
         return ThreadedComment.objects.filter(pk__in=self.tree_path.split(PATH_SEPARATOR)[:-1])
 
+
+    @transaction.atomic
     def save(self, *args, **kwargs):
         skip_tree_path = kwargs.pop('skip_tree_path', False)
         super(ThreadedComment, self).save(*args, **kwargs)
@@ -42,6 +46,7 @@ class ThreadedComment(Comment):
 
         self.tree_path = tree_path
         ThreadedComment.objects.filter(pk=self.pk).update(tree_path=self.tree_path)
+
 
     def delete(self, *args, **kwargs):
         # Fix last child on deletion.
