@@ -1,11 +1,15 @@
-from django.db import models
+from django.db import models, transaction, connection
 from django.contrib.comments.models import Comment
 from django.contrib.comments.managers import CommentManager
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+from django.utils import timezone
+
+
 
 PATH_SEPARATOR = getattr(settings, 'COMMENT_PATH_SEPARATOR', '/')
 PATH_DIGITS = getattr(settings, 'COMMENT_PATH_DIGITS', 10)
+
 
 class ThreadedComment(Comment):
     title = models.TextField(_('Title'), blank=True)
@@ -27,21 +31,35 @@ class ThreadedComment(Comment):
     def root_path(self):
         return ThreadedComment.objects.filter(pk__in=self.tree_path.split(PATH_SEPARATOR)[:-1])
 
+
     def save(self, *args, **kwargs):
         skip_tree_path = kwargs.pop('skip_tree_path', False)
-        super(ThreadedComment, self).save(*args, **kwargs)
         if skip_tree_path:
+            super(ThreadedComment, self).save(*args, **kwargs)
             return None
+
+        with transaction.atomic():
+            if self.submit_date is None: # for comment save
+                self.submit_date = timezone.now()
+            Comment.objects.bulk_create([self])
+            c = Comment.objects.latest("id")
+
+        self.id = self.pk = self.comment_ptr_id = c.id
 
         tree_path = unicode(self.pk).zfill(PATH_DIGITS)
         if self.parent:
             tree_path = PATH_SEPARATOR.join((self.parent.tree_path, tree_path))
 
-            self.parent.last_child = self
+            # have to create, becouse last_child_id cant be referer to non exist record
+            cursor = connection.cursor()
+            cursor.execute('''
+                INSERT INTO threadedcomments_comment (comment_ptr_id, parent_id, title, tree_path)
+                VALUES (%d, %d, '%s', '%s');''' % (self.id, self.parent_id, self.title, tree_path))
             ThreadedComment.objects.filter(pk=self.parent_id).update(last_child=self)
 
         self.tree_path = tree_path
-        ThreadedComment.objects.filter(pk=self.pk).update(tree_path=self.tree_path)
+        super(ThreadedComment, self).save(*args, **kwargs)
+
 
     def delete(self, *args, **kwargs):
         # Fix last child on deletion.
