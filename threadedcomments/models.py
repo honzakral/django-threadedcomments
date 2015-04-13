@@ -1,8 +1,7 @@
 from django.db import models
-from django.contrib.comments.models import Comment
-from django.contrib.comments.managers import CommentManager
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+from .compat import Comment, CommentManager
 
 PATH_SEPARATOR = getattr(settings, 'COMMENT_PATH_SEPARATOR', '/')
 PATH_DIGITS = getattr(settings, 'COMMENT_PATH_DIGITS', 10)

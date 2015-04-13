@@ -1,10 +1,10 @@
 import django
 from django import forms
-from django.contrib.comments.forms import CommentForm
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+from .models import ThreadedComment
+from .compat import CommentForm
 
-from threadedcomments.models import ThreadedComment
 
 class ThreadedCommentForm(CommentForm):
     title = forms.CharField(label=_('Title'), required=False, max_length=getattr(settings, 'COMMENTS_TITLE_MAX_LENGTH', 255))

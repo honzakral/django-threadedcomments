@@ -1,10 +1,10 @@
 from unittest import TestCase
 
 from django.test import TransactionTestCase
-from django.contrib import comments
 from django.contrib.sites.models import Site
 from django.template import loader, TemplateSyntaxError
 from django.conf import settings
+from .compat import django_comments as comments
 
 from threadedcomments.util import annotate_tree_properties
 from threadedcomments.templatetags import threadedcomments_tags as tags

@@ -1,3 +1,9 @@
+Version 1.0 (dev)
+-----------------
+
+* Added Django 1.7 and 1.8 support
+* Deleting last child should mark it's parent as having no children
+
 Version 0.9, 15th May 2013
 --------------------------
 

@@ -1,9 +1,15 @@
 from django import template
-import django
 from django.template.loader import render_to_string
-from django.contrib.comments.templatetags.comments import BaseCommentNode
-from django.contrib import comments
+from threadedcomments.compat import BASE_APP, django_comments as comments
 from threadedcomments.util import annotate_tree_properties, fill_tree as real_fill_tree
+
+if BASE_APP == 'django.contrib.comments':
+    from django.contrib.comments.templatetags.comments import BaseCommentNode
+elif BASE_APP == 'django_comments':
+    from django_comments.templatetags.comments import BaseCommentNode
+else:
+    raise NotImplementedError()
+
 
 register = template.Library()
 
