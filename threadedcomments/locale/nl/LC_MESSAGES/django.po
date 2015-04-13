@@ -1,0 +1,55 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-04-14 00:45+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: admin.py:24
+msgid "Content"
+msgstr ""
+
+#: admin.py:27
+msgid "Hierarchy"
+msgstr ""
+
+#: admin.py:30
+msgid "Metadata"
+msgstr ""
+
+#: forms.py:10 models.py:10
+msgid "Title"
+msgstr "Titel"
+
+#: models.py:11
+msgid "Parent"
+msgstr "Ouder"
+
+#: models.py:12
+msgid "Last child"
+msgstr "Laaste kind"
+
+#: models.py:13
+msgid "Tree path"
+msgstr ""
+
+#: models.py:62
+msgid "Threaded comment"
+msgstr "Genest commentaar"
+
+#: models.py:63
+msgid "Threaded comments"
+msgstr "Geneste commentaren"
