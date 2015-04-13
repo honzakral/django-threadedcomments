@@ -1,4 +1,5 @@
 from django import template
+import django
 from django.template.loader import render_to_string
 from django.contrib.comments.templatetags.comments import BaseCommentNode
 from django.contrib import comments
@@ -48,6 +49,15 @@ class BaseThreadedCommentNode(BaseCommentNode):
         else:
             raise template.TemplateSyntaxError("%r tag takes either 5 or 6 arguments" % (tokens[0],))
 
+    def get_queryset(self, context):
+        qs = super(BaseThreadedCommentNode, self).get_queryset(context)
+        if self.flat:
+            qs = qs.order_by('-submit_date')
+        elif self.root_only:
+            qs = qs.exclude(parent__isnull=False).order_by('-submit_date')
+        return qs
+
+    # For older Django (1.5) versions:
     def get_query_set(self, context):
         qs = super(BaseThreadedCommentNode, self).get_query_set(context)
         if self.flat:
@@ -55,6 +65,7 @@ class BaseThreadedCommentNode(BaseCommentNode):
         elif self.root_only:
             qs = qs.exclude(parent__isnull=False).order_by('-submit_date')
         return qs
+
 
 
 class CommentListNode(BaseThreadedCommentNode):
