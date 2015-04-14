@@ -85,7 +85,7 @@ class Migration(SchemaMigration):
             'last_child': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['threadedcomments.ThreadedComment']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
             'parent': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'related_name': "'children'", 'null': 'True', 'blank': 'True', 'to': "orm['threadedcomments.ThreadedComment']"}),
             'title': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'tree_path': ('django.db.models.fields.TextField', [], {'db_index': 'True'})
+            'tree_path': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': 500})
         }
     }
 

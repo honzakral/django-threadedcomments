@@ -4,6 +4,7 @@ Version 1.0 (dev)
 * Added Django 1.7 and 1.8 support
 * Deleting last child should mark it's parent as having no children
 * Fixed closing ``</li>`` markup in HTML
+* Fixed MySQL issues with migrations, replaced ``TextField`` with ``CharField`` for tree_path
 
 Version 0.9, 15th May 2013
 --------------------------
