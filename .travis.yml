@@ -1,0 +1,53 @@
+language: python
+python:
+  - "2.6"
+  - "2.7"
+  - "3.2"
+  - "3.3"
+  - "3.4"
+env:
+  - PACKAGES="django>=1.4.0,<1.5.0"
+  - PACKAGES="django>=1.5.0,<1.6.0"
+  - PACKAGES="django>=1.6.0,<1.7.0"
+  - PACKAGES="django>=1.7.0,<1.8.0"
+  - PACKAGES="django>=1.8.0,<1.9.0"
+matrix:
+  exclude:
+  - python: "2.6"
+    env: PACKAGES="django>=1.7.0,<1.8.0"
+  - python: "2.6"
+    env: PACKAGES="django>=1.8.0,<1.9.0"
+  - python: "3.2"
+    env: PACKAGES="django>=1.4.0,<1.5.0"
+  - python: "3.3"
+    env: PACKAGES="django>=1.4.0,<1.5.0"
+  - python: "3.4"
+    env: PACKAGES="django>=1.4.0,<1.5.0"
+
+install:
+  - travis_retry pip install -q coveralls  # installs coverage
+  - travis_retry pip install $PACKAGES
+  - pip install -e .
+
+script:
+  - coverage run --source=threadedcomments runtests.py
+
+after_success:
+  - coveralls --verbose
+
+branches:
+  only:
+    - master
+
+notifications:
+  irc:
+    channels:
+      - "irc.freenode.org#django-fluent"
+    template:
+      - "%{repository}#%{build_number} (%{commit}) %{message}  --  %{build_url}"
+    skip_join: true
+  email:
+    recipients:
+      - travis@edoburu.nl
+    on_success: never
+    on_failure: always
