@@ -31,8 +31,8 @@ class SanityTests(TransactionTestCase):
         args = [Site.objects.all()[0]]
         kwargs = {}
         if parent is not None:
-            kwargs['parent'] = unicode(parent.pk)
-            body['parent'] = unicode(parent.pk)
+            kwargs['parent'] = str(parent.pk)
+            body['parent'] = str(parent.pk)
         form = comments.get_form()(*args, **kwargs)
         body.update(form.generate_security_data())
         self.client.post(url, body, follow=True)

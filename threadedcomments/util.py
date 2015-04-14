@@ -1,4 +1,11 @@
-from itertools import chain, imap
+from itertools import chain
+
+try:
+    # Python 2
+    from itertools import imap
+except ImportError:
+    # Python 3
+    imap = map
 
 __all__ = ['fill_tree', 'annotate_tree_properties', ]
 
@@ -20,7 +27,7 @@ def fill_tree(comments):
         return
 
     it = iter(comments)
-    first = it.next()
+    first = next(it)
     extra_path_items = imap(_mark_as_root_path, first.root_path)
     return chain(extra_path_items, [first], it)
 
@@ -35,7 +42,7 @@ def annotate_tree_properties(comments):
     it = iter(comments)
 
     # get the first item, this will fail if no items !
-    old = it.next()
+    old = next(it)
 
     # first item starts a new thread
     old.open = True
@@ -55,7 +62,7 @@ def annotate_tree_properties(comments):
 
         else: # c.depth <= old.depth
             # close some depths
-            old.close = range(old.depth - c.depth)
+            old.close = list(range(old.depth - c.depth))
 
             # new thread
             if old.root_id != c.root_id:
