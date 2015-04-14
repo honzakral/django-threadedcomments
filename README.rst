@@ -4,7 +4,7 @@ django-threadedcomments
 *threadedcomments* is a Django application which allows for the simple creation of a threaded commenting system.
 Commenters can reply both to the original item, and reply to other comments as well.
 
-The application is (as of 0.9) built on top of django.contrib.comments,
+The application is (as of 0.9) built on top of django_comments_ (or django.contrib.comments_),
 which allows it to be easily extended by other modules.
 
 
@@ -24,7 +24,8 @@ Add the following to ``settings.py``::
 
     INSTALLED_APPS += (
         'threadedcomments',
-        'django.contrib.comments',
+        'django_comments',
+        'django.contrib.sites',
     )
 
     COMMENTS_APP = 'threadedcomments'
@@ -35,8 +36,12 @@ the placeholder ``comments/list.html`` template will already be replaced by a th
 Make sure django.contrib.comments_ is configured in ``urls.py``::
 
     urlpatterns += patterns('',
-        url(r'^articles/comments/', include('django.contrib.comments.urls')),
+        url(r'^articles/comments/', include('django_comments.urls')),
     )
+
+.. note::
+   For older Django versions (up till 1.6), you can also use django.contrib.comments_ in the ``INSTALLED_APPS``.
+   This packages uses either one of those packages, depending on what is installed.
 
 Provide a template that displays the comments for the ``object`` (e.g. article or blog entry)::
 
@@ -70,7 +75,7 @@ Template tags
 
 The ``threadedcomments_tags`` library is a drop-in replacement for the ``comments`` library
 that is required for the plain comments. The tags are forwards compatible;
-they support the same syntax as django.contrib.comments_ provides,
+they support the same syntax as django_comments_ (or django.contrib.comments_) provides,
 and they add a few extra parameters.
 
 Fetching comment counts::
@@ -129,7 +134,7 @@ The ``annotate_tree`` filter adds the ``open`` and ``close`` properties to the c
 Extending the module
 ====================
 
-The application is built on top of the standard django.contrib.comments_ framework,
+The application is built on top of the standard django_comments_ (or django.contrib.comments_) framework,
 which supports various signals, and template overrides to customize the comments.
 
 To customize django-threadedcomments, override the proper templates, or include the apps that provide the missing features.
@@ -152,7 +157,8 @@ Some of the modules worth looking at are:
 These modules can enhance the comments system even further.
 
 
-.. _django.contrib.comments: https://docs.djangoproject.com/en/dev/ref/contrib/comments/
+.. _django_comments: https://github.com/django/django-contrib-comments
+.. _django.contrib.comments: https://docs.djangoproject.com/en/1.7/ref/contrib/comments/
 .. _django-fluent-comments: https://github.com/edoburu/django-fluent-comments/
 .. _django-myrecaptcha: https://bitbucket.org/pelletier/django-myrecaptcha/
 .. _django-comments-spamfighter: https://github.com/bartTC/django-comments-spamfighter/
