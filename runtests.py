@@ -37,6 +37,7 @@ if not settings.configured:
         ROOT_URLCONF = 'django.contrib.comments.urls',
         TEST_RUNNER = 'django.test.simple.DjangoTestSuiteRunner' if django.VERSION < (1,6) else 'django.test.runner.DiscoverRunner',
         SITE_ID = 1,
+        COMMENTS_APP = 'threadedcomments',
     )
 
 def runtests():
