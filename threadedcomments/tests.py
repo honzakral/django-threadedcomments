@@ -60,7 +60,10 @@ class SanityTests(TransactionTestCase):
 
 
 class HierarchyTest(TransactionTestCase):
-    fixtures = ['simple_tree']
+    if 'django.contrib.comments' in settings.INSTALLED_APPS:
+        fixtures = ['simple_tree_old']
+    else:
+        fixtures = ['simple_tree']
 
     EXPECTED_HTML_PARTIAL = sanitize_html('''
     <ul>

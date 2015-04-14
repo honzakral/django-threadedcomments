@@ -6,6 +6,10 @@ from django.conf import settings, global_settings as default_settings
 from django.core.management import execute_from_command_line
 
 if not settings.configured:
+    base_app = 'django.contrib.comments'
+    if django.VERSION >= (1,7):
+        base_app = 'django_comments'
+
     settings.configure(
         DATABASES = {
             'default': {
@@ -24,9 +28,8 @@ if not settings.configured:
             'django.contrib.messages',
             'django.contrib.sites',
             'django.contrib.admin',
-            'django.contrib.comments',
+            base_app,
             'threadedcomments',
-            'example',
         ),
         MIDDLEWARE_CLASSES = (
             'django.middleware.common.CommonMiddleware',
@@ -34,10 +37,11 @@ if not settings.configured:
             'django.middleware.csrf.CsrfViewMiddleware',
             'django.contrib.auth.middleware.AuthenticationMiddleware',
         ),
-        ROOT_URLCONF = 'django.contrib.comments.urls',
+        ROOT_URLCONF = '{0}.urls'.format(base_app),
         TEST_RUNNER = 'django.test.simple.DjangoTestSuiteRunner' if django.VERSION < (1,6) else 'django.test.runner.DiscoverRunner',
         SITE_ID = 1,
         COMMENTS_APP = 'threadedcomments',
+        COMMENTS_ALLOW_PROFANITIES = True,
     )
 
 def runtests():

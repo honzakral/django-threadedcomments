@@ -64,7 +64,7 @@
   }, 
   {
     "pk": 1, 
-    "model": "django_comments.comment", 
+    "model": "comments.comment", 
     "fields": {
       "comment": "Comment 1", 
       "user_url": "", 
@@ -82,7 +82,7 @@
   }, 
   {
     "pk": 2, 
-    "model": "django_comments.comment", 
+    "model": "comments.comment", 
     "fields": {
       "comment": "Comment 2", 
       "user_url": "", 
@@ -100,7 +100,7 @@
   }, 
   {
     "pk": 3, 
-    "model": "django_comments.comment", 
+    "model": "comments.comment", 
     "fields": {
       "comment": "Comment 3", 
       "user_url": "", 
@@ -118,7 +118,7 @@
   }, 
   {
     "pk": 4, 
-    "model": "django_comments.comment", 
+    "model": "comments.comment", 
     "fields": {
       "comment": "Comment 4", 
       "user_url": "", 
@@ -136,7 +136,7 @@
   }, 
   {
     "pk": 5, 
-    "model": "django_comments.comment", 
+    "model": "comments.comment", 
     "fields": {
       "comment": "Comment 5", 
       "user_url": "", 
@@ -154,7 +154,7 @@
   }, 
   {
     "pk": 6, 
-    "model": "django_comments.comment", 
+    "model": "comments.comment", 
     "fields": {
       "comment": "Comment 6", 
       "user_url": "", 
@@ -172,7 +172,7 @@
   }, 
   {
     "pk": 7, 
-    "model": "django_comments.comment", 
+    "model": "comments.comment", 
     "fields": {
       "comment": "Comment 7", 
       "user_url": "", 

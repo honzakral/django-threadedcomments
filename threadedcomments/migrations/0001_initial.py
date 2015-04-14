@@ -8,14 +8,14 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('comments', '__first__'),
+        ('django_comments', '__first__'),
     ]
 
     operations = [
         migrations.CreateModel(
             name='ThreadedComment',
             fields=[
-                ('comment_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='comments.Comment')),
+                ('comment_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='django_comments.Comment')),
                 ('title', models.TextField(verbose_name='Title', blank=True)),
                 ('tree_path', models.CharField(verbose_name='Tree path', max_length=500, editable=False, db_index=True)),
                 ('last_child', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='Last child', blank=True, to='threadedcomments.ThreadedComment', null=True)),
@@ -27,6 +27,6 @@ class Migration(migrations.Migration):
                 'verbose_name': 'Threaded comment',
                 'verbose_name_plural': 'Threaded comments',
             },
-            bases=('comments.comment',),
+            bases=('django_comments.comment',),
         ),
     ]
