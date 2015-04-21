@@ -37,7 +37,7 @@ class ThreadedComment(Comment):
             tree_path = PATH_SEPARATOR.join((self.parent.tree_path, tree_path))
 
             self.parent.last_child = self
-            ThreadedComment.objects.filter(pk=self.parent_id).update(last_child=self)
+            ThreadedComment.objects.filter(pk=self.parent_id).update(last_child=self.id)
 
         self.tree_path = tree_path
         ThreadedComment.objects.filter(pk=self.pk).update(tree_path=self.tree_path)
