@@ -6,11 +6,12 @@ from .compat import Comment, CommentManager
 PATH_SEPARATOR = getattr(settings, 'COMMENT_PATH_SEPARATOR', '/')
 PATH_DIGITS = getattr(settings, 'COMMENT_PATH_DIGITS', 10)
 
+
 class ThreadedComment(Comment):
     title = models.TextField(_('Title'), blank=True)
     parent = models.ForeignKey('self', null=True, blank=True, default=None, related_name='children', verbose_name=_('Parent'))
     last_child = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, verbose_name=_('Last child'))
-    tree_path = models.CharField(_('Tree path'), max_length=500, editable=False, db_index=True)
+    tree_path = models.CharField(_('Tree path'), max_length=500, editable=False)
 
     objects = CommentManager()
 
