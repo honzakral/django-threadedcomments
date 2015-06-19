@@ -3,20 +3,25 @@ import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
+from django.db import connection
 
 
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        is_index = connection.vendor != 'mysql'
         # Adding model 'ThreadedComment'
         db.create_table('threadedcomments_comment', (
             ('comment_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['comments.Comment'], unique=True, primary_key=True)),
             ('title', self.gf('django.db.models.fields.TextField')(blank=True)),
             ('parent', self.gf('django.db.models.fields.related.ForeignKey')(default=None, related_name='children', null=True, blank=True, to=orm['threadedcomments.ThreadedComment'])),
             ('last_child', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['threadedcomments.ThreadedComment'], null=True, blank=True)),
-            ('tree_path', self.gf('django.db.models.fields.CharField')(db_index=True, max_length=500)),
+            ('tree_path', self.gf('django.db.models.fields.CharField')(db_index=is_index, max_length=500)),
         ))
         db.send_create_signal('threadedcomments', ['ThreadedComment'])
+
+        if not is_index:
+            db.execute("CREATE INDEX threadedcomments_comment_tree_path ON threadedcomments_comment (tree_path(255));")
 
     def backwards(self, orm):
         # Deleting model 'ThreadedComment'
