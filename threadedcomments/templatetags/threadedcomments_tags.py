@@ -1,3 +1,4 @@
+import django
 from django import template
 from django.template.loader import render_to_string
 from threadedcomments.compat import BASE_APP, django_comments as comments
@@ -248,7 +249,11 @@ class RenderCommentListNode(CommentListNode):
                 "comments/%s/list.html" % ctype.app_label,
                 "comments/list.html"
             ]
-            qs = self.get_query_set(context)
+            # For newer Django (1.6) versions
+            if django.VERSION > (1,5):
+                qs = self.get_queryset(context)
+            else:
+                qs = self.get_query_set(context)
             context.push()
             liststr = render_to_string(template_search_list, {
                 "comment_list" : self.get_context_value_from_queryset(context, qs)
@@ -347,7 +352,7 @@ def get_comment_form(parser, token):
 @register.tag
 def render_comment_form(parser, token):
     """
-    Render the comment form (as returned by ``{% render_comment_form %}``) 
+    Render the comment form (as returned by ``{% render_comment_form %}``)
     through the ``comments/form.html`` template.
 
     Syntax::
