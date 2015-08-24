@@ -144,9 +144,9 @@ The same applies to social media logins, comment subscriptions, spam protection 
 
 Note that the standard framework also supports moderation, flagging, and RSS feeds too. More documentation can be found at:
 
-* `Django's comments framework <https://docs.djangoproject.com/en/dev/ref/contrib/comments/>`_
-* `Customizing the comments framework <http://docs.djangoproject.com/en/dev/ref/contrib/comments/custom/>`_
-* `Example of using the in-built comments app <http://docs.djangoproject.com/en/dev/ref/contrib/comments/example/>`_
+* `Django's comments framework <https://django-contrib-comments.readthedocs.org/>`_
+* `Customizing the comments framework <https://django-contrib-comments.readthedocs.org/en/latest/custom.html>`_
+* `Example of using the in-built comments app <https://django-contrib-comments.readthedocs.org/en/latest/example.html>`_
 
 Some of the modules worth looking at are:
 
