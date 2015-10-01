@@ -11,6 +11,7 @@
 # - MEDIA_ROOT / MEDIA_URL
 #
 import os
+import django
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -115,8 +116,12 @@ INSTALLED_APPS = (
     # Messages setup:
     'core',
     'threadedcomments',
-    'django.contrib.comments',
 )
+
+if django.VERSION >= (1,7):
+    INSTALLED_APPS += ('django_comments',)
+else:
+    INSTALLED_APPS += ('django.contrib.comments',)
 
 
 ## --- App settings
