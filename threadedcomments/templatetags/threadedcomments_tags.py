@@ -250,7 +250,7 @@ class RenderCommentListNode(CommentListNode):
                 "comments/list.html"
             ]
             # For newer Django (1.6) versions
-            if django.VERSION > (1,5):
+            if django.VERSION >= (1,6):
                 qs = self.get_queryset(context)
             else:
                 qs = self.get_query_set(context)
