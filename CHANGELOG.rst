@@ -1,5 +1,12 @@
-Version 1.0 (dev)
------------------
+Version 1.0, 1st October 2015
+-----------------------------
+
+* Fixed ``RenderCommentListNode.render()`` for Django 1.8
+* Fixed MySQL index issue on tree_path
+* Fixed updating ``ThreadedComment.last_child`` correctly
+
+Already released in 1.0b1:
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * Added Django 1.7 and 1.8 support
 * Deleting last child should mark it's parent as having no children
