@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
-from .compat import Comment, CommentManager
+from .compat import Comment, CommentManager, transaction_atomic
 
 PATH_SEPARATOR = getattr(settings, 'COMMENT_PATH_SEPARATOR', '/')
 PATH_DIGITS = getattr(settings, 'COMMENT_PATH_DIGITS', 10)
@@ -27,6 +27,7 @@ class ThreadedComment(Comment):
     def root_path(self):
         return ThreadedComment.objects.filter(pk__in=self.tree_path.split(PATH_SEPARATOR)[:-1])
 
+    @transaction_atomic
     def save(self, *args, **kwargs):
         skip_tree_path = kwargs.pop('skip_tree_path', False)
         super(ThreadedComment, self).save(*args, **kwargs)

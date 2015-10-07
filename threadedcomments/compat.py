@@ -1,6 +1,14 @@
 import django
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.db import transaction
+
+
+# New transaction support in Django 1.6
+try:
+    transaction_atomic = transaction.atomic
+except AttributeError:
+    transaction_atomic = transaction.commit_on_success
 
 try:
     from django.apps import apps
