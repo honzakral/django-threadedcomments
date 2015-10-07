@@ -1,3 +1,9 @@
+Version 1.1, in development
+---------------------------
+
+* Fixed model loading for Django 1.9
+* Fixed missing transaction management for ``ThreadedComment.save()``
+
 Version 1.0, 1st October 2015
 -----------------------------
 
