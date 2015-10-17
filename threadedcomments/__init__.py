@@ -4,7 +4,7 @@ Change the attributes you want to customize
 
 
 # following PEP 440
-__version__ = "1.0"
+__version__ = "1.0.1"
 
 def get_model():
     from threadedcomments.models import ThreadedComment
