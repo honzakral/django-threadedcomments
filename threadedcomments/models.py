@@ -13,7 +13,7 @@ class ThreadedComment(Comment):
     parent = models.ForeignKey('self', null=True, blank=True, default=None, related_name='children', verbose_name=_('Parent'))
     last_child = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, verbose_name=_('Last child'))
     tree_path = models.CharField(_('Tree path'), max_length=500, editable=False)
-    newest_activity = models.DateTimeField(default=lambda: datetime.datetime.now())
+    newest_activity = models.DateTimeField(default=datetime.datetime.now())
 
     objects = CommentManager()
 
