@@ -1,8 +1,11 @@
 import django
 from django import template
+from django.conf import settings
+from django.db.models import Q
 from django.template.loader import render_to_string
 from threadedcomments.compat import BASE_APP, django_comments as comments
 from threadedcomments.util import annotate_tree_properties, fill_tree as real_fill_tree
+from django.utils.encoding import smart_text
 
 if BASE_APP == 'django.contrib.comments':
     from django.contrib.comments.templatetags.comments import BaseCommentNode
@@ -14,11 +17,40 @@ else:
 
 register = template.Library()
 
-class BaseThreadedCommentNode(BaseCommentNode):
-    def __init__(self, parent=None, flat=False, root_only=False, **kwargs):
+class AdminOverrideCommentNode(BaseCommentNode):
+    def get_queryset(self, context):
+        ctype, object_pk = self.get_target_ctype_pk(context)
+        if not object_pk:
+            return self.comment_model.objects.none()
+
+        qs = self.comment_model.objects.filter(
+            content_type=ctype,
+            object_pk=smart_text(object_pk),
+            site__pk=settings.SITE_ID,
+        )
+
+        # The is_public and is_removed fields are implementation details of the
+        # built-in comment model's spam filtering system, so they might not
+        # be present on a custom comment model subclass. If they exist, we
+        # should filter on them.
+        field_names = [f.name for f in self.comment_model._meta.fields]
+        if not self.admin:
+            if 'is_public' in field_names:
+                qs = qs.filter(is_public=True)
+            if getattr(settings, 'COMMENTS_HIDE_REMOVED', True) and 'is_removed' in field_names:
+                qs = qs.filter(is_removed=False)
+
+        return qs
+
+
+class BaseThreadedCommentNode(AdminOverrideCommentNode):
+    def __init__(self, parent=None, flat=False, root_only=False, newest=False, limit=False, admin=False, **kwargs):
         self.parent = parent
         self.flat = flat
         self.root_only = root_only
+        self.newest = newest
+        self.limit = limit
+        self.admin = admin
         super(BaseThreadedCommentNode, self).__init__(**kwargs)
 
     @classmethod
@@ -29,7 +61,7 @@ class BaseThreadedCommentNode(BaseCommentNode):
                 raise template.TemplateSyntaxError("Second argument in %r tag must be 'for'" % tokens[0])
 
         extra_kw = {}
-        if tokens[-1] in ('flat', 'root_only'):
+        if tokens[-1] in ('flat', 'root_only', 'newest', 'admin'):
             extra_kw[str(tokens.pop())] = True
 
         if len(tokens) == 5:
@@ -58,21 +90,31 @@ class BaseThreadedCommentNode(BaseCommentNode):
 
     def get_queryset(self, context):
         qs = super(BaseThreadedCommentNode, self).get_queryset(context)
+        if self.limit:
+            parent_qs = qs.exclude(parent__isnull=False).order_by('-newest_activity', '-submit_date').values_list('pk', flat=True)[:self.limit]
+            qs = qs.filter(Q(parent_id__in=parent_qs) | Q(pk__in=parent_qs)).distinct()
         if self.flat:
             qs = qs.order_by('-submit_date')
         elif self.root_only:
             qs = qs.exclude(parent__isnull=False).order_by('-submit_date')
+        elif self.newest:
+            qs = qs.order_by('-newest_activity', 'tree_path')
         return qs
 
     # For older Django (1.5) versions:
     def get_query_set(self, context):
         qs = super(BaseThreadedCommentNode, self).get_query_set(context)
+        if self.limit:
+            parent_qs = qs.exclude(parent__isnull=False).order_by('-newest_activity', '-submit_date').values_list('pk', flat=True)[:self.limit]
+            qs = qs.filter(Q(parent_id__in=parent_qs) | Q(pk__in=parent_qs)).distinct()
         if self.flat:
             qs = qs.order_by('-submit_date')
         elif self.root_only:
             qs = qs.exclude(parent__isnull=False).order_by('-submit_date')
-        return qs
+        elif self.newest:
+            qs = qs.order_by('-newest_activity', 'tree_path')
 
+        return qs
 
 
 class CommentListNode(BaseThreadedCommentNode):
@@ -222,7 +264,14 @@ class RenderCommentListNode(CommentListNode):
             raise template.TemplateSyntaxError("Second argument in %r tag must be 'for'" % tokens[0])
 
         extra_kw = {}
-        if tokens[-1] in ('flat', 'root_only'):
+        if tokens[-2] == 'limit':
+            if tokens[-1].isdigit():
+                extra_kw['limit'] = tokens.pop(-1)  # removes limit integer
+                tokens.pop(-1)  # removes 'limit'
+            else:
+                raise template.TemplateSyntaxError(
+                    "When using 'limit' with %r tag, it needs to be followed by a positive integer" % (tokens[0],))
+        if tokens[-1] in ('flat', 'root_only', 'newest', 'admin'):
             extra_kw[str(tokens.pop())] = True
 
         if len(tokens) == 3:
