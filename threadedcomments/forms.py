@@ -34,8 +34,8 @@ class ThreadedCommentForm(CommentForm):
     def get_comment_model(self):
         return ThreadedComment
 
-    def get_comment_create_data(self):
-        d = super(ThreadedCommentForm, self).get_comment_create_data()
+    def get_comment_create_data(self, *args, **kwargs):
+        d = super(ThreadedCommentForm, self).get_comment_create_data(*args, **kwargs)
         d['parent_id'] = self.cleaned_data['parent']
         d['title'] = self.cleaned_data['title']
         return d
