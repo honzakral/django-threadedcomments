@@ -224,14 +224,9 @@ class RenderCommentFormNode(CommentFormNode):
                 "comments/%s/form.html" % ctype.app_label,
                 "comments/form.html",
             )
-            context.push()
-            form_str = render_to_string(
-                template_search_list,
-                {"form" : self.get_form(context)},
-                context
-            )
-            context.pop()
-            return form_str
+            context = context.flatten()
+            context['form'] = self.get_form(context)
+            return render_to_string(template_search_list, context)
         else:
             return ''
 
@@ -284,12 +279,11 @@ class RenderCommentListNode(CommentListNode):
                 "comments/list.html"
             ]
             qs = self.get_queryset(context)
-            context.push()
-            liststr = render_to_string(template_search_list, {
-                "comment_list" : self.get_context_value_from_queryset(context, qs)
-            }, context)
-            context.pop()
-            return liststr
+            context = context.flatten()
+            context.update({
+                "comment_list": self.get_context_value_from_queryset(context, qs),
+            })
+            return render_to_string(template_search_list, context)
         else:
             return ''
 
