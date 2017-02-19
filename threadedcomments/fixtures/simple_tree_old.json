@@ -74,7 +74,7 @@
       "site": 1, 
       "is_removed": false, 
       "user": null, 
-      "content_type": ["auth", "user"], 
+      "content_type": ["sites", "site"], 
       "is_public": true, 
       "user_name": "", 
       "user_email": ""
@@ -92,7 +92,7 @@
       "site": 1, 
       "is_removed": false, 
       "user": null, 
-      "content_type": ["auth", "user"], 
+      "content_type": ["sites", "site"], 
       "is_public": true, 
       "user_name": "", 
       "user_email": ""
@@ -110,7 +110,7 @@
       "site": 1, 
       "is_removed": false, 
       "user": null, 
-      "content_type": ["auth", "user"], 
+      "content_type": ["sites", "site"], 
       "is_public": true, 
       "user_name": "", 
       "user_email": ""
@@ -128,7 +128,7 @@
       "site": 1, 
       "is_removed": false, 
       "user": null, 
-      "content_type": ["auth", "user"], 
+      "content_type": ["sites", "site"], 
       "is_public": true, 
       "user_name": "", 
       "user_email": ""
@@ -146,7 +146,7 @@
       "site": 1, 
       "is_removed": false, 
       "user": null, 
-      "content_type": ["auth", "user"], 
+      "content_type": ["sites", "site"], 
       "is_public": true, 
       "user_name": "", 
       "user_email": ""
@@ -164,7 +164,7 @@
       "site": 1, 
       "is_removed": false, 
       "user": null, 
-      "content_type": ["auth", "user"], 
+      "content_type": ["sites", "site"], 
       "is_public": true, 
       "user_name": "", 
       "user_email": ""
@@ -182,7 +182,7 @@
       "site": 1, 
       "is_removed": false, 
       "user": null, 
-      "content_type": ["auth", "user"], 
+      "content_type": ["sites", "site"], 
       "is_public": true, 
       "user_name": "", 
       "user_email": ""
