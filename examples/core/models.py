@@ -1,9 +1,10 @@
 from django.core.urlresolvers import reverse
 from django.db import models
 
+
 class Message(models.Model):
-    title   = models.CharField(max_length=140)
-    text    = models.TextField()
+    title = models.CharField(max_length=140)
+    text = models.TextField()
 
     class Meta:
         verbose_name = "message"

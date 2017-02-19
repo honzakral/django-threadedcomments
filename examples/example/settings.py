@@ -26,7 +26,7 @@ ADMINS = (
 MANAGERS = ADMINS
 
 
-## -- Server specific settings
+# -- Server specific settings
 
 DATABASES = {
     'default': {
@@ -45,7 +45,7 @@ SECRET_KEY = 'sfm=0t(!sqi&!y%66+e+#4m$1o&l%(l(w#vz$=_0c$5+#m*9yk'
 SITE_ID = 1
 
 
-## -- Internal Django config
+# -- Internal Django config
 
 # Language codes
 TIME_ZONE = 'America/Chicago'
@@ -55,7 +55,7 @@ USE_L10N = True
 USE_TZ = True
 
 # Paths, using autodetection
-PROJECT_DIR  = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
 MEDIA_URL = '/media/'
@@ -69,7 +69,7 @@ ROOT_URLCONF = 'example.urls'
 ADMIN_MEDIA_PREFIX = '/static/admin/'
 
 
-## -- Plugin components
+# -- Plugin components
 
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
@@ -97,7 +97,7 @@ MIDDLEWARE_CLASSES = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 STATICFILES_DIRS = ()
@@ -118,12 +118,12 @@ INSTALLED_APPS = (
     'threadedcomments',
 )
 
-if django.VERSION >= (1,7):
+if django.VERSION >= (1, 7):
     INSTALLED_APPS += ('django_comments',)
 else:
     INSTALLED_APPS += ('django.contrib.comments',)
 
 
-## --- App settings
+# --- App settings
 
 COMMENTS_APP = 'threadedcomments'

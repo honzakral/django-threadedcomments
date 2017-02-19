@@ -11,7 +11,7 @@ class ThreadedCommentForm(CommentForm):
     parent = forms.IntegerField(required=False, widget=forms.HiddenInput)
 
     def __init__(self, target_object, parent=None, data=None, initial=None):
-        if django.VERSION >= (1,7):
+        if django.VERSION >= (1, 7):
             # Using collections.OrderedDict from Python 2.7+
             # This class does not have an insert method, have to replace it.
             from collections import OrderedDict

@@ -12,8 +12,10 @@ from threadedcomments.templatetags import threadedcomments_tags as tags
 PATH_SEPARATOR = getattr(settings, 'COMMENT_PATH_SEPARATOR', '/')
 PATH_DIGITS = getattr(settings, 'COMMENT_PATH_DIGITS', 10)
 
+
 def sanitize_html(html):
     return '\n'.join((i.strip() for i in html.split('\n') if i.strip() != ''))
+
 
 class SanityTests(TransactionTestCase):
     BASE_DATA = {
@@ -213,24 +215,27 @@ class HierarchyTest(TransactionTestCase):
         self.assertEqual(last_child, comment.last_child)
 
 
-
 # Templatetags tests
 ##############################################################################
 
 class MockParser(object):
     "Mock parser object for handle_token()"
+
     def compile_filter(self, var):
         return var
 mock_parser = MockParser()
 
+
 class MockToken(object):
     "Mock token object for handle_token()"
+
     def __init__(self, bits):
         self.contents = self
         self.bits = bits
 
     def split(self):
         return self.bits
+
 
 class TestCommentListNode(TestCase):
 
@@ -240,6 +245,7 @@ class TestCommentListNode(TestCase):
     """
     correct_ct_pk_params = ['get_comment_list', 'for', 'sites.site', '1', 'as', 'var']
     correct_var_params = ['get_comment_list', 'for', 'var', 'as', 'var']
+
     def test_parsing_fails_for_empty_token(self):
         self.assertRaises(TemplateSyntaxError, tags.get_comment_list, mock_parser, MockToken(['get_comment_list']))
 
@@ -288,4 +294,3 @@ class TestCommentListNode(TestCase):
         node = tags.get_comment_list(mock_parser, MockToken(params))
         self.assertTrue(isinstance(node, tags.CommentListNode))
         self.assertTrue(node.root_only)
-

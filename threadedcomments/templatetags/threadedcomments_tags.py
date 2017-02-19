@@ -17,7 +17,9 @@ else:
 
 register = template.Library()
 
+
 class AdminOverrideCommentNode(BaseCommentNode):
+
     def get_queryset(self, context):
         ctype, object_pk = self.get_target_ctype_pk(context)
         if not object_pk:
@@ -44,6 +46,7 @@ class AdminOverrideCommentNode(BaseCommentNode):
 
 
 class BaseThreadedCommentNode(AdminOverrideCommentNode):
+
     def __init__(self, parent=None, flat=False, root_only=False, newest=False, limit=False, admin=False, **kwargs):
         self.parent = parent
         self.flat = flat
@@ -106,6 +109,7 @@ class CommentListNode(BaseThreadedCommentNode):
     """
     Insert a list of comments into the context.
     """
+
     def get_context_value_from_queryset(self, context, qs):
         return list(qs)
 
@@ -114,6 +118,7 @@ class CommentCountNode(CommentListNode):
     """
     Insert a count of comments into the context.
     """
+
     def get_context_value_from_queryset(self, context, qs):
         return qs.count()
 
@@ -178,6 +183,7 @@ class CommentFormNode(BaseThreadedCommentNode):
 
 
 class RenderCommentFormNode(CommentFormNode):
+
     @classmethod
     def handle_token(cls, parser, token):
         """
@@ -263,8 +269,8 @@ class RenderCommentListNode(CommentListNode):
         elif len(tokens) == 4:
             # {% render_comment_list for app.models pk %}
             return cls(
-                ctype = BaseCommentNode.lookup_content_type(tokens[2], tokens[0]),
-                object_pk_expr = parser.compile_filter(tokens[3]),
+                ctype=BaseCommentNode.lookup_content_type(tokens[2], tokens[0]),
+                object_pk_expr=parser.compile_filter(tokens[3]),
                 **extra_kw
             )
         else:

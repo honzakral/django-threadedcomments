@@ -54,9 +54,9 @@ class ThreadedComment(Comment):
         if self.parent_id:
             try:
                 prev_child = ThreadedComment.objects \
-                                .filter(parent=self.parent_id) \
-                                .exclude(pk=self.pk) \
-                                .order_by('-submit_date')[0]
+                    .filter(parent=self.parent_id) \
+                    .exclude(pk=self.pk) \
+                    .order_by('-submit_date')[0]
             except IndexError:
                 prev_child = None
             if prev_child:
@@ -66,7 +66,7 @@ class ThreadedComment(Comment):
             else:
                 ThreadedComment.objects.filter(pk=self.parent_id).update(last_child=None)
                 ThreadedComment.objects.filter(pk=self.parent_id).update(newest_activity=self.parent.submit_date)
-                
+
         super(ThreadedComment, self).delete(*args, **kwargs)
 
     class Meta(object):

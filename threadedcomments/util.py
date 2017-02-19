@@ -9,12 +9,14 @@ except ImportError:
 
 __all__ = ['fill_tree', 'annotate_tree_properties', ]
 
+
 def _mark_as_root_path(comment):
     """
     Mark on comment as Being added to fill the tree.
     """
     setattr(comment, 'added_path', True)
     return comment
+
 
 def fill_tree(comments):
     """
@@ -30,6 +32,7 @@ def fill_tree(comments):
     first = next(it)
     extra_path_items = imap(_mark_as_root_path, first.root_path)
     return chain(extra_path_items, [first], it)
+
 
 def annotate_tree_properties(comments):
     """
@@ -60,7 +63,7 @@ def annotate_tree_properties(comments):
         if c.depth > old.depth:
             c.open = True
 
-        else: # c.depth <= old.depth
+        else:  # c.depth <= old.depth
             # close some depths
             old.close = list(range(old.depth - c.depth))
 
