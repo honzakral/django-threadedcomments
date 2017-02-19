@@ -7,8 +7,35 @@ from django.core.management import execute_from_command_line
 
 if not settings.configured:
     base_app = 'django.contrib.comments'
-    if django.VERSION >= (1,7):
+    if django.VERSION >= (1,8):
         base_app = 'django_comments'
+
+        template_settings = dict(
+            TEMPLATES = [
+                {
+                    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                    'APP_DIRS': True,
+                    'OPTIONS': {
+                        'context_processors': [
+                            'django.contrib.auth.context_processors.auth',
+                            'django.template.context_processors.request',
+                            'django.template.context_processors.static',
+                            'django.contrib.messages.context_processors.messages',
+                        ]
+                    },
+                },
+            ]
+        )
+    else:
+        template_settings = dict(
+            TEMPLATE_LOADERS = (
+                'django.template.loaders.app_directories.Loader',
+            ),
+            TEMPLATE_CONTEXT_PROCESSORS = list(default_settings.TEMPLATE_CONTEXT_PROCESSORS) + [
+                'django.core.context_processors.request',
+            ],
+        )
+
 
     settings.configure(
         DATABASES = {
@@ -16,12 +43,6 @@ if not settings.configured:
                 'ENGINE': 'django.db.backends.sqlite3',
             }
         },
-        TEMPLATE_LOADERS = (
-            'django.template.loaders.app_directories.Loader',
-        ),
-        TEMPLATE_CONTEXT_PROCESSORS = default_settings.TEMPLATE_CONTEXT_PROCESSORS + (
-            'django.core.context_processors.request',
-        ),
         INSTALLED_APPS = (
             'django.contrib.auth',
             'django.contrib.contenttypes',
@@ -42,6 +63,7 @@ if not settings.configured:
         SITE_ID = 1,
         COMMENTS_APP = 'threadedcomments',
         COMMENTS_ALLOW_PROFANITIES = True,
+        **template_settings
     )
 
 def runtests():
