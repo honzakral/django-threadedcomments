@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-04-14 00:45+0200\n"
+"POT-Creation-Date: 2017-02-19 23:25+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,38 +18,38 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: admin.py:24
+#: admin.py:25
 msgid "Content"
 msgstr ""
 
-#: admin.py:27
+#: admin.py:28
 msgid "Hierarchy"
 msgstr ""
 
-#: admin.py:30
+#: admin.py:31
 msgid "Metadata"
 msgstr ""
 
-#: forms.py:10 models.py:10
+#: forms.py:11 models.py:12
 msgid "Title"
 msgstr "Titel"
 
-#: models.py:11
+#: models.py:13
 msgid "Parent"
 msgstr "Ouder"
 
-#: models.py:12
+#: models.py:14
 msgid "Last child"
 msgstr "Laaste kind"
 
-#: models.py:13
+#: models.py:15
 msgid "Tree path"
 msgstr ""
 
-#: models.py:62
+#: models.py:75
 msgid "Threaded comment"
 msgstr "Genest commentaar"
 
-#: models.py:63
+#: models.py:76
 msgid "Threaded comments"
 msgstr "Geneste commentaren"
