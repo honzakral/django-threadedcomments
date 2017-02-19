@@ -101,21 +101,6 @@ class BaseThreadedCommentNode(AdminOverrideCommentNode):
             qs = qs.order_by('-newest_activity', 'tree_path')
         return qs
 
-    # For older Django (1.5) versions:
-    def get_query_set(self, context):
-        qs = super(BaseThreadedCommentNode, self).get_query_set(context)
-        if self.limit:
-            parent_qs = qs.exclude(parent__isnull=False).order_by('-newest_activity', '-submit_date').values_list('pk', flat=True)[:self.limit]
-            qs = qs.filter(Q(parent_id__in=parent_qs) | Q(pk__in=parent_qs)).distinct()
-        if self.flat:
-            qs = qs.order_by('-submit_date')
-        elif self.root_only:
-            qs = qs.exclude(parent__isnull=False).order_by('-submit_date')
-        elif self.newest:
-            qs = qs.order_by('-newest_activity', 'tree_path')
-
-        return qs
-
 
 class CommentListNode(BaseThreadedCommentNode):
     """
@@ -298,11 +283,7 @@ class RenderCommentListNode(CommentListNode):
                 "comments/%s/list.html" % ctype.app_label,
                 "comments/list.html"
             ]
-            # For newer Django (1.6) versions
-            if django.VERSION >= (1,6):
-                qs = self.get_queryset(context)
-            else:
-                qs = self.get_query_set(context)
+            qs = self.get_queryset(context)
             context.push()
             liststr = render_to_string(template_search_list, {
                 "comment_list" : self.get_context_value_from_queryset(context, qs)

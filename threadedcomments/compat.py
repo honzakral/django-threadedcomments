@@ -1,26 +1,12 @@
 import django
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.db import transaction
 
 
-# New transaction support in Django 1.6
-try:
-    transaction_atomic = transaction.atomic
-except AttributeError:
-    transaction_atomic = transaction.commit_on_success
-
-try:
-    from django.apps import apps
-except ImportError:
-    # Django 1.6 or below.
-    def is_installed(appname):
-        return appname in settings.INSTALLED_APPS
-else:
-    # Django 1.7 provides an official API, and INSTALLED_APPS may contain non-string values too.
-    # However, by checking for settings.INSTALLED_APPS the check can occur before the app registry is ready.
-    def is_installed(appname):
-        return appname in settings.INSTALLED_APPS #or apps.is_installed(appname)
+# Django 1.7 provides an official API, and INSTALLED_APPS may contain non-string values too.
+# However, by checking for settings.INSTALLED_APPS the check can occur before the app registry is ready.
+def is_installed(appname):
+    return appname in settings.INSTALLED_APPS #or apps.is_installed(appname)
 
 
 if is_installed('django.contrib.comments'):
