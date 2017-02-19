@@ -1,3 +1,10 @@
+Version 1.1, 19 februari 2017
+-----------------------------
+
+* Added Django 1.10 support.
+* Dropped Django 1.5, 1.6 support.
+* Dropped Python 2.6 support.
+
 Version 1.0.1, 17 October 2015
 ------------------------------
 
