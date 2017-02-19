@@ -2,6 +2,8 @@ from unittest import TestCase
 
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.template import Context
+from django.template import Template
 from django.template import TemplateSyntaxError, loader
 from django.test import TransactionTestCase
 from threadedcomments.templatetags import threadedcomments_tags as tags
@@ -213,6 +215,11 @@ class HierarchyTest(TransactionTestCase):
         new_child_comment.delete()
         comment = Comment.objects.get(pk=1)
         self.assertEqual(last_child, comment.last_child)
+
+    def test_render_comment_list(self):
+        template = Template('{% load threadedcomments_tags %}{% render_comment_list for sites.site 1 %}')
+        html = sanitize_html(template.render(Context()))
+        self.assertIn('Comment 7', html)
 
 
 # Templatetags tests
