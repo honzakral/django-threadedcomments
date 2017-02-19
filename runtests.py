@@ -1,12 +1,20 @@
 #!/usr/bin/env python
-import os
+from importlib import import_module
 import sys
 import django
 from django.conf import settings, global_settings as default_settings
 from django.core.management import execute_from_command_line
+from os import path
+
+
+# Give feedback on used versions
+sys.stderr.write('Using Python version {0} from {1}\n'.format(sys.version[:5], sys.executable))
+sys.stderr.write('Using Django version {0} from {1}\n'.format(
+    django.get_version(),
+    path.dirname(path.abspath(django.__file__)))
+)
 
 if not settings.configured:
-    base_app = 'django.contrib.comments'
     if django.VERSION >= (1,8):
         base_app = 'django_comments'
 
@@ -27,6 +35,7 @@ if not settings.configured:
             ]
         )
     else:
+        base_app = 'django.contrib.comments'
         template_settings = dict(
             TEMPLATE_LOADERS = (
                 'django.template.loaders.app_directories.Loader',
@@ -35,7 +44,6 @@ if not settings.configured:
                 'django.core.context_processors.request',
             ],
         )
-
 
     settings.configure(
         DATABASES = {
@@ -65,6 +73,8 @@ if not settings.configured:
         COMMENTS_ALLOW_PROFANITIES = True,
         **template_settings
     )
+
+    sys.stderr.write('Using comments app {0} from {1}\n'.format(base_app, path.dirname(import_module(base_app).__file__)))
 
 def runtests():
     argv = sys.argv[:1] + ['test', 'threadedcomments', '--traceback'] + sys.argv[1:]

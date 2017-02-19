@@ -4,14 +4,14 @@ python:
   - "3.4"
   - "3.5"
 env:
-  - PACKAGES="django>=1.7,<1.8"
+  - PACKAGES="django>=1.7,<1.8 django-contrib-comments<1.8"
   - PACKAGES="django>=1.8,<1.9"
   - PACKAGES="django>=1.9,<1.10"
   - PACKAGES="django>=1.10,<1.11"
 matrix:
   exclude:
   - python: '3.5'
-    env: PACKAGES="Django>=1.7,<1.8"
+    env: PACKAGES="Django>=1.7,<1.8 django-contrib-comments<1.8"
 
 install:
   - travis_retry pip install coveralls $PACKAGES -e .
