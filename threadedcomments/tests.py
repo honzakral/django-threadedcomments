@@ -216,10 +216,39 @@ class HierarchyTest(TransactionTestCase):
         comment = Comment.objects.get(pk=1)
         self.assertEqual(last_child, comment.last_child)
 
+
+class SimpleTemplateTagTests(TransactionTestCase):
+    if 'django.contrib.comments' in settings.INSTALLED_APPS:
+        fixtures = ['simple_tree_old']
+    else:
+        fixtures = ['simple_tree']
+
+    def get_comment_count(self):
+        template = Template('{% load threadedcomments_tags %}{% get_comment_count for sites.site 1 as foo %}{{ foo }}')
+        html = template.render(Context()).strip()
+        self.assertEqual(html, '7')
+
+    def test_get_comment_list(self):
+        template = Template('{% load threadedcomments_tags %}{% get_comment_list for sites.site 1 as foo %}{{ foo|length }}')
+        html = template.render(Context()).strip()
+        self.assertEqual(html, '7')
+
     def test_render_comment_list(self):
         template = Template('{% load threadedcomments_tags %}{% render_comment_list for sites.site 1 %}')
         html = sanitize_html(template.render(Context()))
         self.assertIn('Comment 7', html)
+
+    def test_render_comment_form(self):
+        template = Template('{% load threadedcomments_tags %}{% render_comment_form for sites.site 1 %}')
+        html = sanitize_html(template.render(Context()))
+        self.assertIn(' name="parent" ', html)
+
+    def test_get_comment_form(self):
+        template = Template('{% load threadedcomments_tags %}{% get_comment_form for sites.site 1 as foo %}{{ foo.parent }}')
+        html = sanitize_html(template.render(Context()))
+        self.assertIn(' name="parent" ', html)
+        self.assertNotIn('<form', html)
+
 
 
 # Templatetags tests
