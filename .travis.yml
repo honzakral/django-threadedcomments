@@ -15,14 +15,16 @@ matrix:
   - python: '3.5'
     env: PACKAGES="Django>=1.7,<1.8 django-contrib-comments<1.8"
 
+before_install:
+  - pip install codecov
 install:
-  - travis_retry pip install coveralls $PACKAGES -e .
+  - travis_retry pip install $PACKAGES -e .
 
 script:
   - coverage run --source=threadedcomments runtests.py
 
 after_success:
-  - coveralls --verbose
+- codecov
 
 branches:
   only:
