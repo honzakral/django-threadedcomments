@@ -1,7 +1,8 @@
-from unittest import TestCase
+from unittest import TestCase, expectedFailure
 
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.core.management import call_command
 from django.template import Context
 from django.template import Template
 from django.template import TemplateSyntaxError, loader
@@ -248,6 +249,22 @@ class SimpleTemplateTagTests(TransactionTestCase):
         html = sanitize_html(template.render(Context()))
         self.assertIn(' name="parent" ', html)
         self.assertNotIn('<form', html)
+
+
+class ManagementCommandTests(TransactionTestCase):
+
+    if 'django.contrib.comments' in settings.INSTALLED_APPS:
+        fixtures = ['simple_tree_old']
+    else:
+        fixtures = ['simple_tree']
+
+    @expectedFailure
+    def test_migrate_comments(self):
+        call_command('migrate_comments')
+
+    @expectedFailure
+    def test_migrate_threaded_comments(self):
+        call_command('migrate_threaded_comments')
 
 
 
