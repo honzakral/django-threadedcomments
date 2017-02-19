@@ -2,8 +2,9 @@ import django
 from django import forms
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
-from .models import ThreadedComment
+
 from .compat import CommentForm
+from .models import ThreadedComment
 
 
 class ThreadedCommentForm(CommentForm):

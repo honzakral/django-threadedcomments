@@ -1,9 +1,7 @@
-from django.contrib.sites.models import Site
-from django.core.management import BaseCommand
-from django.core.management import CommandError
-from django.db import transaction, connection
 from django.conf import settings
-
+from django.contrib.sites.models import Site
+from django.core.management import BaseCommand, CommandError
+from django.db import connection, transaction
 from threadedcomments.models import ThreadedComment
 
 USER_SQL = """

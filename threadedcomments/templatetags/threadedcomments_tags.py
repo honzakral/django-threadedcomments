@@ -1,11 +1,10 @@
-import django
 from django import template
 from django.conf import settings
 from django.db.models import Q
 from django.template.loader import render_to_string
+from django.utils.encoding import smart_text
 from threadedcomments.compat import BASE_APP, django_comments as comments
 from threadedcomments.util import annotate_tree_properties, fill_tree as real_fill_tree
-from django.utils.encoding import smart_text
 
 if BASE_APP == 'django.contrib.comments':
     from django.contrib.comments.templatetags.comments import BaseCommentNode

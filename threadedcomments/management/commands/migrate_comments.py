@@ -1,7 +1,6 @@
-from django.core.management import BaseCommand
-from django.core.management import CommandError
-from django.db import transaction, connection
 from django.conf import settings
+from django.core.management import BaseCommand, CommandError
+from django.db import connection, transaction
 
 PATH_DIGITS = getattr(settings, 'COMMENT_PATH_DIGITS', 10)
 

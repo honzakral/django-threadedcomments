@@ -1,13 +1,13 @@
 from unittest import TestCase
 
-from django.test import TransactionTestCase
-from django.contrib.sites.models import Site
-from django.template import loader, TemplateSyntaxError
 from django.conf import settings
-from .compat import django_comments as comments
-
-from threadedcomments.util import annotate_tree_properties
+from django.contrib.sites.models import Site
+from django.template import TemplateSyntaxError, loader
+from django.test import TransactionTestCase
 from threadedcomments.templatetags import threadedcomments_tags as tags
+from threadedcomments.util import annotate_tree_properties
+
+from .compat import django_comments as comments
 
 PATH_SEPARATOR = getattr(settings, 'COMMENT_PATH_SEPARATOR', '/')
 PATH_DIGITS = getattr(settings, 'COMMENT_PATH_DIGITS', 10)
