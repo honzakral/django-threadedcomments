@@ -25,9 +25,7 @@ matrix:
     env: PACKAGES="django>=1.4.0,<1.5.0"
 
 install:
-  - travis_retry pip install -q coveralls  # installs coverage
-  - travis_retry pip install $PACKAGES
-  - pip install -e .
+  - travis_retry pip install coveralls $PACKAGES -e .
 
 script:
   - coverage run --source=threadedcomments runtests.py
