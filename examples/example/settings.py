@@ -6,7 +6,6 @@
 # - COMMENTS_APP
 #
 # And the following are configured to sane defaults:
-# - TEMPLATE_CONTEXT_PROCESSORS
 # - STATIC_ROOT / STATIC_URL
 # - MEDIA_ROOT / MEDIA_URL
 #
@@ -14,7 +13,6 @@ import os
 import django
 
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
@@ -71,20 +69,20 @@ ADMIN_MEDIA_PREFIX = '/static/admin/'
 
 # -- Plugin components
 
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-)
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.core.context_processors.debug',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.media',
-    'django.core.context_processors.request',    # Very useful to have, not found in default Django setup.
-    'django.core.context_processors.static',
-    'django.contrib.auth.context_processors.auth',
-    'django.contrib.messages.context_processors.messages',
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.request',
+                'django.template.context_processors.static',
+                'django.contrib.messages.context_processors.messages',
+            ]
+        },
+    },
+]
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -97,12 +95,9 @@ MIDDLEWARE_CLASSES = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 STATICFILES_DIRS = ()
-
-TEMPLATE_DIRS = ()
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -118,7 +113,7 @@ INSTALLED_APPS = (
     'threadedcomments',
 )
 
-if django.VERSION >= (1, 7):
+if django.VERSION >= (1, 8):
     INSTALLED_APPS += ('django_comments',)
 else:
     INSTALLED_APPS += ('django.contrib.comments',)
