@@ -125,6 +125,13 @@ class HierarchyTest(TransactionTestCase):
         </li>
     </ul>
     ''')
+    
+    def setUp(self):
+        # Set last_child here instead of in fixtures to prevent foreign key
+        # restraint failure
+        comments.get_model().objects.filter(pk=1).update(last_child=4)
+        comments.get_model().objects.filter(pk=2).update(last_child=5)
+        comments.get_model().objects.filter(pk=4).update(last_child=6)
 
     def test_root_path_returns_empty_for_root_comments(self):
         c = comments.get_model().objects.get(pk=7)
