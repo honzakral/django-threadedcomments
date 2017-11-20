@@ -1,0 +1,2 @@
+Django >= 1.8
+django-contrib-comments >= 1.7.3
