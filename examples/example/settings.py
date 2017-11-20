@@ -1,7 +1,7 @@
 # Django settings for example project.
 #
 # These settings are pretty basic.
-# The only relevent settings are the defaults are:
+# The only relevant settings are the defaults are:
 # - INSTALLED_APPS
 # - COMMENTS_APP
 #
