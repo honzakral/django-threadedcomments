@@ -18,7 +18,7 @@ if not settings.configured:
     if django.VERSION >= (1,8):
         base_app = 'django_comments'
 
-        template_settings = dict(
+        versioned_settings = dict(
             TEMPLATES = [
                 {
                     'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -36,7 +36,7 @@ if not settings.configured:
         )
     else:
         base_app = 'django.contrib.comments'
-        template_settings = dict(
+        versioned_settings = dict(
             TEMPLATE_LOADERS = (
                 'django.template.loaders.app_directories.Loader',
             ),
@@ -44,6 +44,25 @@ if not settings.configured:
                 'django.core.context_processors.request',
             ],
         )
+
+    if django.VERSION >= (2, 0):
+        versioned_settings.update(dict(
+            MIDDLEWARE = (
+                'django.middleware.common.CommonMiddleware',
+                'django.contrib.sessions.middleware.SessionMiddleware',
+                'django.middleware.csrf.CsrfViewMiddleware',
+                'django.contrib.auth.middleware.AuthenticationMiddleware',
+            )
+        ))
+    else:
+        versioned_settings.update(dict(
+            MIDDLEWARE_CLASSES = (
+                'django.middleware.common.CommonMiddleware',
+                'django.contrib.sessions.middleware.SessionMiddleware',
+                'django.middleware.csrf.CsrfViewMiddleware',
+                'django.contrib.auth.middleware.AuthenticationMiddleware',
+            )
+        ))
 
     settings.configure(
         DATABASES = {
@@ -60,18 +79,12 @@ if not settings.configured:
             base_app,
             'threadedcomments',
         ),
-        MIDDLEWARE_CLASSES = (
-            'django.middleware.common.CommonMiddleware',
-            'django.contrib.sessions.middleware.SessionMiddleware',
-            'django.middleware.csrf.CsrfViewMiddleware',
-            'django.contrib.auth.middleware.AuthenticationMiddleware',
-        ),
         ROOT_URLCONF = '{0}.urls'.format(base_app),
         TEST_RUNNER = 'django.test.simple.DjangoTestSuiteRunner' if django.VERSION < (1,6) else 'django.test.runner.DiscoverRunner',
         SITE_ID = 1,
         COMMENTS_APP = 'threadedcomments',
         COMMENTS_ALLOW_PROFANITIES = True,
-        **template_settings
+        **versioned_settings
     )
 
     sys.stderr.write('Using comments app {0} from {1}\n'.format(base_app, path.dirname(import_module(base_app).__file__)))
