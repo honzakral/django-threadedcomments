@@ -1,5 +1,9 @@
-from django.core.urlresolvers import reverse
 from django.db import models
+
+try:
+    from django.urls import reverse  # Django 1.10+
+except ImportError:
+    from django.core.urlresolvers import reverse
 
 
 class Message(models.Model):
