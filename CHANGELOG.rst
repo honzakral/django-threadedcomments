@@ -1,3 +1,9 @@
+Version 1.2, 29 march 2017
+--------------------------
+
+* Added Django 2.0 support.
+
+
 Version 1.1, 19 februari 2017
 -----------------------------
 
