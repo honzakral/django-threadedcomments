@@ -108,16 +108,12 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
+    'django_comments',
 
     # Messages setup:
     'core',
     'threadedcomments',
 )
-
-if django.VERSION >= (1, 8):
-    INSTALLED_APPS += ('django_comments',)
-else:
-    INSTALLED_APPS += ('django.contrib.comments',)
 
 
 # --- App settings
