@@ -4,7 +4,7 @@ django-threadedcomments
 *threadedcomments* is a Django application which allows for the simple creation of a threaded commenting system.
 Commenters can reply both to the original item, and reply to other comments as well.
 
-The application is (as of 0.9) built on top of django_comments_ (or django.contrib.comments_),
+The application is built on top of django_comments_,
 which allows it to be easily extended by other modules.
 
 
@@ -33,15 +33,11 @@ Add the following to ``settings.py``::
 By placing the ``threadedcomments`` app above the ``django.contrib.comments`` application,
 the placeholder ``comments/list.html`` template will already be replaced by a threaded view.
 
-Make sure django.contrib.comments_ is configured in ``urls.py``::
+Make sure django_comments_ is configured in ``urls.py``::
 
     urlpatterns += patterns('',
         url(r'^articles/comments/', include('django_comments.urls')),
     )
-
-.. note::
-   For older Django versions (up till 1.6), you can also use django.contrib.comments_ in the ``INSTALLED_APPS``.
-   This packages uses either one of those packages, depending on what is installed.
 
 Provide a template that displays the comments for the ``object`` (e.g. article or blog entry)::
 
@@ -61,8 +57,8 @@ Template design
 Naturally, it's desirable to write your own version of ``comments/list.html`` in your project,
 or use one of the ``comments/app/list.html`` or ``comments/app/model/list.html`` overrides.
 
-Make sure to override ``comments/base.html`` as well, so the other views of django.contrib.comments_
-are displayed using your web site design. The other templates of django.contrib.comments_ are
+Make sure to override ``comments/base.html`` as well, so the other views of django_comments_
+are displayed using your web site design. The other templates of django_comments_ are
 very plain as well on purpose (for example ``comments/posted.html``),
 since these pages depend on the custom design of the web site.
 
@@ -75,7 +71,7 @@ Template tags
 
 The ``threadedcomments_tags`` library is a drop-in replacement for the ``comments`` library
 that is required for the plain comments. The tags are forwards compatible;
-they support the same syntax as django_comments_ (or django.contrib.comments_) provides,
+they support the same syntax as django_comments_ provides,
 and they add a few extra parameters.
 
 Fetching comment counts::
@@ -134,7 +130,7 @@ The ``annotate_tree`` filter adds the ``open`` and ``close`` properties to the c
 Extending the module
 ====================
 
-The application is built on top of the standard django_comments_ (or django.contrib.comments_) framework,
+The application is built on top of the standard django_comments_ framework,
 which supports various signals, and template overrides to customize the comments.
 
 To customize django-threadedcomments, override the proper templates, or include the apps that provide the missing features.
@@ -144,9 +140,9 @@ The same applies to social media logins, comment subscriptions, spam protection 
 
 Note that the standard framework also supports moderation, flagging, and RSS feeds too. More documentation can be found at:
 
-* `Django's comments framework <https://django-contrib-comments.readthedocs.org/>`_
-* `Customizing the comments framework <https://django-contrib-comments.readthedocs.org/en/latest/custom.html>`_
-* `Example of using the in-built comments app <https://django-contrib-comments.readthedocs.org/en/latest/example.html>`_
+* `Django's comments framework <https://django-contrib-comments.readthedocs.io/>`_
+* `Customizing the comments framework <https://django-contrib-comments.readthedocs.io/en/latest/custom.html>`_
+* `Example of using the in-built comments app <https://django-contrib-comments.readthedocs.io/en/latest/example.html>`_
 
 Some of the modules worth looking at are:
 
@@ -158,7 +154,6 @@ These modules can enhance the comments system even further.
 
 
 .. _django_comments: https://github.com/django/django-contrib-comments
-.. _django.contrib.comments: https://docs.djangoproject.com/en/1.7/ref/contrib/comments/
 .. _django-fluent-comments: https://github.com/edoburu/django-fluent-comments/
 .. _django-myrecaptcha: https://bitbucket.org/pelletier/django-myrecaptcha/
 .. _django-comments-spamfighter: https://github.com/bartTC/django-comments-spamfighter/
