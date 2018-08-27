@@ -1,20 +1,8 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
+from django_comments.admin import CommentsAdmin
 
-from .compat import BASE_APP
 from .models import ThreadedComment
-
-# This code is not in the .compat module to avoid admin imports in all other code.
-# The admin import usually starts a model registration too, hence keep these imports here.
-
-if BASE_APP == 'django.contrib.comments':
-    # Django 1.7 and below
-    from django.contrib.comments.admin import CommentsAdmin
-elif BASE_APP == 'django_comments':
-    # Django 1.8 and up
-    from django_comments.admin import CommentsAdmin
-else:
-    raise NotImplementedError()
 
 
 class ThreadedCommentsAdmin(CommentsAdmin):

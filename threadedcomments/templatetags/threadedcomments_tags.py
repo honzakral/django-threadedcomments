@@ -1,17 +1,11 @@
+import django_comments
 from django import template
 from django.conf import settings
 from django.db.models import Q
 from django.template.loader import render_to_string
 from django.utils.encoding import smart_text
-from threadedcomments.compat import BASE_APP, django_comments as comments
+from django_comments.templatetags.comments import BaseCommentNode
 from threadedcomments.util import annotate_tree_properties, fill_tree as real_fill_tree
-
-if BASE_APP == 'django.contrib.comments':
-    from django.contrib.comments.templatetags.comments import BaseCommentNode
-elif BASE_APP == 'django_comments':
-    from django_comments.templatetags.comments import BaseCommentNode
-else:
-    raise NotImplementedError()
 
 
 register = template.Library()
@@ -162,7 +156,7 @@ class CommentFormNode(BaseThreadedCommentNode):
 
         obj = self.get_object(context)
         if obj:
-            return comments.get_form()(obj, parent=parent_id)
+            return django_comments.get_form()(obj, parent=parent_id)
         else:
             return None
 

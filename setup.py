@@ -38,7 +38,7 @@ setup(
     version=find_version('threadedcomments', '__init__.py'),
     license='BSD',
     install_requires=[
-        'django-contrib-comments>=1.7.3',
+        'django-contrib-comments>=1.9.0',
     ],
 
     description='A simple yet flexible threaded commenting system.',
@@ -74,12 +74,9 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Framework :: Django',
-        'Framework :: Django :: 1.7',
-        'Framework :: Django :: 1.8',
-        'Framework :: Django :: 1.9',
-        'Framework :: Django :: 1.10',
         'Framework :: Django :: 1.11',
         'Framework :: Django :: 2.0',
+        'Framework :: Django :: 2.1',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
         'Topic :: Software Development :: Libraries :: Python Modules',

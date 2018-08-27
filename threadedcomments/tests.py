@@ -1,6 +1,8 @@
 from unittest import TestCase, expectedFailure
 
+import django_comments
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.core.management import call_command
 from django.template import Context
@@ -9,8 +11,6 @@ from django.template import TemplateSyntaxError, loader
 from django.test import TransactionTestCase
 from threadedcomments.templatetags import threadedcomments_tags as tags
 from threadedcomments.util import annotate_tree_properties
-
-from .compat import django_comments as comments
 
 PATH_SEPARATOR = getattr(settings, 'COMMENT_PATH_SEPARATOR', '/')
 PATH_DIGITS = getattr(settings, 'COMMENT_PATH_DIGITS', 10)
@@ -28,23 +28,23 @@ class SanityTests(TransactionTestCase):
     }
 
     def _post_comment(self, data=None, parent=None):
-        Comment = comments.get_model()
+        Comment = django_comments.get_model()
         body = self.BASE_DATA.copy()
         if data:
             body.update(data)
-        url = comments.get_form_target()
+        url = django_comments.get_form_target()
         args = [Site.objects.all()[0]]
         kwargs = {}
         if parent is not None:
             kwargs['parent'] = str(parent.pk)
             body['parent'] = str(parent.pk)
-        form = comments.get_form()(*args, **kwargs)
+        form = django_comments.get_form()(*args, **kwargs)
         body.update(form.generate_security_data())
         self.client.post(url, body, follow=True)
         return Comment.objects.order_by('-id')[0]
 
     def test_post_comment(self):
-        Comment = comments.get_model()
+        Comment = django_comments.get_model()
         self.assertEqual(Comment.objects.count(), 0)
         comment = self._post_comment()
         self.assertEqual(comment.tree_path, str(comment.pk).zfill(PATH_DIGITS))
@@ -52,7 +52,7 @@ class SanityTests(TransactionTestCase):
         self.assertEqual(comment.last_child, None)
 
     def test_post_comment_child(self):
-        Comment = comments.get_model()
+        Comment = django_comments.get_model()
         comment = self._post_comment()
         self.assertEqual(comment.tree_path, str(comment.pk).zfill(PATH_DIGITS))
         child_comment = self._post_comment(data={'name': 'ericflo'}, parent=comment)
@@ -60,15 +60,12 @@ class SanityTests(TransactionTestCase):
         child_comment_pk = str(child_comment.pk).zfill(PATH_DIGITS)
         self.assertEqual(child_comment.tree_path, PATH_SEPARATOR.join((comment.tree_path, child_comment_pk)))
         self.assertEqual(comment.pk, child_comment.parent.pk)
-        comment = comments.get_model().objects.get(pk=comment.pk)
+        comment = django_comments.get_model().objects.get(pk=comment.pk)
         self.assertEqual(comment.last_child, child_comment)
 
 
 class HierarchyTest(TransactionTestCase):
-    if 'django.contrib.comments' in settings.INSTALLED_APPS:
-        fixtures = ['simple_tree_old']
-    else:
-        fixtures = ['simple_tree']
+    fixtures = ['simple_tree']
 
     EXPECTED_HTML_PARTIAL = sanitize_html('''
     <ul>
@@ -127,28 +124,28 @@ class HierarchyTest(TransactionTestCase):
     ''')
 
     def test_root_path_returns_empty_for_root_comments(self):
-        c = comments.get_model().objects.get(pk=7)
+        c = django_comments.get_model().objects.get(pk=7)
         self.assertEqual([], [x.pk for x in c.root_path])
 
     def test_root_path_returns_only_correct_nodes(self):
-        c = comments.get_model().objects.get(pk=6)
+        c = django_comments.get_model().objects.get(pk=6)
         self.assertEqual([1, 4], [x.pk for x in c.root_path])
 
     def test_root_id_returns_self_for_root_comments(self):
-        c = comments.get_model().objects.get(pk=7)
+        c = django_comments.get_model().objects.get(pk=7)
         self.assertEqual(c.pk, c.root_id)
 
     def test_root_id_returns_root_for_replies(self):
-        c = comments.get_model().objects.get(pk=6)
+        c = django_comments.get_model().objects.get(pk=6)
         self.assertEqual(1, c.root_id)
 
     def test_root_has_depth_1(self):
-        c = comments.get_model().objects.get(pk=7)
+        c = django_comments.get_model().objects.get(pk=7)
         self.assertEqual(1, c.depth)
 
     def test_open_and_close_match(self):
         depth = 0
-        for x in annotate_tree_properties(comments.get_model().objects.all()):
+        for x in annotate_tree_properties(django_comments.get_model().objects.all()):
             depth += getattr(x, 'open', 0)
             self.assertEqual(x.depth, depth)
             depth -= len(getattr(x, 'close', []))
@@ -158,13 +155,13 @@ class HierarchyTest(TransactionTestCase):
     def test_last_flags_set_correctly_only_on_last_sibling(self):
         # construct the tree
         nodes = {}
-        for x in comments.get_model().objects.all():
+        for x in django_comments.get_model().objects.all():
             nodes[x.pk] = (x, [])
             if x.parent_id:
                 nodes[x.parent_id][1].append(x.pk)
 
         # check all the comments
-        for x in annotate_tree_properties(comments.get_model().objects.all()):
+        for x in annotate_tree_properties(django_comments.get_model().objects.all()):
             if getattr(x, 'last', False):
                 # last comments have a parent
                 self.assertTrue(x.parent_id)
@@ -175,40 +172,44 @@ class HierarchyTest(TransactionTestCase):
                 self.assertEqual(len(siblings) - 1, siblings.index(x.pk))
 
     def test_rendering_of_partial_tree(self):
-        output = loader.render_to_string('sample_tree.html', {'comment_list': comments.get_model().objects.all()[5:]})
+        output = loader.render_to_string('sample_tree.html', {'comment_list': django_comments.get_model().objects.all()[5:]})
         self.assertEqual(self.EXPECTED_HTML_PARTIAL, sanitize_html(output))
 
     def test_rendering_of_full_tree(self):
-        output = loader.render_to_string('sample_tree.html', {'comment_list': comments.get_model().objects.all()})
+        output = loader.render_to_string('sample_tree.html', {'comment_list': django_comments.get_model().objects.all()})
         self.assertEqual(self.EXPECTED_HTML_FULL, sanitize_html(output))
 
     def test_last_child_properly_created(self):
-        Comment = comments.get_model()
-        new_child_comment = Comment(comment="Comment 8", site_id=1, content_type_id=7, object_pk=1, parent_id=1)
+        ct = ContentType.objects.get_for_model(Site)
+        Comment = django_comments.get_model()
+        new_child_comment = Comment(comment="Comment 8", site_id=1, content_type=ct, object_pk=1, parent_id=1)
         new_child_comment.save()
         comment = Comment.objects.get(pk=1)
         self.assertEqual(comment.last_child, new_child_comment)
 
     def test_last_child_doesnt_delete_parent(self):
-        Comment = comments.get_model()
+        ct = ContentType.objects.get_for_model(Site)
+        Comment = django_comments.get_model()
         comment = Comment.objects.get(pk=1)
-        new_child_comment = Comment(comment="Comment 9", site_id=1, content_type_id=7, object_pk=1, parent_id=comment.id)
+        new_child_comment = Comment(comment="Comment 9", site_id=1, content_type=ct, object_pk=1, parent_id=comment.id)
         new_child_comment.save()
         new_child_comment.delete()
         comment = Comment.objects.get(pk=1)
 
     def test_deletion_of_last_child_marks_parent_as_childless(self):
-        Comment = comments.get_model()
+        ct = ContentType.objects.get_for_model(Site)
+        Comment = django_comments.get_model()
         c = Comment.objects.get(pk=6)
         c.delete()
         c = Comment.objects.get(pk=4)
         self.assertEqual(None, c.last_child)
 
     def test_last_child_repointed_correctly_on_delete(self):
-        Comment = comments.get_model()
+        ct = ContentType.objects.get_for_model(Site)
+        Comment = django_comments.get_model()
         comment = Comment.objects.get(pk=1)
         last_child = comment.last_child
-        new_child_comment = Comment(comment="Comment 9", site_id=1, content_type_id=7, object_pk=1, parent_id=comment.id)
+        new_child_comment = Comment(comment="Comment 9", site_id=1, content_type=ct, object_pk=1, parent_id=comment.id)
 
         new_child_comment.save()
         comment = Comment.objects.get(pk=1)
@@ -219,10 +220,7 @@ class HierarchyTest(TransactionTestCase):
 
 
 class SimpleTemplateTagTests(TransactionTestCase):
-    if 'django.contrib.comments' in settings.INSTALLED_APPS:
-        fixtures = ['simple_tree_old']
-    else:
-        fixtures = ['simple_tree']
+    fixtures = ['simple_tree']
 
     def get_comment_count(self):
         template = Template('{% load threadedcomments_tags %}{% get_comment_count for sites.site 1 as foo %}{{ foo }}')
@@ -252,11 +250,7 @@ class SimpleTemplateTagTests(TransactionTestCase):
 
 
 class ManagementCommandTests(TransactionTestCase):
-
-    if 'django.contrib.comments' in settings.INSTALLED_APPS:
-        fixtures = ['simple_tree_old']
-    else:
-        fixtures = ['simple_tree']
+    fixtures = ['simple_tree']
 
     @expectedFailure
     def test_migrate_comments(self):
