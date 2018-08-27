@@ -1,3 +1,10 @@
+Changes in git
+--------------
+
+* Confirmed Django 2.1 support.
+* Dropped Django 1.7, 1.8, 1.9, 1.10 support.
+
+
 Version 1.2, 29 march 2018
 --------------------------
 
