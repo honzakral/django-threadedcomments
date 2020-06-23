@@ -8,12 +8,15 @@ env:
   - PACKAGES="Django>=1.11,<1.12"
   - PACKAGES="Django>=2.0,<2.1"
   - PACKAGES="Django>=2.1,<2.2"
+  - PACKAGES="Django>=2.2,<2.3"
 matrix:
   exclude:
   - python: '2.7'
     env: PACKAGES="Django>=2.0,<2.1"
   - python: '2.7'
     env: PACKAGES="Django>=2.1,<2.2"
+  - python: '2.7'
+    env: PACKAGES="Django>=2.2,<2.3"
   allow_failure:
     - env: PACKAGES="Django>=2.1,<2.2"
 
