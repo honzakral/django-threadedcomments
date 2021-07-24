@@ -66,6 +66,7 @@ if not settings.configured:
         ROOT_URLCONF = 'django_comments.urls',
         TEST_RUNNER = 'django.test.runner.DiscoverRunner',
         SITE_ID = 1,
+        SECRET_KEY = "secret",
         COMMENTS_APP = 'threadedcomments',
         COMMENTS_ALLOW_PROFANITIES = True,
         **versioned_settings
