@@ -2,6 +2,7 @@ include AUTHORS.txt
 include CHANGELOG.rst
 include README.rst
 include LICENSE.txt
+recursive-include threadedcomments/locale *.po *.mo
 recursive-include threadedcomments/fixtures *.json
 recursive-include threadedcomments/templates *.html
 recursive-include threadedcomments/sql *.sql
