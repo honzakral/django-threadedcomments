@@ -1,0 +1,52 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-04-17 15:57+0800\n"
+"PO-Revision-Date: 2020-04-17 15:57+0800\n"
+"Last-Translator: Lessica <i.82@me.com>\n"
+"Language-Team: Simplified Chinese <LL@li.org>\n"
+"Language: zh_Hans \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: admin.py:25
+msgid "Content"
+msgstr "内容"
+
+#: admin.py:28
+msgid "Hierarchy"
+msgstr "层级"
+
+#: admin.py:31
+msgid "Metadata"
+msgstr "元数据"
+
+#: forms.py:11 models.py:12
+msgid "Title"
+msgstr "标题"
+
+#: models.py:13
+msgid "Parent"
+msgstr "父节点"
+
+#: models.py:14
+msgid "Last child"
+msgstr "最后子节点"
+
+#: models.py:15
+msgid "Tree path"
+msgstr "树径"
+
+#: models.py:75
+msgid "Threaded comment"
+msgstr "跟帖评论"
+
+#: models.py:76
+msgid "Threaded comments"
+msgstr "跟帖评论"
