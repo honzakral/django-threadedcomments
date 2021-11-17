@@ -4,7 +4,7 @@ Change the attributes you want to customize
 
 
 # following PEP 440
-__version__ = "1.2"
+__version__ = "2.0"
 
 
 def get_model():

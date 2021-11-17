@@ -1,8 +1,9 @@
-Changes in git
---------------
+Version 2.0, 17 november 2021
+-----------------------------
 
-* Confirmed Django 2.1 support.
-* Dropped Django 1.7, 1.8, 1.9, 1.10 support.
+* Added Django 4.0 support
+* Dropped Django 1.7, 1.8, 1.9, 1.10, 1.11 support.
+* Dropped Python 2.7-3.5 support, only 3.6+ is supported.
 
 
 Version 1.2, 29 march 2018
