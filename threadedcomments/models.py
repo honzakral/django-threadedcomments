@@ -32,7 +32,7 @@ class ThreadedComment(Comment):
     @transaction.atomic
     def save(self, *args, **kwargs):
         skip_tree_path = kwargs.pop('skip_tree_path', False)
-        super(ThreadedComment, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
         if skip_tree_path:
             return None
 
@@ -67,9 +67,9 @@ class ThreadedComment(Comment):
                 ThreadedComment.objects.filter(pk=self.parent_id).update(last_child=None)
                 ThreadedComment.objects.filter(pk=self.parent_id).update(newest_activity=self.parent.submit_date)
 
-        super(ThreadedComment, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
 
-    class Meta(object):
+    class Meta:
         ordering = ('tree_path',)
         db_table = 'threadedcomments_comment'
         verbose_name = _('Threaded comment')

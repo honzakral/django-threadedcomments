@@ -47,7 +47,7 @@ class BaseThreadedCommentNode(AdminOverrideCommentNode):
         self.newest = newest
         self.limit = limit
         self.admin = admin
-        super(BaseThreadedCommentNode, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     @classmethod
     def handle_token(cls, parser, token):
@@ -82,10 +82,10 @@ class BaseThreadedCommentNode(AdminOverrideCommentNode):
                 **extra_kw
             )
         else:
-            raise template.TemplateSyntaxError("%r tag takes either 5 or 6 arguments" % (tokens[0],))
+            raise template.TemplateSyntaxError(f"{tokens[0]!r} tag takes either 5 or 6 arguments")
 
     def get_queryset(self, context):
-        qs = super(BaseThreadedCommentNode, self).get_queryset(context)
+        qs = super().get_queryset(context)
         if self.limit:
             parent_qs = qs.exclude(parent__isnull=False).order_by('-newest_activity', '-submit_date').values_list('pk', flat=True)[:self.limit]
             qs = qs.filter(Q(parent_id__in=parent_qs) | Q(pk__in=parent_qs)).distinct()
@@ -124,15 +124,15 @@ class CommentFormNode(BaseThreadedCommentNode):
     def handle_token(cls, parser, token):
         tokens = token.contents.split()
         if tokens[1] != 'for':
-            raise template.TemplateSyntaxError("Second argument in %r tag must be 'for'" % (tokens[0],))
+            raise template.TemplateSyntaxError(f"Second argument in {tokens[0]!r} tag must be 'for'")
 
         if len(tokens) < 7:
             # Default get_comment_form code
-            return super(CommentFormNode, cls).handle_token(parser, token)
+            return super().handle_token(parser, token)
         elif len(tokens) == 7:
             # {% get_comment_form for [object] as [varname] with [parent_id] %}
-            if tokens[-2] != u'with':
-                raise template.TemplateSyntaxError("%r tag must have a 'with' as the last but one argument." % (tokens[0],))
+            if tokens[-2] != 'with':
+                raise template.TemplateSyntaxError(f"{tokens[0]!r} tag must have a 'with' as the last but one argument.")
             return cls(
                 object_expr=parser.compile_filter(tokens[2]),
                 as_varname=tokens[4],
@@ -140,8 +140,8 @@ class CommentFormNode(BaseThreadedCommentNode):
             )
         elif len(tokens) == 8:
             # {% get_comment_form for [app].[model] [object_id] as [varname] with [parent_id] %}
-            if tokens[-2] != u'with':
-                raise template.TemplateSyntaxError("%r tag must have a 'with' as the last but one argument." % (tokens[0],))
+            if tokens[-2] != 'with':
+                raise template.TemplateSyntaxError(f"{tokens[0]!r} tag must have a 'with' as the last but one argument.")
             return cls(
                 ctype=BaseThreadedCommentNode.lookup_content_type(tokens[2], tokens[0]),
                 object_pk_expr=parser.compile_filter(tokens[3]),
@@ -197,29 +197,29 @@ class RenderCommentFormNode(CommentFormNode):
             )
         elif len(tokens) == 5:
             # {% render_comment_form for obj with parent_id %}
-            if tokens[-2] != u'with':
-                raise template.TemplateSyntaxError("%r tag must have 'with' as the last but one argument" % (tokens[0],))
+            if tokens[-2] != 'with':
+                raise template.TemplateSyntaxError(f"{tokens[0]!r} tag must have 'with' as the last but one argument")
             return cls(
                 object_expr=parser.compile_filter(tokens[2]),
                 parent=parser.compile_filter(tokens[4])
             )
         elif len(tokens) == 6:
             # {% render_comment_form for app.model object_pk with parent_id %}
-            if tokens[-2] != u'with':
-                raise template.TemplateSyntaxError("%r tag must have 'with' as the last but one argument" % (tokens[0],))
+            if tokens[-2] != 'with':
+                raise template.TemplateSyntaxError(f"{tokens[0]!r} tag must have 'with' as the last but one argument")
             return cls(
                 ctype=BaseThreadedCommentNode.lookup_content_type(tokens[2], tokens[0]),
                 object_pk_expr=parser.compile_filter(tokens[3]),
                 parent=parser.compile_filter(tokens[5])
             )
         else:
-            raise template.TemplateSyntaxError("%r tag takes 2 to 5 arguments" % (tokens[0],))
+            raise template.TemplateSyntaxError(f"{tokens[0]!r} tag takes 2 to 5 arguments")
 
     def render(self, context):
         ctype, object_pk = self.get_target_ctype_pk(context)
         if object_pk:
             template_search_list = (
-                "comments/%s/%s/form.html" % (ctype.app_label, ctype.model),
+                f"comments/{ctype.app_label}/{ctype.model}/form.html",
                 "comments/%s/form.html" % ctype.app_label,
                 "comments/form.html",
             )
@@ -249,7 +249,7 @@ class RenderCommentListNode(CommentListNode):
                 tokens.pop(-1)  # removes 'limit'
             else:
                 raise template.TemplateSyntaxError(
-                    "When using 'limit' with %r tag, it needs to be followed by a positive integer" % (tokens[0],))
+                    f"When using 'limit' with {tokens[0]!r} tag, it needs to be followed by a positive integer")
         if tokens[-1] in ('flat', 'root_only', 'newest', 'admin'):
             extra_kw[str(tokens.pop())] = True
 
@@ -267,13 +267,13 @@ class RenderCommentListNode(CommentListNode):
                 **extra_kw
             )
         else:
-            raise template.TemplateSyntaxError("%r tag takes either 2 or 3 arguments" % (tokens[0],))
+            raise template.TemplateSyntaxError(f"{tokens[0]!r} tag takes either 2 or 3 arguments")
 
     def render(self, context):
         ctype, object_pk = self.get_target_ctype_pk(context)
         if object_pk:
             template_search_list = [
-                "comments/%s/%s/list.html" % (ctype.app_label, ctype.model),
+                f"comments/{ctype.app_label}/{ctype.model}/list.html",
                 "comments/%s/list.html" % ctype.app_label,
                 "comments/list.html"
             ]

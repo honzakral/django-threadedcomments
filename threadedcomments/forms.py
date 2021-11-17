@@ -24,13 +24,13 @@ class ThreadedCommentForm(CommentForm):
         if initial is None:
             initial = {}
         initial.update({'parent': self.parent})
-        super(ThreadedCommentForm, self).__init__(target_object, data=data, initial=initial)
+        super().__init__(target_object, data=data, initial=initial)
 
     def get_comment_model(self):
         return ThreadedComment
 
     def get_comment_create_data(self, *args, **kwargs):
-        d = super(ThreadedCommentForm, self).get_comment_create_data(*args, **kwargs)
+        d = super().get_comment_create_data(*args, **kwargs)
         d['parent_id'] = self.cleaned_data['parent']
         d['title'] = self.cleaned_data.get('title', '')  # title can be removed
         return d

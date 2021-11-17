@@ -4,5 +4,5 @@ source_suffix = '.txt'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Django threaded comments'
+project = 'Django threaded comments'
 

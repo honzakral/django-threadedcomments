@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.conf import settings
 from django.db import models, migrations, connection
 import django.db.models.deletion
@@ -35,6 +32,6 @@ class Migration(migrations.Migration):
                 'verbose_name': 'Threaded comment',
                 'verbose_name_plural': 'Threaded comments',
             },
-            bases=('{base_app}.comment'.format(base_app=BASE_APP),),
+            bases=(f'{BASE_APP}.comment',),
         )
     ]

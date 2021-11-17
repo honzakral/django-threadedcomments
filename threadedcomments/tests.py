@@ -17,14 +17,14 @@ PATH_DIGITS = getattr(settings, 'COMMENT_PATH_DIGITS', 10)
 
 
 def sanitize_html(html):
-    return '\n'.join((i.strip() for i in html.split('\n') if i.strip() != ''))
+    return '\n'.join(i.strip() for i in html.split('\n') if i.strip() != '')
 
 
 class SanityTests(TransactionTestCase):
     BASE_DATA = {
-        'name': u'Eric Florenzano',
-        'email': u'floguy@gmail.com',
-        'comment': u'This is my favorite Django app ever!',
+        'name': 'Eric Florenzano',
+        'email': 'floguy@gmail.com',
+        'comment': 'This is my favorite Django app ever!',
     }
 
     def _post_comment(self, data=None, parent=None):
@@ -265,7 +265,7 @@ class ManagementCommandTests(TransactionTestCase):
 # Templatetags tests
 ##############################################################################
 
-class MockParser(object):
+class MockParser:
     "Mock parser object for handle_token()"
 
     def compile_filter(self, var):
@@ -273,7 +273,7 @@ class MockParser(object):
 mock_parser = MockParser()
 
 
-class MockToken(object):
+class MockToken:
     "Mock token object for handle_token()"
 
     def __init__(self, bits):
@@ -316,28 +316,28 @@ class TestCommentListNode(TestCase):
 
     def test_flat_parameter_is_passed_into_the_node_for_ct_pk_pair(self):
         params = self.correct_ct_pk_params[:]
-        params.append(u'flat')
+        params.append('flat')
         node = tags.get_comment_list(mock_parser, MockToken(params))
         self.assertTrue(isinstance(node, tags.CommentListNode))
         self.assertTrue(node.flat)
 
     def test_flat_parameter_is_passed_into_the_node_for_var(self):
         params = self.correct_var_params[:]
-        params.append(u'flat')
+        params.append('flat')
         node = tags.get_comment_list(mock_parser, MockToken(params))
         self.assertTrue(isinstance(node, tags.CommentListNode))
         self.assertTrue(node.flat)
 
     def test_root_only_parameter_is_passed_into_the_node_for_var(self):
         params = self.correct_var_params[:]
-        params.append(u'root_only')
+        params.append('root_only')
         node = tags.get_comment_list(mock_parser, MockToken(params))
         self.assertTrue(isinstance(node, tags.CommentListNode))
         self.assertTrue(node.root_only)
 
     def test_root_only_parameter_is_passed_into_the_node_for_ct_pk_pair(self):
         params = self.correct_ct_pk_params[:]
-        params.append(u'root_only')
+        params.append('root_only')
         node = tags.get_comment_list(mock_parser, MockToken(params))
         self.assertTrue(isinstance(node, tags.CommentListNode))
         self.assertTrue(node.root_only)
