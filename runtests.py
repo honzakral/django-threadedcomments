@@ -15,31 +15,13 @@ sys.stderr.write('Using Django version {0} from {1}\n'.format(
 )
 
 if not settings.configured:
-    if django.VERSION >= (2, 0):
-        versioned_settings = dict(
-            MIDDLEWARE = (
-                'django.middleware.common.CommonMiddleware',
-                'django.contrib.sessions.middleware.SessionMiddleware',
-                'django.middleware.csrf.CsrfViewMiddleware',
-                'django.contrib.auth.middleware.AuthenticationMiddleware',
-            )
-        )
-    else:
-        versioned_settings = dict(
-            MIDDLEWARE_CLASSES = (
-                'django.middleware.common.CommonMiddleware',
-                'django.contrib.sessions.middleware.SessionMiddleware',
-                'django.middleware.csrf.CsrfViewMiddleware',
-                'django.contrib.auth.middleware.AuthenticationMiddleware',
-            )
-        )
-
     settings.configure(
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.sqlite3',
             }
         },
+        DEFAULT_AUTO_FIELD="django.db.models.BigAutoField",
         INSTALLED_APPS = (
             'django.contrib.auth',
             'django.contrib.contenttypes',
@@ -49,6 +31,16 @@ if not settings.configured:
             'django_comments',
             'threadedcomments',
         ),
+        MIDDLEWARE = (
+            'django.middleware.common.CommonMiddleware',
+            'django.contrib.sessions.middleware.SessionMiddleware',
+            'django.middleware.csrf.CsrfViewMiddleware',
+            'django.contrib.auth.middleware.AuthenticationMiddleware',
+            'django.contrib.messages.middleware.MessageMiddleware',
+        ),
+        SITE_ID = 1,
+        SECRET_KEY="testtest",
+        STATIC_URL="/static/",
         TEMPLATES = [
             {
                 'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -65,10 +57,9 @@ if not settings.configured:
         ],
         ROOT_URLCONF = 'django_comments.urls',
         TEST_RUNNER = 'django.test.runner.DiscoverRunner',
-        SITE_ID = 1,
+        # App settings
         COMMENTS_APP = 'threadedcomments',
         COMMENTS_ALLOW_PROFANITIES = True,
-        **versioned_settings
     )
 
 def runtests():

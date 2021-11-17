@@ -3,7 +3,7 @@ from django import template
 from django.conf import settings
 from django.db.models import Q
 from django.template.loader import render_to_string
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_str
 from django_comments.templatetags.comments import BaseCommentNode
 from threadedcomments.util import annotate_tree_properties, fill_tree as real_fill_tree
 
@@ -20,7 +20,7 @@ class AdminOverrideCommentNode(BaseCommentNode):
 
         qs = self.comment_model.objects.filter(
             content_type=ctype,
-            object_pk=smart_text(object_pk),
+            object_pk=smart_str(object_pk),
             site__pk=settings.SITE_ID,
         )
 
